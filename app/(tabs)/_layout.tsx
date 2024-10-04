@@ -35,7 +35,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="arscene"
         options={{
-          title: 'ArScene',
+          title: 'Ar',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'camera' : 'camera-outline'} color={color} />
           ),
