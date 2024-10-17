@@ -39,7 +39,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="arscene"
+        name="camera"
         options={{
           title: 'Ar',
           tabBarIcon: ({ color, focused }) => (
