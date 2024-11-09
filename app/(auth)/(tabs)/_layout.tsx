@@ -1,6 +1,5 @@
 import { Tabs, Redirect } from 'expo-router';
 import React from 'react';
-
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -8,9 +7,7 @@ import { useIsAppFirstLaunchStore } from '@/state/appStore';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
-
 
   if (firstLaunch) return <Redirect href={'/(auth)/landing'}/>
 
@@ -44,6 +41,15 @@ export default function TabLayout() {
           title: 'Ar',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'camera' : 'camera-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'person-circle' : 'person-circle-outline'} color={color} />
           ),
         }}
       />
