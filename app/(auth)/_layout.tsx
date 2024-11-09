@@ -1,6 +1,6 @@
 import { Redirect, Stack } from 'expo-router';
 
-import { useSession } from '../ctx';
+import { useSession } from '@/provider/AuthContext';
 import { ThemedText } from '@/components/ThemedText';
 import { useIsAppFirstLaunchStore } from '@/state/appStore';
 
