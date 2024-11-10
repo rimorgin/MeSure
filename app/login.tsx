@@ -4,7 +4,6 @@ import { TouchableOpacity, Button, StyleSheet, TextInput, View, Dimensions, Keyb
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { useFonts } from 'expo-font';
 import { useSession } from "@/provider/AuthContext";
 import Svg, { Path } from 'react-native-svg';
 //form use cases
@@ -14,38 +13,27 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { getWindowDimensions } from '@/hooks/getWindowDimensions';
 import { Link, router } from 'expo-router';
 import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton';
-import { useFont } from '@/provider/FontContext';
-import register from './register';
 
 const schema = yup.object().shape({
-  usernameOrEmail: yup.string().required('Username is required'),
+  email: yup.string().required('Email is required'),
   password: yup.string().required('Password is required'),
 });
 
 const defaultValues = {
-  usernameOrEmail: "",
+  email: "",
   password: "",
 };
 
 export default function Login() {
-  const {height} = getWindowDimensions()
   const { signIn } = useSession();
   const { control, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
-  const [loading, setLoading] = useState(false);
-
-  const { fontsLoaded, fontStyles } = useFont();
-  if (!fontsLoaded) {
-    return null; // or a loading spinner
-  }
-
-
-  const onSubmit = (data: { usernameOrEmail: string; password: string }) => {
-    const { usernameOrEmail, password } = data; // Destructure the data object
-    signIn(usernameOrEmail, password)
-    console.log(process.env.EXPO_PUBLIC_MMKV_ENCRYPTION_KEY)
+  const onSubmit = (data: { email: string; password: string; }) => {
+    const { email, password } = data; // Destructure the data object
+    signIn(email, password)
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <ThemedView style={styles.formcontainer}>
@@ -65,7 +53,7 @@ export default function Login() {
           Powered by MeSure
         </ThemedText>
       
-        {/* Text Input for Username */}
+        {/* Text Input for email */}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -74,17 +62,17 @@ export default function Login() {
               onBlur={onBlur}
               onChangeText={onChange}
               value={value}
-              placeholder="Username"
+              placeholder="Email Address"
             />
           )}
-          name="usernameOrEmail"
+          name="email"
           rules={{ required: true }}
-          defaultValue={defaultValues.usernameOrEmail}
+          defaultValue={defaultValues.email}
           
         />
-            {/* Username Validator*/}
-            {errors?.usernameOrEmail?.message &&
-          <ThemedText type='defaultSemiBold' style={styles.error}>{errors.usernameOrEmail.message}</ThemedText>
+            {/* email Validator*/}
+            {errors?.email?.message &&
+          <ThemedText type='defaultSemiBold' style={styles.error}>{errors.email.message}</ThemedText>
         }
         {/* Text Input for Password*/}
         <Controller 
@@ -111,7 +99,7 @@ export default function Login() {
         }
         {/* Log in Button*/}
         <ThemedTouchableFilled onPress={handleSubmit(onSubmit)}>
-          <ThemedText type='default'>LOGIN</ThemedText>
+          <ThemedText type='default'>Login</ThemedText>
         </ThemedTouchableFilled>
         
         {/*Forgot Password (currently not functioning)*/}
@@ -124,20 +112,20 @@ export default function Login() {
         <ThemedText> </ThemedText>
         {/*Routing to Register*/}
 
-       <ThemedView style={styles.register}>
+        <ThemedView style={styles.register}>
           <ThemedText type="default">
             Don’t have an account yet?
           </ThemedText>
-          <TouchableOpacity onPress={() => router.push('/register')}>
+          <ThemedTouchablePlain onPress={() => router.push('/register')}>
             <ThemedText type="link">
               Register here!
             </ThemedText>
-          </TouchableOpacity>
+          </ThemedTouchablePlain>
         </ThemedView>
 
       
         {/* The orange thingy at the bottom */}
-        <Svg style={{ position: 'absolute', bottom: 0, left: 0 }} width="100%" height="200">
+        <Svg style={{ position: 'absolute', bottom: 0, left: 0 }} width="100%" height="150">
           <Path
             fill="#D4AF37"
             fillOpacity="1"

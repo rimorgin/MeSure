@@ -10,7 +10,10 @@ interface ButtonProps {
 
 const ThemedTouchableFilled: React.FC<ButtonProps> = ({ onPress, children }) => {
   return (
-    <TouchableOpacity style={styles.buttonFilled} onPress={onPress}>
+    <TouchableOpacity 
+      style={styles.buttonFilled} 
+      onPress={onPress}
+    >
       {children}
     </TouchableOpacity>
   );
@@ -18,7 +21,10 @@ const ThemedTouchableFilled: React.FC<ButtonProps> = ({ onPress, children }) => 
 
 const ThemedTouchablePlain: React.FC<ButtonProps> = ({ onPress, children }) => {
   return (
-    <TouchableOpacity style={styles.buttonPlain} onPress={onPress}>
+    <TouchableOpacity 
+      style={styles.buttonPlain} 
+      onPress={onPress}
+    >
       {children}
     </TouchableOpacity>
   );

@@ -1,67 +1,79 @@
-import React, { useState } from 'react'
-import { TouchableOpacity, Button, StyleSheet, TextInput, View, Dimensions, KeyboardAvoidingView } from "react-native";
+import React, { useState } from 'react';
+import { TouchableOpacity, TextInput, StyleSheet, View, SafeAreaView } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useFonts } from 'expo-font';
-import { useSession } from "@/provider/AuthContext";
-import Svg, { Path } from 'react-native-svg';
-//form use cases
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
+import Svg, { Path } from 'react-native-svg';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { getWindowDimensions } from '@/hooks/getWindowDimensions';
 import { router } from 'expo-router';
+import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton';
+import { ThemedView } from '@/components/ThemedView';
+import { useSession } from '@/provider/AuthContext';
+
+// Yup schema validation
 const schema = yup.object().shape({
-  Email: yup.string().required('Email is required'),
-  password: yup.string().required('Password is required'),
-  Username: yup.string().required('Username is required'),
-});
+  Email: yup
+    .string()
+    .required('Email is required')
+    .email('Please enter a valid email address'),
+  
+  Username: yup
+    .string()
+    .required('Username is required')
+    .min(5, 'Username must be at least 5 characters'),
+  
+  password: yup
+    .string()
+    .min(8, 'Password must contain 8 or more characters')
+    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .matches(/[0-9]/, 'Password must contain at least one number')
+    .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Password must contain at least one special character')
+    .required('Password is required'),
+  
+  confirmPassword: yup
+    .string()
+    .required('Confirm Password is required')
+    .oneOf([yup.ref('password')], 'Passwords must match'),
+})
+
 const defaultValues = {
+  Email: "",
   Username: "",
   password: "",
-  Email: ""
+  confirmPassword: "",
 };
-export default function register() {
-  const { signUp } = useSession();
-  const {height} = getWindowDimensions()
+
+
+export default function Register() {
+  const { signUp } = useSession()
   const { control, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
-  const [loading, setLoading] = useState(false);
-  const windowWidth = Dimensions.get('window').width;
-  
-  //Insert Backend SignUp function
+  const onSubmit = (data: { Email: string; password: string; Username: string; confirmPassword: string }) => {
+    //console.log('Form Data: ', data);
+    const { Email, password, Username } = data;
+    // signup function
+    signUp(Email, password, Username);
+  };
+
+
   return (
     <SafeAreaView style={styles.container}>
       <ThemedView style={styles.formcontainer}>
-        
-      {/* The title */}
-        <ThemedText style={styles.title}>Al-Khalaf Gold & Jewelry</ThemedText>
-        <ThemedText style={styles.subtitle}>Powered by MeSure</ThemedText>
-        <ThemedText> </ThemedText>
-      
-      {/* Input controller for Email */}
-        <Controller
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              placeholder="Email"
-            />
-          )}
-          name="Email"
-          rules={{ required: true }}
-          defaultValue={defaultValues.Email}
-        />
-            {/* Log in Validator*/}
-            {errors?.Email?.message &&
-          <ThemedText type='defaultSemiBold' style={styles.error}>{errors.Email.message}</ThemedText>
-        }
-        {/* Input controller for Username */}
+        {/* Title */}
+        <ThemedText type="semititle" font="cocoGothicRegular">
+          Al-Khalaf Gold & Jewelry
+        </ThemedText>
+
+        <ThemedText 
+          font='spaceMonoRegular'
+          style={{fontSize:14, marginBottom:20}}
+        >
+          Powered by MeSure
+        </ThemedText>
+
+        {/* Username Input */}
         <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
@@ -77,12 +89,36 @@ export default function register() {
           rules={{ required: true }}
           defaultValue={defaultValues.Username}
         />
-            {/* Log in Validator*/}
-            {errors?.Username?.message &&
-          <ThemedText type='defaultSemiBold' style={styles.error}>{errors.Username.message}</ThemedText>
-        }
-      {/* Input controller for Password*/}
-        <Controller 
+        {errors?.Username?.message && (
+          <ThemedText type="defaultSemiBold" style={styles.error}>
+            {errors.Username.message}
+          </ThemedText>
+        )}
+
+        {/* Email Input */}
+        <Controller
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              style={styles.input}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              placeholder="Email"
+            />
+          )}
+          name="Email"
+          rules={{ required: true }}
+          defaultValue={defaultValues.Email}
+        />
+        {errors?.Email?.message && (
+          <ThemedText type="defaultSemiBold" style={styles.error}>
+            {errors.Email.message}
+          </ThemedText>
+        )}
+
+        {/* Password Input */}
+        <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
@@ -94,13 +130,18 @@ export default function register() {
               placeholder="Password"
             />
           )}
-          
           name="password"
           rules={{ required: true }}
           defaultValue=""
         />
-      {/* Input controller for Confirm Password*/}
-            <Controller 
+        {errors?.password?.message && (
+          <ThemedText type="defaultSemiBold" style={styles.error}>
+            {errors.password.message}
+          </ThemedText>
+        )}
+
+        {/* Confirm Password Input */}
+        <Controller
           control={control}
           render={({ field: { onChange, onBlur, value } }) => (
             <TextInput
@@ -112,40 +153,40 @@ export default function register() {
               placeholder="Confirm Password"
             />
           )}
-          
-          name="password"
+          name="confirmPassword"
           rules={{ required: true }}
           defaultValue=""
         />
-      {/* Password Validator*/}
-        {errors?.password?.message &&
-          <ThemedText type='defaultSemiBold' style={styles.error}>{errors.password.message}</ThemedText>
-        }
-      {/* Register Button (No backend functionality, only goes back to login page after creating*/}
+        {errors?.confirmPassword?.message && (
+          <ThemedText type="defaultSemiBold" style={styles.error}>
+            {errors.confirmPassword.message}
+          </ThemedText>
+        )}
 
-        <TouchableOpacity
+        {/* Register Button */}
+        <ThemedTouchableFilled onPress={handleSubmit(onSubmit)}>
+          <ThemedText type='default'>Register</ThemedText>
+        </ThemedTouchableFilled>
+
+         <ThemedTouchablePlain
           onPress={() => router.push('/login')}
         >
           <ThemedText type='link'> Already have an account? </ThemedText>
-        </TouchableOpacity>
-      
-      {/* The orange thingy at the bottom */}
-      <Svg style={{ position: 'absolute', bottom: 0, left: 0 }} width="100%" height="200">
-        <Path
-          fill="#D4AF37"
-          fillOpacity="1"
-          d="M0,64L30,85.3C60,107,120,149,180,149.3C240,149,300,107,360,96C420,85,480,107,540,133.3C600,160,660,192,720,181.3C780,171,840,117,900,106.7C960,96,1020,128,1080,138.7C1140,149,1200,139,1260,112C1320,85,1380,43,1410,21.3L1440,0L1440,320L1410,320C1380,320,1320,320,1260,320C1200,320,1140,320,1080,320C1020,320,960,320,900,320C840,320,780,320,720,320C660,320,600,320,540,320C480,320,420,320,360,320C300,320,240,320,180,320C120,320,60,320,30,320L0,320Z"
-        />
-      </Svg>
-      
+        </ThemedTouchablePlain>
+
+        {/* The orange thingy at the bottom */}
+        <Svg style={{ position: 'absolute', bottom: 0, left: 0 }} width="100%" height="150">
+          <Path
+            fill="#D4AF37"
+            fillOpacity="1"
+            d="M0,64L30,85.3C60,107,120,149,180,149.3C240,149,300,107,360,96C420,85,480,107,540,133.3C600,160,660,192,720,181.3C780,171,840,117,900,106.7C960,96,1020,128,1080,138.7C1140,149,1200,139,1260,112C1320,85,1380,43,1410,21.3L1440,0L1440,320L1410,320C1380,320,1320,320,1260,320C1200,320,1140,320,1080,320C1020,320,960,320,900,320C840,320,780,320,720,320C660,320,600,320,540,320C480,320,420,320,360,320C300,320,240,320,180,320C120,320,60,320,30,320L0,320Z"
+          />
+        </Svg>
       </ThemedView>
     </SafeAreaView>
-  
-    
-    
-  )
-  
+  );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1
@@ -156,56 +197,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  button:{
-    backgroundColor: '#D4AF37',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 25,
-    marginVertical: 10,
-    alignItems: 'center',
-    width: '70%',
-  },
-  buttonsubtitle: {
-    fontSize: 18,
-    fontWeight: "light",
-  },
-  title: {
-    fontSize: 25,
-    fontWeight: "bold",
-    fontFamily: 'Arial-Regular'
-  },
-  subtitle: {
-    fontSize: 14,
-    fontWeight: "thin",
-    color: '#333333',
-  },
-  link: {
-    fontSize: 14,
-    fontWeight: "thin",
-    color: '#D4AF37',
-  },
-  paragraph: {
-    margin: 24,
-    fontSize: 18,
-    textAlign: "center",
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: "80%",
-  },
   input: {
-     width: "70%", 
+    width: '70%',
     borderWidth: 1,
     borderColor: '#666666',
     padding: 10,
     borderRadius: 10,
     marginVertical: 3,
-  },
-  svg: {
-    position: 'absolute',
-    top: 0, 
-    left: 0
   },
   error: {
     color: '#ff0000',

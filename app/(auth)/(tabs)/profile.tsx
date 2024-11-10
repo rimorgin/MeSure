@@ -5,9 +5,16 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/provider/AuthContext';
+import { useIsAppFirstLaunchStore } from '@/state/appStore';
 
 export default function HomeScreen() {
     const { signOut } = useSession();
+    const{ resetFirstLaunch } = useIsAppFirstLaunchStore();
+
+    const handleSignOut = () => {
+      signOut();
+      //resetFirstLaunch();
+    }
 
   return (
     
@@ -24,7 +31,7 @@ export default function HomeScreen() {
     
         <TouchableOpacity
           style={styles.button}
-          onPress={signOut}
+          onPress={handleSignOut}
         >
             <ThemedText type="default">Logout</ThemedText>
         </TouchableOpacity>

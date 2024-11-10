@@ -8,7 +8,7 @@ import { useIsAppFirstLaunchStore } from '@/state/appStore'
 
 function Landing() {
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
-  const setFirstLaunch = useIsAppFirstLaunchStore((state) => state.setFirstLaunch);
+  const { setFirstLaunch } = useIsAppFirstLaunchStore();
   
   const handlePress = () => {
     setFirstLaunch();
