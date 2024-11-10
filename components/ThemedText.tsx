@@ -1,48 +1,59 @@
 import { Text, type TextProps, StyleSheet } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
-import { useFont } from '@/provider/FontContext'; // Import FontContext
+import { useFont } from '@/provider/FontContext';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'semititle' | 'defaultSemiBold' | 'subtitle' | 'link';
+  customColor?: string; // New prop for custom color
+  type?: 'default' | 'xtitle' | 'title' | 'semititle' | 'defaultSemiBold' | 'subtitle' | 'link';
   font?: 
     | 'none' 
     | 'spaceMonoRegular' 
+    | 'cocoGothicLight'
+    | 'cocoGothicUltraLight'
     | 'cocoGothicRegular' 
     | 'cocoGothicBold' 
     | 'glacialIndifferenceRegular' 
     | 'glacialIndifferenceBold' 
-    | 'glacialIndifferenceItalic'; // Options for each font style
+    | 'glacialIndifferenceItalic'
+    | 'itcNewBaskerville'
+    | 'montserratRegular'
+    | 'montserratExtraLight'
+    | 'montserratLight'
+    | 'montserratThin'
+    | 'montserratMedium'
+    | 'montserratBold'
+    | 'montserratSemiBold'; // Font type // Completed font list with all
 };
 
 export function ThemedText({
   style,
-  lightColor,
-  darkColor,
+  lightColor, 
+  darkColor, 
+  customColor, // Custom color override
   type = 'default',
-  font = 'none', // Default font is 'none' (system font)
+  font = 'none',
   ...rest
 }: ThemedTextProps) {
-  // Access font context and loading state
   const { fontsLoaded, fontStyles } = useFont();
 
-  // If fonts are not loaded, return nothing or a loading spinner
   if (!fontsLoaded) {
-    return null; // You can replace this with a loading spinner if needed
+    return null;
   }
 
-  // Determine the fontFamily based on the 'font' prop
-  const fontFamily = font === 'none' ? 'system' : fontStyles[font];
-  //console.log(fontFamily)
+  // Use custom color if provided, otherwise determine color based on theme
+  const color = customColor || useThemeColor({ light: lightColor, dark: darkColor }, 'text');
 
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  // Determine font family based on the provided 'font' prop
+  const fontFamily = font === 'none' ? 'system' : fontStyles[font];
 
   return (
     <Text
       style={[
-        { color, fontFamily }, // Apply the font family from context
+        { color, fontFamily },
         type === 'default' ? styles.default : undefined,
+        type === 'xtitle' ? styles.xtitle : undefined,
         type === 'title' ? styles.title : undefined,
         type === 'semititle' ? styles.semititle : undefined,
         type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
@@ -65,22 +76,25 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     fontWeight: '600',
   },
+  xtitle: {
+    fontSize: 38,
+   
+  },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    lineHeight: 32,
+    letterSpacing: 2
   },
   semititle: {
     fontSize: 24, 
+    letterSpacing: 2.5
   },
   subtitle: {
     fontSize: 20,
-    fontWeight: 'bold',
   },
   link: {
     lineHeight: 30,
     fontSize: 14,
-    fontWeight: 'thin',
-    color: '#D4AF37',
+    fontWeight: '300',
+    color: '#D4AF37', 
   },
 });
