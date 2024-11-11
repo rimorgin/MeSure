@@ -1,10 +1,13 @@
-import { Animated, Dimensions, Easing, FlatList, StyleSheet, Text, View, ListRenderItemInfo } from 'react-native';
-import React, { useRef, useState } from 'react';
+import { Animated, Dimensions, FlatList, StyleSheet, Text, View, ListRenderItemInfo } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
 import { appData } from '@/data/appData';
+import { Easing } from 'react-native-reanimated';
+import { ThemedTouchablePlain } from './ThemedButton';
+import { useIsAppFirstLaunchStore } from '@/state/appStore';
+import { ThemedText } from './ThemedText';
 
 // Get the screen dimensions for layout
-const { width, height } = Dimensions.get('screen');
-const halfWidth = width / 2;
+const { width, height } = Dimensions.get('window');
 
 // Define the type for each item in the data array
 interface SlideItemType {
@@ -22,13 +25,15 @@ interface PaginationProps {
 
 interface SlideItemProps {
   item: SlideItemType;
+  isActive: boolean;
 }
 
 const Pagination: React.FC<PaginationProps> = ({ data, scrollX, index }) => {
+  const width12 = width / 1.2;
   return (
     <View style={styles.paginationcontainer}>
       {data.map((_, idx) => {
-        const inputRange = [(idx - 1) * halfWidth, idx * halfWidth, (idx + 1) * halfWidth];
+        const inputRange = [(idx - 1) * width12, idx * width12, (idx + 1) * width];
 
         const dotWidth = scrollX.interpolate({
           inputRange,
@@ -62,18 +67,20 @@ const Pagination: React.FC<PaginationProps> = ({ data, scrollX, index }) => {
   );
 };
 
-const SlideItem: React.FC<SlideItemProps> = ({ item }) => {
+const SlideItem: React.FC<SlideItemProps> = ({ item, isActive }) => {
   const translateYImage = useRef(new Animated.Value(60)).current;
 
-  // Trigger animation once the component mounts
-  React.useEffect(() => {
-    Animated.timing(translateYImage, {
-      toValue: 0,
-      duration: 1000,
-      useNativeDriver: true,
-      easing: Easing.bounce,
-    }).start();
-  }, [translateYImage]);
+  useEffect(() => {
+    if (isActive) {
+      translateYImage.setValue(10);
+      Animated.timing(translateYImage, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+        easing: Easing.elastic(2),
+      }).start();
+    }
+  }, [isActive, translateYImage]);
 
   return (
     <View style={styles.container}>
@@ -102,8 +109,10 @@ const SlideItem: React.FC<SlideItemProps> = ({ item }) => {
 };
 
 const Slider: React.FC = () => {
-  const [index, setIndex] = useState<number>(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
+
+  const { hideIntro } = useIsAppFirstLaunchStore()
 
   const handleOnScroll = (event: any) => {
     Animated.event(
@@ -116,45 +125,72 @@ const Slider: React.FC = () => {
           },
         },
       ],
-      {
-        useNativeDriver: false,
-      },
+      { useNativeDriver: false }
     )(event);
   };
 
   const handleOnViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: any[] }) => {
-    setIndex(viewableItems[0]?.index || 0);
+    setActiveIndex(viewableItems[0]?.index || 0);
   }).current;
 
   const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 100,
+    itemVisiblePercentThreshold: 50,
   }).current;
 
   return (
     <View>
       <FlatList
         data={appData.intro}
-        renderItem={({ item }: ListRenderItemInfo<SlideItemType>) => <SlideItem item={item} />}
+        renderItem={({ item, index }: ListRenderItemInfo<SlideItemType>) => (
+          <SlideItem item={item} isActive={index === activeIndex} />
+        )}
         horizontal
         pagingEnabled
         snapToAlignment="center"
+        initialNumToRender={1}
         showsHorizontalScrollIndicator={false}
         onScroll={handleOnScroll}
         onViewableItemsChanged={handleOnViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
+        contentContainerStyle={{justifyContent: 'center'}}
       />
-      <Pagination data={appData.intro} scrollX={scrollX} index={index} />
+      <View style={styles.bottomRowActions}>
+          <ThemedTouchablePlain
+            onPress={hideIntro}
+            variant="opacity"
+            disabled={activeIndex !== 0 && activeIndex === 4 && true}
+          >
+            <ThemedText style={activeIndex !== 0 && activeIndex === 4 && { color: 'transparent' }}>
+              Skip
+            </ThemedText>
+          </ThemedTouchablePlain>
+
+          <Pagination data={appData.intro} scrollX={scrollX} index={activeIndex} />
+          
+          <ThemedTouchablePlain
+            onPress={hideIntro}
+            variant='opacity'
+            disabled={activeIndex !== 4 && true}
+          >
+            <ThemedText style={activeIndex !== 4 && { color: 'transparent' }}>
+                Finish
+            </ThemedText>
+          </ThemedTouchablePlain>
+      </View>
+      
     </View>
   );
 };
+
 
 export default Slider;
 
 const styles = StyleSheet.create({
   container: {
-    width: halfWidth ,
-    height: height/2,
+    width: width / 1.2,
+    height: height / 1.2,
     alignItems: 'center',
+    marginTop: -20,
   },
   image: {
     flex: 0.6,
@@ -163,6 +199,8 @@ const styles = StyleSheet.create({
   content: {
     flex: 0.4,
     alignItems: 'center',
+    paddingHorizontal: 30,  
+    width: '100%', 
   },
   title: {
     fontSize: 16,
@@ -170,21 +208,21 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   description: {
-    fontSize: 12,
+    fontSize: 13,
     marginVertical: 12,
     color: '#333',
+    textAlign: 'center',  // Center-align text
+    flexWrap: 'wrap',
+    maxWidth: '90%',  // Limit width to ensure wrapping
   },
   price: {
     fontSize: 14,
     fontWeight: 'bold',
   },
 
-  //pagination
+  // pagination
   paginationcontainer: {
-    position: 'absolute',
-    bottom: 35,
     flexDirection: 'row',
-    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -195,7 +233,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
     backgroundColor: '#ccc',
   },
-  dotActive: {
+   dotActive: {
     backgroundColor: '#000',
   },
+  bottomRowActions: {
+    flexDirection:'row', 
+    justifyContent:"space-evenly",
+    bottom:10
+  }
 });

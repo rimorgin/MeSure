@@ -5,10 +5,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Zustand store definition
 interface AppFirstLaunch {
   firstLaunch: boolean;
+  showIntro: boolean;
   email: string | null;
   setFirstLaunch: () => void;
+  hideIntro: () => void;
   setEmailAndFirstLaunch: (email: string) => void;
-  resetFirstLaunch: () => void;
+  resetApp: () => void; // for debugging only
 }
 
 // Helper function to check if email is new
@@ -31,15 +33,17 @@ export const useIsAppFirstLaunchStore = create<AppFirstLaunch>()(
     persist(
       (set) => ({
         firstLaunch: true,
+        showIntro: true,
         email: null,
         
         setFirstLaunch: () => set({ firstLaunch: false }),
+        hideIntro: () => set({ showIntro: false }),
         // Set email and update firstLaunch if email is new
         setEmailAndFirstLaunch: async (email) => {
           const isNew = await isEmailNew(email);
           set({ email, firstLaunch: isNew });
         },
-        resetFirstLaunch: () => set({ firstLaunch: true }),
+        resetApp: () => set({ firstLaunch: true, showIntro: true }),
       }),
       {
         name: 'FIRST_LAUNCH',

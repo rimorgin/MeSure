@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
 import React from 'react'
-import { FlatList, Image, ListRenderItemInfo, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native'
+import { Dimensions, FlatList, Image, ListRenderItemInfo, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { useIsAppFirstLaunchStore } from '@/state/appStore'
@@ -11,6 +11,8 @@ import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/Themed
 import ParallaxScrollView from '@/components/ParallaxScrollView'
 import Slider from '@/components/Slider'
 import { appData } from '@/data/appData'
+
+const { width, height } = Dimensions.get('screen');
 
 interface ItemType {
   img: any;
@@ -50,12 +52,12 @@ function Landing() {
 
   return (
     <ParallaxScrollView
-      headerHeight={380}
+      headerHeight={height * 0.6}
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
         <Image
           style={styles.headerImg}
-          source={require('@/assets/images/header-image.gif')}
+          source={require('@/assets/images/header-image-s.gif')}
         />
       }
       overlayedContent

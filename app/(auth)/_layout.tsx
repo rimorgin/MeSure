@@ -1,8 +1,9 @@
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, router, Stack } from 'expo-router';
 
 import { useSession } from '@/provider/AuthContext';
 import { ThemedText } from '@/components/ThemedText';
 import { useIsAppFirstLaunchStore } from '@/state/appStore';
+import { useEffect } from 'react';
 
 export default function AppLayout() {
   const { session, isLoading } = useSession();
@@ -20,8 +21,8 @@ export default function AppLayout() {
   }
 
   return (
-    <Stack>
-        <Stack.Screen name="landing" options={{ headerShown: false, presentation: 'modal' }} />
+    <Stack initialRouteName={firstLaunch ? 'landing' : '(tabs)'}>
+        <Stack.Screen name="landing" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
     </Stack>
   )

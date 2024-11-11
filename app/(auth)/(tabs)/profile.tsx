@@ -9,14 +9,11 @@ import { useIsAppFirstLaunchStore } from '@/state/appStore';
 
 export default function HomeScreen() {
     const { signOut } = useSession();
-    const{ resetFirstLaunch } = useIsAppFirstLaunchStore();
+    const{ resetApp } = useIsAppFirstLaunchStore();
 
     const handleSignOut = () => {
       signOut();
-      //resetFirstLaunch();
     }
-
-
 
   return (
     
@@ -39,7 +36,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
-          onPress={resetFirstLaunch}
+          onPress={resetApp}
         >
             <ThemedText type="default">Reset First Launch</ThemedText>
         </TouchableOpacity>

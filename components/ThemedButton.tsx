@@ -43,6 +43,7 @@ interface ButtonProps {
     | 'montserratBold'
     | 'montserratSemiBold'; // Font type
   style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
 }
 
 const ThemedTouchableFilled: React.FC<ButtonProps> = ({ 
@@ -52,6 +53,7 @@ const ThemedTouchableFilled: React.FC<ButtonProps> = ({
   customColor, 
   type = 'default', 
   font = 'none',
+  disabled = false,
   style,
   ...rest
 }) => {
@@ -76,6 +78,7 @@ const ThemedTouchableFilled: React.FC<ButtonProps> = ({
       onPress={onPress}
       underlayColor="#301713" // Only for TouchableHighlight
       activeOpacity={0.5}
+      disabled={disabled}
       {...rest}
     >
         {children}
@@ -91,6 +94,7 @@ const ThemedTouchablePlain: React.FC<ButtonProps> = ({
   type = 'default', 
   font = 'none',
   style,
+  disabled = false,
   ...rest 
 }) => {
   // Explicitly select the Touchable component (TouchableHighlight or TouchableOpacity)
@@ -110,6 +114,7 @@ const ThemedTouchablePlain: React.FC<ButtonProps> = ({
       onPress={onPress}
       underlayColor="#301713" // Only for TouchableHighlight
       activeOpacity={0.5} //only for TouchableOpacity
+      disabled={disabled}
       {...rest}
     >
         {children}
