@@ -1,13 +1,38 @@
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
 import React from 'react'
-import { Image, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native'
+import { FlatList, Image, ListRenderItemInfo, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
 import { useIsAppFirstLaunchStore } from '@/state/appStore'
 import { useAssets } from 'expo-asset'
 import { white, black } from '@/constants/Colors'
-import { ThemedTouchableFilled } from '@/components/ThemedButton'
+import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton'
+import ParallaxScrollView from '@/components/ParallaxScrollView'
+import Slider from '@/components/Slider'
+import { appData } from '@/data/appData'
+
+interface ItemType {
+  img: any;
+  title: string;
+  price: string;
+}
+
+interface ItemProps {
+  item: ItemType
+}
+
+const ListItems: React.FC<ItemProps> = ({item}) => {
+
+return (
+
+    <ThemedView style={styles.content}>
+      <Image defaultSource={require('@/assets/images/adaptive-icon.png')} style={styles.image} source={item.img}/>
+      <ThemedText style={styles.title}>{item.title}</ThemedText>
+      <ThemedText style={styles.price}>{item.price}</ThemedText>
+    </ThemedView>
+  );
+};
 
 function Landing() {
   const { width, height } = useWindowDimensions(); 
@@ -24,79 +49,93 @@ function Landing() {
   
 
   return (
-    <ThemedView style={styles.mainContainer}>
-      <Image 
-        style={[styles.image, {width: width, height: height,}]} 
-        source={require('@/assets/images/dark-bgcloth.png')} 
-      />
-      <SafeAreaView style={styles.container}>
-        <ThemedText 
-          font='cocoGothicLight'
-          type='semititle'
-          customColor={white}
-        > A.I. KHALAF GOLD
-        </ThemedText>
-        <ThemedView 
-          transparent
-          style={styles.andJewelry}
-        >
-          <ThemedText 
-          font='cocoGothicRegular'
-          type='subtitle'
-          customColor={white}
-          > &
+    <ParallaxScrollView
+      headerHeight={380}
+      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerImage={
+        <Image
+          style={styles.headerImg}
+          source={require('@/assets/images/header-image.gif')}
+        />
+      }
+      overlayedContent
+    >
+      <ThemedView style={styles.container}>
+        <ThemedView style={{flexDirection:'row', justifyContent: 'space-between', gap:5, alignItems: 'center'}}> 
+          <ThemedText
+            font='glacialIndifferenceBold'
+            customColor='#301915'
+            style={{letterSpacing:2,fontSize:20}}
+          >
+            Popular Items
           </ThemedText>
-          <ThemedText 
-          font='itcNewBaskerville'
-          type='xtitle'
-          customColor={white}
-          > JEWELRY
+          <ThemedTouchablePlain
+            onPress={handlePress}
+            variant='opacity'
+          >
+            <ThemedText
+            font='montserratMedium'
+            type='default'
+            customColor='#301915'
+            style={{textDecorationLine:'underline', fontSize:14}}
+          >
+            BROWSE CATALOG
           </ThemedText>
+          </ThemedTouchablePlain>
         </ThemedView>
-        
-        <ThemedTouchableFilled 
-          onPress={handlePress}
-          style={styles.button}
-        >
-          <ThemedText 
-            font='montserratSemiBold' 
-            style={{fontSize:12, letterSpacing:2}}
-          > GET STARTED
-          </ThemedText>
-        </ThemedTouchableFilled>
-      </SafeAreaView>
-    </ThemedView>
+        <ThemedView style={styles.listContainer}>
+          <FlatList
+            contentContainerStyle={styles.list}
+            data={appData.landingItems}
+            renderItem={({ item }: ListRenderItemInfo<ItemType>) => <ListItems item={item} />}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          />
+          </ThemedView>
+      </ThemedView>
+    </ParallaxScrollView>
   )
 }
 
 const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  headerImg: {
+    width:'100%',
+    height: '100%',
   },
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    textAlign: 'center',
-    position: 'absolute',
+    width: '100%',
+    overflow: 'hidden'
   },
-  andJewelry: {
-    marginTop: -10,
-    flexDirection:'row',
-    justifyContent: 'center',
+  listContainer: {
     alignItems: 'center',
-    textAlign: 'center',
+    justifyContent: 'center',
+    padding: 50,
+    width: '100%',
+    height: '100%'
+  },
+  list: {
+    gap: 100,
   },
   image: {
-    resizeMode: 'cover',
-    position: 'absolute',
+    height: 150,
+    width: '100%',
   },
-  button: {
-    marginTop: 50,
-    borderRadius:20,
-    backgroundColor: white,
+  content: {
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  description: {
+    fontSize: 12,
+    marginVertical: 12,
+    color: '#333',
+  },
+  price: {
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 })
 

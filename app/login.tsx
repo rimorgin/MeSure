@@ -103,7 +103,10 @@ export default function Login() {
         </ThemedTouchableFilled>
         
         {/*Forgot Password (currently not functioning)*/}
-        <ThemedTouchablePlain onPress={() => console.log('pressed')}>
+        <ThemedTouchablePlain
+          variant='opacity' 
+          onPress={() => console.log('pressed')}
+        >
             <ThemedText type='link'>Forgot Password?</ThemedText>
         </ThemedTouchablePlain>
           
@@ -116,7 +119,10 @@ export default function Login() {
           <ThemedText type="default">
             Don’t have an account yet?
           </ThemedText>
-          <ThemedTouchablePlain onPress={() => router.push('/register')}>
+          <ThemedTouchablePlain 
+            onPress={() => router.push('/register')}
+            variant='opacity'
+          >
             <ThemedText type="link">
               Register here!
             </ThemedText>

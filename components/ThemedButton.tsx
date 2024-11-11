@@ -57,7 +57,7 @@ const ThemedTouchableFilled: React.FC<ButtonProps> = ({
 }) => {
   // Get theme colors for background and text
   const buttonBackgroundColor = useThemeColor({ light: Colors.light.button, dark: Colors.dark.button }, 'button');
-  const buttonTextColor = customColor || useThemeColor({ light: Colors.light.text, dark: Colors.dark.text }, 'text');
+  const buttonTextColor = customColor || useThemeColor({ light: Colors.dark.text, dark: Colors.light.text }, 'text');
 
   // Explicitly select the Touchable component (TouchableHighlight or TouchableOpacity)
   const ButtonComponent: React.ElementType = variant === 'highlight' ? TouchableHighlight : TouchableOpacity;
@@ -75,11 +75,10 @@ const ThemedTouchableFilled: React.FC<ButtonProps> = ({
       style={[styles.buttonFilled, { backgroundColor: buttonBackgroundColor }, style ]} 
       onPress={onPress}
       underlayColor="#301713" // Only for TouchableHighlight
+      activeOpacity={0.5}
       {...rest}
     >
-      <ThemedText style={[styles.buttonText, { color: buttonTextColor, fontFamily }, type === 'default' ? styles.default : undefined]}>
         {children}
-      </ThemedText>
     </ButtonComponent>
   );
 };
@@ -94,10 +93,6 @@ const ThemedTouchablePlain: React.FC<ButtonProps> = ({
   style,
   ...rest 
 }) => {
-  // Get theme colors for background and text. Transparent for PLAIN
-  const buttonBackgroundColor = useThemeColor({ light: '#00FFFFFF', dark: '#00FFFFFF' }, 'background');
-  const buttonTextColor = customColor || useThemeColor({ light: Colors.light.text, dark: Colors.dark.text }, 'text');
-
   // Explicitly select the Touchable component (TouchableHighlight or TouchableOpacity)
   const ButtonComponent: React.ElementType = variant === 'highlight' ? TouchableHighlight : TouchableOpacity;
 
@@ -111,14 +106,13 @@ const ThemedTouchablePlain: React.FC<ButtonProps> = ({
 
   return (
     <ButtonComponent 
-      style={[styles.buttonPlain, { backgroundColor: buttonBackgroundColor }, style]} 
+      style={styles.buttonPlain} 
       onPress={onPress}
       underlayColor="#301713" // Only for TouchableHighlight
+      activeOpacity={0.5} //only for TouchableOpacity
       {...rest}
     >
-      <ThemedText style={[styles.buttonText, { color: buttonTextColor, fontFamily }, type === 'default' ? styles.default : undefined]}>
         {children}
-      </ThemedText>
     </ButtonComponent>
   );
 };
@@ -134,12 +128,7 @@ const styles = StyleSheet.create({
     width: '70%',
   },
   buttonPlain: {
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 10,
-    marginVertical: 10,
     alignItems: 'center',
-    width: '70%',
   },
   buttonText: {
     fontSize: 16,

@@ -9,6 +9,7 @@ import { router } from 'expo-router';
 import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton';
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/provider/AuthContext';
+import { white } from '@/constants/Colors';
 
 // Yup schema validation
 const schema = yup.object().shape({
@@ -165,13 +166,20 @@ export default function Register() {
 
         {/* Register Button */}
         <ThemedTouchableFilled onPress={handleSubmit(onSubmit)}>
-          <ThemedText type='default'>Register</ThemedText>
+          <ThemedText 
+            customColor={white}
+            type='default'
+          > Register
+          </ThemedText>
         </ThemedTouchableFilled>
 
          <ThemedTouchablePlain
+          variant='opacity'
           onPress={() => router.push('/login')}
         >
-          <ThemedText type='link'> Already have an account? </ThemedText>
+          <ThemedText type='link'> 
+            Already have an account? 
+          </ThemedText>
         </ThemedTouchablePlain>
 
         {/* The orange thingy at the bottom */}

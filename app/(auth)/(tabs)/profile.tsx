@@ -16,6 +16,8 @@ export default function HomeScreen() {
       //resetFirstLaunch();
     }
 
+
+
   return (
     
     <ParallaxScrollView
@@ -34,6 +36,12 @@ export default function HomeScreen() {
           onPress={handleSignOut}
         >
             <ThemedText type="default">Logout</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={resetFirstLaunch}
+        >
+            <ThemedText type="default">Reset First Launch</ThemedText>
         </TouchableOpacity>
       </ThemedView>
     </ParallaxScrollView>
