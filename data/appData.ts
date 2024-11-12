@@ -44,5 +44,7 @@ export const appData = {
             title: 'Tiffany Ring',
             price:'15000 PHP'
         },
-    ]
+    ],
+    dp: require('@/assets/images/avatars/7309707.jpg')
+    
 };

@@ -1,14 +1,11 @@
-import { Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Image, StyleSheet, Platform, TouchableOpacity, TouchableHighlight } from 'react-native';
+
+import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/provider/AuthContext';
 import { useIsAppFirstLaunchStore } from '@/state/appStore';
-import { appData } from '@/data/appData';
-import { white } from '@/constants/Colors';
-import ThemedDivider from '@/components/ThemedDivider';
-
-const { width } = Dimensions.get('screen');
 
 export default function HomeScreen() {
     const { signOut } = useSession();
@@ -19,8 +16,8 @@ export default function HomeScreen() {
     }
 
   return (
+    
     <ParallaxScrollView
-      headerHeight={width * 0.5}
       roundedHeader
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
@@ -30,28 +27,15 @@ export default function HomeScreen() {
         />
       }
       headerOverlayedContent={
-        <ThemedView
-          transparent
-          style={styles.headerContent}
-        >
-          <ThemedText
-            font='cocoGothicBold'
-            type='title'
-            customColor={white}
-            style={{marginLeft:-10}}
-          >
-            Vondat {'\n'} Gatchalian
-          </ThemedText>
-          <Image 
-          source={appData.dp}
+        <Image 
+          source={require('@/assets/images/avatars/7294794.jpg')}
           style={styles.avatar}
         />
-        </ThemedView>
-        
       }
       >
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Profile</ThemedText>
+    
         <TouchableOpacity
           style={styles.button}
           onPress={handleSignOut}
@@ -64,9 +48,6 @@ export default function HomeScreen() {
         >
             <ThemedText type="default">Reset First Launch</ThemedText>
         </TouchableOpacity>
-        <ThemedText type="title">Saved Measurements</ThemedText>
-        <ThemedDivider />
-        <ThemedText type="title">Saved Try Ons</ThemedText>
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -74,7 +55,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   titleContainer: {
-  
+    flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
@@ -82,17 +63,14 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 8,
   },
+  profileContainer: {
+    
+  },
   avatar: {
     borderRadius: 40,
-    width: width * 0.30,
-    height: width * 0.30,
-  },
-  headerContent: {
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    flexDirection: 'row',
-    width: '100%',
-    height: '100%'
+    width: 150,
+    height: 150,
+    top:50
   },
   headerImg: {
     height: '100%',
@@ -100,7 +78,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: 'absolute',
-    opacity: 0.888
+    //opacity: 0.2
   },
   button: {
     padding: 16,

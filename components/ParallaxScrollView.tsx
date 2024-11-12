@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { StyleSheet, useColorScheme } from 'react-native';
+import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -8,23 +8,27 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from './ThemedText';
+import { ThemedText } from '@/components/ThemedText';
 
 const DEFAULT_HEADER_HEIGHT = 250;
 
 type Props = PropsWithChildren<{
+  headerOverlayedContent?: ReactElement;
   headerImage: ReactElement;
   headerHeight?: number;
   headerBackgroundColor: { dark: string; light: string };
   overlayedContent?: boolean;
+  roundedHeader?: boolean;
 }>;
 
 export default function ParallaxScrollView({
   children,
+  headerOverlayedContent,
   headerImage,
   headerHeight = DEFAULT_HEADER_HEIGHT, // Use DEFAULT_HEADER_HEIGHT if headerHeight is not provided
   headerBackgroundColor,
-  overlayedContent = false
+  overlayedContent = false,
+  roundedHeader = false
 }: Props) {
   const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
@@ -53,18 +57,44 @@ export default function ParallaxScrollView({
         height: headerHeight 
       }]}
     >
+      <StatusBar
+        animated={true}
+        barStyle='light-content'
+      />
       <Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
         <Animated.View
           style={[
             styles.header,
             { 
               backgroundColor: headerBackgroundColor[colorScheme],
-              height: headerHeight
+              height: headerHeight,
+              borderBottomLeftRadius: roundedHeader ? 30 : 0,
+              borderBottomRightRadius: roundedHeader ? 30 : 0,
             },
             headerAnimatedStyle,
           ]}>
           {headerImage}
+          {headerOverlayedContent && 
+            <ThemedView 
+              transparent
+              style={styles.headerOverlayedContent}
+            >
+              {headerOverlayedContent}
+            </ThemedView>
+          }
         </Animated.View>
+        
+          {headerOverlayedContent && 
+          <Animated.View>
+            <ThemedView 
+              transparent
+              style={styles.headerOverlayedContent}
+            >
+              {headerOverlayedContent}
+            </ThemedView>
+          </Animated.View>
+          }
+        
         <ThemedView 
           style={overlayedContent ? styles.overlayedContent : styles.content}
         >{children}  
@@ -77,11 +107,21 @@ export default function ParallaxScrollView({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    zIndex:1
   },
   header: {
     flex: 0.6,
     top: 0,
-    overflow: 'hidden',
+    zIndex: 1,
+    overflow:'hidden'
+  },
+  headerOverlayedContent: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    padding: 15,
+    zIndex: 2,
+    elevation: 5
   },
   content: {
     flex: 0.4,
@@ -102,5 +142,6 @@ const styles = StyleSheet.create({
     height: 'auto',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
+    //backgroundColor: 'rgba(0,0,0,0)'
   },
 });

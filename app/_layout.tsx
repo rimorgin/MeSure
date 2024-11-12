@@ -6,10 +6,10 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
-
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { toastConfig } from '@/components/Toast';
 import { FontProvider } from '@/provider/FontContext';
+import NetInfo from '@react-native-community/netinfo';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -22,6 +22,12 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" />
       </Stack>
  */
+
+  const unsubscribe = NetInfo.addEventListener(state => {
+    console.log('Is connected to internet?', state.isConnected);
+  });
+
+  
   return (
     <SessionProvider>
       <FontProvider>

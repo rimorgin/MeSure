@@ -17,6 +17,7 @@ export const Colors = {
     button: tintColorLight,
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+    divider: '#ccc'
   },
   dark: {
     text: '#ECEDEE',
@@ -26,5 +27,6 @@ export const Colors = {
     button: tintColorDark,
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    divider: '#fff'
   },
 };
