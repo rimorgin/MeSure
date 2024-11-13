@@ -10,6 +10,7 @@ import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/Themed
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/provider/AuthContext';
 import { white } from '@/constants/Colors';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 // Yup schema validation
 const schema = yup.object().shape({
@@ -165,7 +166,7 @@ export default function Register() {
         )}
 
         {/* Register Button */}
-        <ThemedTouchableFilled onPress={handleSubmit(onSubmit)}>
+        <ThemedTouchableFilled style ={styles.button} onPress={handleSubmit(onSubmit)}>
           <ThemedText 
             customColor={white}
             type='default'
@@ -173,6 +174,23 @@ export default function Register() {
           </ThemedText>
         </ThemedTouchableFilled>
 
+
+                {/* Social login section */}
+                <ThemedText type='default' style={styles.orRegister}>Or Sign up using</ThemedText>
+          <View style={styles.socialLoginContainer}>
+            <TouchableOpacity style={styles.socialButton}>
+              <FontAwesome name="facebook" size={30} color="#4267B2" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.socialButton}>
+              <FontAwesome name="google" size={30} color="#DB4437" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.socialButton}>
+              <FontAwesome name="apple" size={30} color="#000000" />
+            </TouchableOpacity>
+          </View>
+          
          <ThemedTouchablePlain
           variant='opacity'
           onPress={() => router.push('/login')}
@@ -181,6 +199,7 @@ export default function Register() {
             Already have an account? 
           </ThemedText>
         </ThemedTouchablePlain>
+
 
         {/* The orange thingy at the bottom */}
         <Svg style={{ position: 'absolute', bottom: 0, left: 0 }} width="100%" height="150">
@@ -206,12 +225,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   input: {
-    width: '70%',
+    width: "85%",
     borderWidth: 1,
     borderColor: '#666666',
     padding: 10,
     borderRadius: 10,
-    marginVertical: 3,
+    marginVertical:"2%",
+  },
+  button:{
+    marginVertical:"2%",
+    width: "85%"
+  },
+  socialLoginContainer: {
+    width: '70%',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+  },
+  socialButton: {
+    backgroundColor: 'white',
+    padding: 15,
+    borderRadius: 10,
+  },
+  orRegister: {
+    marginVertical: 15,
+    fontSize: 16,
+    color: '#333',
   },
   error: {
     color: '#ff0000',
