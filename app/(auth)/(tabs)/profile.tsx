@@ -1,18 +1,24 @@
-import { Image, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, Dimensions, useColorScheme } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/provider/AuthContext';
 import { useIsAppFirstLaunchStore } from '@/state/appStore';
-import { appData } from '@/data/appData';
-import { white } from '@/constants/Colors';
+import { appData } from '@/assets/data/appData';
+import { Colors, white } from '@/constants/Colors';
 import ThemedDivider from '@/components/ThemedDivider';
+import auth from '@react-native-firebase/auth';
+import { Collapsible } from '@/components/Collapsible';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { ThemedTouchableFilled } from '@/components/ThemedButton';
+import { router } from 'expo-router';
 
 const { width } = Dimensions.get('screen');
 
 export default function HomeScreen() {
     const { signOut } = useSession();
     const{ resetApp } = useIsAppFirstLaunchStore();
+    const theme = useColorScheme() ?? 'light';
 
     const handleSignOut = () => {
       signOut();
@@ -34,53 +40,145 @@ export default function HomeScreen() {
           transparent
           style={styles.headerContent}
         >
-          <ThemedText
-            font='cocoGothicBold'
-            type='title'
-            customColor={white}
-            style={{marginLeft:-10}}
+          <ThemedView
+            transparent
+            style={{flexDirection: 'column', gap: 5}}
           >
-            Vondat {'\n'} Gatchalian
-          </ThemedText>
+            <ThemedText
+              font='cocoGothicBold'
+              type='title'
+              customColor={white}
+              style={{marginLeft:-10}}
+            >
+              Vondat {'\n'} Gatchalian
+            </ThemedText>
+            <ThemedText
+              font='montserratLight' 
+              type="default"
+              customColor={white}
+            >{auth().currentUser?.email}
+            </ThemedText>
+          </ThemedView>
           <Image 
-          source={appData.dp}
-          style={styles.avatar}
-        />
+            source={appData.dp}
+            style={styles.avatar}
+          />
         </ThemedView>
-        
       }
       >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Profile</ThemedText>
+      <ThemedText type="default" style={{marginBottom:-10}}>Inventories</ThemedText>
+      <ThemedView style={styles.inventories}>
+        <Collapsible 
+          transparent
+          icon='resize'
+          dropdownIconPlacement='right'
+          title='Saved Measurements'
+          height={150}
+        >
+          <ThemedView
+            transparent
+            style={styles.dropdownContent}
+          >
+             <ThemedText 
+              type="default" 
+              textAligned='center'
+            >You currently have no saved measurements.
+            </ThemedText>
+             <ThemedTouchableFilled
+                variant='opacity'
+                onPress={() => router.push('/(auth)/(tabs)/camera')}
+             >
+              <ThemedText type="default">Add Measurement</ThemedText>
+             </ThemedTouchableFilled>
+          </ThemedView>
+        </Collapsible>
+      
+        <ThemedDivider width={1.2}/>
+        <Collapsible 
+          transparent
+          icon='hand-right'
+          dropdownIconPlacement='right'
+          title='Saved Try-Ons'
+          height={150}
+        >
+          <ThemedView
+            transparent
+            style={styles.dropdownContent}
+          >
+            <ThemedText 
+              type="default" 
+              textAligned='center'
+            >    No saved try-ons yet. Browse and save your favorites here.
+            </ThemedText>
+             <ThemedTouchableFilled
+                variant='opacity'
+                onPress={() => router.push('/(auth)/(tabs)/')}
+             >
+              <ThemedText type="default">Browse now</ThemedText>
+             </ThemedTouchableFilled>
+          </ThemedView>
+        </Collapsible>
+        
+      </ThemedView>
+      <ThemedText type="default" style={{marginBottom:-10, marginTop:10}}>Preferences</ThemedText>
+      <ThemedView style={styles.inventories}>
         <TouchableOpacity
           style={styles.button}
           onPress={handleSignOut}
         >
-            <ThemedText type="default">Logout</ThemedText>
+           <Ionicons
+            name='log-out'
+            size={25}
+            color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+          />
+          <ThemedText type="default">Logout</ThemedText>
         </TouchableOpacity>
+        {/* 
+        <ThemedDivider />
+        
         <TouchableOpacity
           style={styles.button}
           onPress={resetApp}
         >
-            <ThemedText type="default">Reset First Launch</ThemedText>
+         
+          <ThemedText type="default">Reset First Launch</ThemedText>
         </TouchableOpacity>
-        <ThemedText type="title">Saved Measurements</ThemedText>
-        <ThemedDivider />
-        <ThemedText type="title">Saved Try Ons</ThemedText>
+        */}
       </ThemedView>
+      
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-  
-    alignItems: 'center',
+  mainContainer: {
+    flex:1, 
+    alignItems:'flex-start',
     gap: 8,
+    backgroundColor: '#F0F0F0',
+    borderWidth: 2,
+    borderColor: '#ccc',
+    padding: 15,
+    borderRadius: 20,
+    width: '100%'
   },
-  stepContainer: {
+  inventories: {
+    alignItems:'flex-start',
     gap: 8,
-    marginBottom: 8,
+    backgroundColor: '#F0F0F0',
+    borderWidth: 2,
+    borderColor: '#ccc',
+    padding: 15,
+    borderRadius: 20,
+    width: '100%'
+  },
+  dropdownContent: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: -18,
+    gap: 10
   },
   avatar: {
     borderRadius: 40,
@@ -103,6 +201,11 @@ const styles = StyleSheet.create({
     opacity: 0.888
   },
   button: {
-    padding: 16,
+    padding: 5,
+    marginLeft: 5,
+    gap: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });

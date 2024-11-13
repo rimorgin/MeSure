@@ -1,6 +1,6 @@
 import { Animated, Dimensions, FlatList, StyleSheet, Text, View, ListRenderItemInfo } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { appData } from '@/data/appData';
+import { appData } from '@/assets/data/appData';
 import { Easing } from 'react-native-reanimated';
 import { ThemedTouchablePlain } from './ThemedButton';
 import { useIsAppFirstLaunchStore } from '@/state/appStore';

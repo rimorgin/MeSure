@@ -10,7 +10,7 @@ import { white, black } from '@/constants/Colors'
 import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton'
 import ParallaxScrollView from '@/components/ParallaxScrollView'
 import Slider from '@/components/Slider'
-import { appData } from '@/data/appData'
+import { appData } from '@/assets/data/appData'
 
 const { width, height } = Dimensions.get('screen');
 

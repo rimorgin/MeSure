@@ -40,12 +40,13 @@
       "expo-secure-store",
       "@react-native-firebase/app",
       "@react-native-firebase/auth",
+      "expo-font",
+      "expo-asset",
       [
-        "expo-camera",
+        "react-native-vision-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
-          "recordAudioAndroid": true
+          "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+          "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
         }
       ],
       [
@@ -68,8 +69,13 @@
           "initialOrientation": "DEFAULT"
         }
       ],
-      "expo-font",
-      "expo-asset"
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ]
+      
     ],
     "experiments": {
       "typedRoutes": true

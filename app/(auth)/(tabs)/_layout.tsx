@@ -4,16 +4,17 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useIsAppFirstLaunchStore } from '@/state/appStore';
-import { Dimensions, Modal, StyleSheet, View } from 'react-native';
+import { Dimensions, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import Slider from '@/components/Slider';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
   const showIntro = useIsAppFirstLaunchStore((state) => state.showIntro);
-  const { setFirstLaunch, hideIntro } = useIsAppFirstLaunchStore();
+  const { hideIntro } = useIsAppFirstLaunchStore();
 
   // Check for first launch before rendering the component
   useEffect(() => {
@@ -95,6 +96,25 @@ export default function TabLayout() {
                 color={color}
               />
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="camera"
+          options={{
+            title: 'Camera',
+            headerShown: true,
+            headerShadowVisible: true,
+            headerTitle: 'Measure Fingers',
+            headerTitleAlign: 'center',
+            headerLeft: () => {
+              return (
+                <TouchableOpacity onPress={() => router.back()}>
+                  <Ionicons name='return-up-back' size={25} style={{marginLeft:20}}/>
+                </TouchableOpacity>
+              )
+            },
+            tabBarButton:() => null,
+            tabBarStyle: { display: 'none' },
           }}
         />
       </Tabs>
