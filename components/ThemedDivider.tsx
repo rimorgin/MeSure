@@ -16,8 +16,8 @@ const ThemedDivider: React.FC<DividerProps> = ({
   width = 1,
   orientation = 'horizontal',
   color,
-  marginX = 0,
-  marginY = 0,
+  marginX = 1,
+  marginY = 1,
   dividerStyle,
 }) => {
   const themeColor = useThemeColor({ light: Colors.light.divider, dark: Colors.dark.divider }, 'divider');
@@ -27,8 +27,8 @@ const ThemedDivider: React.FC<DividerProps> = ({
       width: orientation === 'horizontal' ? '100%' : width,
       height: orientation === 'vertical' ? '100%' : width,
       backgroundColor: themeColor,
-      marginHorizontal: orientation === 'horizontal' ? marginX : 0,
-      marginVertical: orientation === 'vertical' ? marginY : 0,
+      marginHorizontal: marginX ? marginX : 0,
+      marginVertical: marginY ? marginY : 0,
     },
     dividerStyle,
   ];

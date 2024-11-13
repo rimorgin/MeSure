@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import RNFS from 'react-native-fs';
 import { persist, createJSONStorage, devtools } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -53,3 +54,54 @@ export const useIsAppFirstLaunchStore = create<AppFirstLaunch>()(
   )
 );
 
+interface ImageStorage {
+  images: string[] | null;
+  fetchImages: () => Promise<void>;
+  addImage: (id: string, uri: string) => Promise<void>;
+  removeImage: (id: string) => Promise<void>;
+}
+
+const imagesDirectoryPath = `${RNFS.DocumentDirectoryPath}/images`;
+
+// Ensure the images directory exists
+const ensureImagesDirectoryExists = async () => {
+  const exists = await RNFS.exists(imagesDirectoryPath);
+  if (!exists) {
+    await RNFS.mkdir(imagesDirectoryPath);
+  }
+};
+
+// Helper function to fetch all images
+const getAllImages = async (): Promise<string[]> => {
+  await ensureImagesDirectoryExists();
+  const files = await RNFS.readDir(imagesDirectoryPath);
+  return files.map((file) => file.path);
+};
+
+// Zustand store for image storage
+export const useImageStorage = create<ImageStorage>((set) => ({
+  images: null,
+
+  fetchImages: async () => {
+    const imagePaths = await getAllImages();
+    set({ images: imagePaths });
+  },
+
+  addImage: async (id, uri) => {
+    await ensureImagesDirectoryExists();
+    const targetPath = `${imagesDirectoryPath}/${id}.jpg`;
+    await RNFS.copyFile(uri, targetPath);
+    const updatedImages = await getAllImages();
+    set({ images: updatedImages });
+  },
+
+  removeImage: async (id) => {
+    const imagePath = `${imagesDirectoryPath}/${id}.jpg`;
+    const exists = await RNFS.exists(imagePath);
+    if (exists) {
+      await RNFS.unlink(imagePath);
+    }
+    const updatedImages = await getAllImages();
+    set({ images: updatedImages });
+  },
+}));

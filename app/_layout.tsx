@@ -9,13 +9,16 @@ import Toast from 'react-native-toast-message';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { toastConfig } from '@/components/Toast';
 import { FontProvider } from '@/provider/FontContext';
-import NetInfo from '@react-native-community/netinfo';
+import { useNetInfo } from "@react-native-community/netinfo";
+
+
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const { isConnected } = useNetInfo();
  /*
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -23,9 +26,23 @@ export default function RootLayout() {
       </Stack>
  */
 
-  const unsubscribe = NetInfo.addEventListener(state => {
-    console.log('Is connected to internet?', state.isConnected);
-  });
+    useEffect(() => {
+      // Trigger a toast notification when the connection status changes
+      if (isConnected === false) {
+        Toast.show({
+          type: 'error',
+          text1: 'Connection Lost',
+          text2: 'You are currently offline.',
+        });
+      } else if (isConnected === true) {
+        Toast.show({
+          type: 'success',
+          text1: 'Connected',
+          text2: 'You are back online.',
+        });
+      }
+  }, [isConnected]);
+
 
   
   return (

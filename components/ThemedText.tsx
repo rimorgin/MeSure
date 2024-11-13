@@ -8,6 +8,7 @@ export type ThemedTextProps = TextProps & {
   customColor?: string; // New prop for custom color
   type?: 'default' | 'xtitle' | 'title' | 'semititle' | 'defaultSemiBold' | 'subtitle' | 'link';
   size?: number;
+  textAligned?: "auto" | "left" | "right" | "center" | "justify";
   font?: 
     | 'none' 
     | 'spaceMonoRegular' 
@@ -36,6 +37,7 @@ export function ThemedText({
   type = 'default',
   font = 'none',
   size,
+  textAligned = 'auto',
   ...rest
 }: ThemedTextProps) {
   const { fontsLoaded, fontStyles } = useFont();
@@ -53,7 +55,7 @@ export function ThemedText({
   return (
     <Text
       style={[
-        { color, fontFamily, fontSize: size || 16 },
+        { color, fontFamily, fontSize: size || 16, textAlign: textAligned },
         type === 'default' ? styles.default : undefined,
         type === 'xtitle' ? styles.xtitle : undefined,
         type === 'title' ? styles.title : undefined,

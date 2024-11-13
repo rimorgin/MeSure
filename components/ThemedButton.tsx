@@ -126,11 +126,9 @@ const ThemedTouchablePlain: React.FC<ButtonProps> = ({
 const styles = StyleSheet.create({
   buttonFilled: {
     paddingVertical: 12,
-    paddingHorizontal: 32,
+    paddingHorizontal: 15,
     borderRadius: 10,
-    marginVertical: 10,
     alignItems: 'center',
-    width: '70%',
   },
   buttonPlain: {
     alignItems: 'center',

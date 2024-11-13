@@ -40,8 +40,6 @@ function Landing() {
   const { width, height } = useWindowDimensions(); 
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
   const { setFirstLaunch } = useIsAppFirstLaunchStore();
-
-  const [assets, error] = useAssets([require('@/assets/images/splash.png')]);
   
   const handlePress = () => {
     setFirstLaunch();
