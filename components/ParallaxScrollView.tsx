@@ -83,18 +83,6 @@ export default function ParallaxScrollView({
             </ThemedView>
           }
         </Animated.View>
-        
-          {headerOverlayedContent && 
-          <Animated.View>
-            <ThemedView 
-              transparent
-              style={styles.headerOverlayedContent}
-            >
-              {headerOverlayedContent}
-            </ThemedView>
-          </Animated.View>
-          }
-        
         <ThemedView 
           style={overlayedContent ? styles.overlayedContent : styles.content}
         >{children}  
@@ -120,8 +108,6 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     padding: 15,
-    zIndex: 2,
-    elevation: 5
   },
   content: {
     flex: 0.4,
