@@ -1,3 +1,6 @@
+
+
+
 import React, { useState } from 'react';
 import { TouchableOpacity, TextInput, StyleSheet, View, SafeAreaView } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
@@ -46,6 +49,7 @@ const defaultValues = {
   confirmPassword: "",
 };
 
+///////////////////////////////
 
 export default function Register() {
   const { signUp } = useSession()

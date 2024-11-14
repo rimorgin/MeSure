@@ -2,7 +2,7 @@ import { Tabs, Redirect, router } from 'expo-router';
 import React, { useEffect } from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import useColorSchemeTheme, { useColorScheme } from '@/hooks/useColorScheme';
 import { useIsAppFirstLaunchStore } from '@/state/appStore';
 import { Dimensions, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
@@ -11,7 +11,7 @@ import Slider from '@/components/Slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorSchemeTheme();
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
   const showIntro = useIsAppFirstLaunchStore((state) => state.showIntro);
   const { hideIntro } = useIsAppFirstLaunchStore();

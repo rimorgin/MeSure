@@ -1,9 +1,10 @@
-import { Image, StyleSheet, TouchableOpacity, Dimensions, useColorScheme } from 'react-native';
+import { useState } from 'react';
+import { Image, StyleSheet, TouchableOpacity, Dimensions, useColorScheme, Switch } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/provider/AuthContext';
-import { useIsAppFirstLaunchStore } from '@/state/appStore';
+import { useColorSchemeStore, useIsAppFirstLaunchStore } from '@/state/appStore';
 import { appData } from '@/assets/data/appData';
 import { Colors, white } from '@/constants/Colors';
 import ThemedDivider from '@/components/ThemedDivider';
@@ -12,17 +13,24 @@ import { Collapsible } from '@/components/Collapsible';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import { router } from 'expo-router';
+import useColorSchemeTheme from '@/hooks/useColorScheme';
+
 
 const { width } = Dimensions.get('screen');
 
-export default function HomeScreen() {
+export default function ProfileScreen() {
     const { signOut } = useSession();
-    const{ resetApp } = useIsAppFirstLaunchStore();
-    const theme = useColorScheme() ?? 'light';
+    const theme = useColorSchemeTheme() ?? 'light';
+    const { toggleTheme } = useColorSchemeStore();
+    const isEnabled = theme === 'dark';
 
     const handleSignOut = () => {
       signOut();
     }
+
+    const handleToggleScheme = () => {
+      toggleTheme(theme === 'light' ? 'dark' : 'light');
+    };
 
   return (
     <ParallaxScrollView
@@ -92,8 +100,7 @@ export default function HomeScreen() {
              </ThemedTouchableFilled>
           </ThemedView>
         </Collapsible>
-      
-        <ThemedDivider width={1.2}/>
+        <ThemedDivider width={1.2} marginY={5}/>
         <Collapsible 
           transparent
           icon='hand-right'
@@ -122,6 +129,26 @@ export default function HomeScreen() {
       </ThemedView>
       <ThemedText type="default" style={{marginBottom:-10, marginTop:10}}>Preferences</ThemedText>
       <ThemedView style={styles.inventories}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleToggleScheme}
+        >
+           <Ionicons
+            name={theme === 'light' ? 'sunny' : 'moon'}
+            size={25}
+            color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+          />
+          <ThemedText type="default">Theme</ThemedText>
+          <Switch
+            trackColor={{ false: '#767577', true: '#563126' }}
+            thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={handleToggleScheme}
+            value={isEnabled}
+            style={{position:'absolute', right: 0}}
+          />
+        </TouchableOpacity>
+        <ThemedDivider width={1.2} marginY={3}/>
         <TouchableOpacity
           style={styles.button}
           onPress={handleSignOut}
@@ -158,7 +185,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
     borderWidth: 2,
     borderColor: '#ccc',
-    padding: 15,
+    padding: 10,
     borderRadius: 20,
     width: '100%'
   },
@@ -168,7 +195,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F0F0',
     borderWidth: 2,
     borderColor: '#ccc',
-    padding: 15,
+    padding: 10,
     borderRadius: 20,
     width: '100%'
   },
@@ -203,9 +230,9 @@ const styles = StyleSheet.create({
   button: {
     padding: 5,
     marginLeft: 5,
-    gap: 10,
+    gap: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center'
+    width: '100%'
   }
 });
