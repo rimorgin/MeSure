@@ -64,10 +64,16 @@ export default function Register() {
     <SafeAreaView style={styles.container}>
       <ThemedView style={styles.formcontainer}>
         {/* Title */}
-        <ThemedText type="semititle" font="cocoGothicRegular" style={{ marginBottom:20}}>
-         Register to get Started
+        <ThemedText type="semititle" font="cocoGothicRegular">
+          Al-Khalaf Gold & Jewelry
         </ThemedText>
 
+        <ThemedText 
+          font='spaceMonoRegular'
+          style={{fontSize:14, marginBottom:20}}
+        >
+          Powered by MeSure
+        </ThemedText>
 
         {/* Username Input */}
         <Controller
@@ -169,20 +175,19 @@ export default function Register() {
         </ThemedTouchableFilled>
 
 
-                {/* Social login section */}
-                <ThemedText type='default' style={styles.orRegister}>Or Sign up using</ThemedText>
-          <View style={styles.socialLoginContainer}>
+        <View style={styles.socialLoginContainer}>
+      <ThemedText type='default' style={styles.socialButtonText}>Or Sign up using</ThemedText>
             <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="facebook" size={30} color="#4267B2" />
+              <FontAwesome name="facebook" size={20} color="#4267B2" />
+              <ThemedText type="default" style={styles.socialButtonText}>Sign up with Facebook</ThemedText>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="google" size={30} color="#DB4437" />
+              <FontAwesome name="google" size={20} color="#DB4437" />
+              <ThemedText type="default" style={styles.socialButtonText}>Sign up with Google</ThemedText>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="apple" size={30} color="#000000" />
-            </TouchableOpacity>
+  
           </View>
           
          <ThemedTouchablePlain
@@ -231,19 +236,22 @@ const styles = StyleSheet.create({
     width: "85%"
   },
   socialLoginContainer: {
+    marginTop: "2%",
     width: '70%',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
     alignItems: 'center',
   },
   socialButton: {
-    backgroundColor: 'white',
-    padding: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F1F1F1',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 10,
+    marginVertical: 5,
+    width: '100%',
   },
-  orRegister: {
-    marginVertical: 15,
-    fontSize: 16,
+  socialButtonText: {
+    marginLeft: 10,
     color: '#333',
   },
   error: {
