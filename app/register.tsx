@@ -64,16 +64,10 @@ export default function Register() {
     <SafeAreaView style={styles.container}>
       <ThemedView style={styles.formcontainer}>
         {/* Title */}
-        <ThemedText type="semititle" font="cocoGothicRegular">
-          Al-Khalaf Gold & Jewelry
+        <ThemedText type="semititle" font="cocoGothicRegular" style={{ marginBottom:20}}>
+         Register to get Started
         </ThemedText>
 
-        <ThemedText 
-          font='spaceMonoRegular'
-          style={{fontSize:14, marginBottom:20}}
-        >
-          Powered by MeSure
-        </ThemedText>
 
         {/* Username Input */}
         <Controller

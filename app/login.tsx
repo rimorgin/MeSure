@@ -71,7 +71,7 @@ export default function Login() {
         <ThemedView style={styles.formcontainer}>
           {/* Title and description */}
           <ThemedText type='semititle' font='cocoGothicRegular'>Al-Khalaf Gold & Jewelry</ThemedText>
-          <ThemedText font='spaceMonoRegular' style={{ fontSize: 14, marginBottom: 20 }}>Powered by MeSure</ThemedText>
+          <ThemedText font='spaceMonoRegular' style={{ fontSize: 14, marginBottom: "20%" }}>Powered by MeSure</ThemedText>
 
           {/* Email input */}
           <Controller
