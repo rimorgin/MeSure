@@ -105,3 +105,30 @@ export const useImageStorage = create<ImageStorage>((set) => ({
     set({ images: updatedImages });
   },
 }));
+
+// Zustand store definition for theme
+interface ColorSchemeStorage {
+  theme: 'light' | 'dark' | null;
+  toggleTheme: (newTheme: 'light' | 'dark' | null) => void;
+}
+
+// Zustand store for theme
+export const useColorSchemeStore = create<ColorSchemeStorage>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        theme: 'light', // default theme is 'light'
+
+        // Toggle function to switch themes
+        toggleTheme: (newTheme) => 
+          set((state) => ({
+            theme: newTheme ?? (state.theme === 'light' ? 'dark' : 'light'),
+          })),
+      }),
+      {
+        name: 'COLOR_SCHEME', // storage key for AsyncStorage
+        storage: createJSONStorage(() => AsyncStorage),
+      }
+    )
+  )
+);

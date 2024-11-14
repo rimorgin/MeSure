@@ -6,7 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import useColorSchemeTheme, { useColorScheme } from '@/hooks/useColorScheme';
 import { toastConfig } from '@/components/Toast';
 import { FontProvider } from '@/provider/FontContext';
 import { useNetInfo } from "@react-native-community/netinfo";
@@ -17,7 +17,7 @@ import { useNetInfo } from "@react-native-community/netinfo";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorSchemeTheme();
   const { isConnected } = useNetInfo();
  /*
       <Stack>
