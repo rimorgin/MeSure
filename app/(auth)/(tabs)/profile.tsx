@@ -68,7 +68,7 @@ export default function ProfileScreen() {
             </ThemedText>
           </ThemedView>
           <Image 
-            source={appData.dp}
+            source={appData.profile.dp}
             style={styles.avatar}
           />
         </ThemedView>

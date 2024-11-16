@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { useState } from 'react';
-import FocusAwareStatusBar from '@/components/navigation/ContentAwareTabStatusBar';
+import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import { Drawer } from 'react-native-drawer-layout';
 
 export default function Favorites() {

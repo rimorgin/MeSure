@@ -45,6 +45,63 @@ export const appData = {
             price:'15000 PHP'
         },
     ],
-    dp: require('@/assets/images/avatars/7309707.jpg')
-    
+    profile: {
+        dp: require('@/assets/images/avatars/7309707.jpg')
+    },
+    categories: [
+        {
+            id:0,
+            name: 'rings',
+            rings: [
+                {
+                    id: 0,
+                    img: [
+                        require('@/assets/images/rings/TiffanyKhalafRing.png'),
+                        require('@/assets/images/rings/TiffanyKhalafRing2.png'),
+                        require('@/assets/images/rings/TiffanyKhalafRing3.png'),
+                    ],
+                    name: 'Tiffany Khalaf',
+                    description: '123asfaesgaiorpzshgoiserignes',
+                    rating: 5,
+                    price: '15000'
+                },
+                {
+                    id: 1,
+                    img: [
+                        require('@/assets/images/rings/WinstonKhalafRing.png'),
+                    ],
+                    name: 'Winston Khalaf',
+                    description: '123asfaesgaiorpzshgoiserignes',
+                    rating: 3,
+                    price: '13000'
+                },
+                {
+                    id: 2,
+                    img: [
+                        require('@/assets/images/rings/WinstonKhalafRing.png'),
+                    ],
+                    name: 'Mejur Khalaf',
+                    description: '123asfaesgaiorpzshgoiserignes',
+                    rating: 4,
+                    price: '20000'
+                },
+                {
+                    id: 3,
+                    img: [
+                        require('@/assets/images/rings/ArpelsKhalafRing.png'),
+                    ],
+                    name: 'Mejur Khalaf',
+                    description: '123asfaesgaiorpzshgoiserignes',
+                    rating: 4,
+                    price: '20000'
+                },
+
+            ],
+            
+        },
+        {
+            id:1,
+            name: 'bangles'
+        }
+    ]
 };

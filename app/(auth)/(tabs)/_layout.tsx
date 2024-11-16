@@ -107,18 +107,6 @@ export default function TabLayout() {
         <Tabs.Screen
           name="camera"
           options={{
-            title: 'Camera',
-            headerShown: false,
-            headerShadowVisible: true,
-            headerTitle: 'Measure Fingers',
-            headerTitleAlign: 'center',
-            headerLeft: () => {
-              return (
-                <TouchableOpacity onPress={() => router.back()}>
-                  <Ionicons name='return-up-back' size={25} style={{marginLeft:20}}/>
-                </TouchableOpacity>
-              )
-            },
             tabBarButton:() => null,
             tabBarStyle: { display: 'none' },
           }}

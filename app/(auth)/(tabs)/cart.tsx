@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { useState } from 'react';
-import FocusAwareStatusBar from '@/components/navigation/ContentAwareTabStatusBar';
+import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import { Drawer } from 'react-native-drawer-layout';
 
 export default function Cart() {
@@ -23,7 +23,7 @@ export default function Cart() {
           size={30}
           backgroundColor='transparent'
           color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
-          onPress={() => setOpenFilter(prev => !prev)} // Correctly opens the Drawer
+          onPress={() => setOpenFilter(prev => !prev)}
         />
       </ThemedView>
       <Drawer

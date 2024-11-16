@@ -9,7 +9,7 @@ import Animated, {
 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
-import FocusAwareStatusBar from './navigation/ContentAwareTabStatusBar';
+import FocusAwareStatusBar from './navigation/FocusAwareStatusBarTabConf';
 
 const DEFAULT_HEADER_HEIGHT = 250;
 
@@ -20,6 +20,7 @@ type Props = PropsWithChildren<{
   headerBackgroundColor: { dark: string; light: string };
   overlayedContent?: boolean;
   roundedHeader?: boolean;
+  noContentPadding?: boolean;
 }>;
 
 export default function ParallaxScrollView({
@@ -29,7 +30,8 @@ export default function ParallaxScrollView({
   headerHeight = DEFAULT_HEADER_HEIGHT, // Use DEFAULT_HEADER_HEIGHT if headerHeight is not provided
   headerBackgroundColor,
   overlayedContent = false,
-  roundedHeader = false
+  roundedHeader = false,
+  noContentPadding = false
 }: Props) {
   const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
@@ -82,7 +84,10 @@ export default function ParallaxScrollView({
           }
         </Animated.View>
         <ThemedView 
-          style={overlayedContent ? styles.overlayedContent : styles.content}
+          style={[
+            overlayedContent ? styles.overlayedContent : styles.content, 
+            {padding: noContentPadding ? 0 : 32}
+          ]}
         >{children}  
         </ThemedView>
       </Animated.ScrollView>
@@ -109,10 +114,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 0.4,
-    padding: 32,
     gap: 16,
     width: '100%',
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   overlayedContent: {
     flex: 0.4,

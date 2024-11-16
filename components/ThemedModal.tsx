@@ -4,6 +4,7 @@ import { ThemedView } from './ThemedView';
 import { Ionicons } from '@expo/vector-icons';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { black, tintColorLight, white } from '@/constants/Colors';
 
 interface ThemedModalProps extends Omit<ModalProps, 'visible'> {
   animationType?: 'fade' | 'slide' | 'none';
@@ -54,7 +55,10 @@ const ThemedModal: React.FC<ThemedModalProps> = ({
             style={styles.closeButton}
             onPress={handleClose}
             >
-            <Ionicons color={theme === 'light' ? '#D4AF37' : '#D4AF37'} name='close-circle' size={32}/>
+            <Ionicons 
+              color={theme === 'light' ? black : white} 
+              name='close-sharp' 
+              size={32}/>
           </TouchableOpacity>
         </ThemedView>
       </ThemedView>
@@ -87,7 +91,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top:0,
     right: 0,
-    padding: 10,
+    borderRadius: 25,
+    backgroundColor: tintColorLight,
+    transform: [
+      {translateX: 12},
+      {translateY: -12}
+    ]
   }
 });
 

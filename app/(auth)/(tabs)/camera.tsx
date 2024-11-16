@@ -19,7 +19,8 @@ import { cropImage, processImageHelper, reduceRatio, sortFormats } from '@/utils
 import { router } from 'expo-router';
 import ConfirmCoinAlertDialog from '@/components/CameraHelpers/ConfirmCoinAlertDialog';
 import ConfirmBodyPartAlertDialog from '@/components/CameraHelpers/ConfirmBodyPartAlertDialog';
-import FocusAwareStatusBar from '@/components/navigation/ContentAwareTabStatusBar';
+import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
+import Loader from '@/components/Loader';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -122,7 +123,7 @@ export default function CameraApp() {
   }, [hasPermission]);
 
   if (!hasPermission) {
-    return <ActivityIndicator color={Colors.light.tint} />;
+    return <Loader/>;
   }
 
   return (
@@ -146,12 +147,7 @@ export default function CameraApp() {
         }} // Hide the dialog after selection
       />
       {loading && (
-      <View style={styles.loadingOverlay}>
-        <ActivityIndicator 
-          size={50} 
-          color={Colors.light.tint} 
-        />
-      </View>
+      <Loader/>
     )}
       {photo ? (
         <>
@@ -305,13 +301,6 @@ const styles = StyleSheet.create({
   confirmText: {
     textAlign: 'center',
     color: 'white',
-  },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10, // Ensure it appears on top
   },
   image: {
     height: width * (4 / 3),
