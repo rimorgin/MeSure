@@ -1,7 +1,7 @@
 import { Tabs, Redirect, router } from 'expo-router';
 import React, { useEffect } from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
+import { black, Colors, white } from '@/constants/Colors';
 import useColorSchemeTheme, { useColorScheme } from '@/hooks/useColorScheme';
 import { useIsAppFirstLaunchStore } from '@/state/appStore';
 import { Dimensions, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
@@ -12,6 +12,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 
 export default function TabLayout() {
   const colorScheme = useColorSchemeTheme();
+  const theme = useColorSchemeTheme();
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
   const showIntro = useIsAppFirstLaunchStore((state) => state.showIntro);
   const { hideIntro } = useIsAppFirstLaunchStore();
@@ -84,6 +85,11 @@ export default function TabLayout() {
                 color={color}
               />
             ),
+            tabBarBadge: 3,
+            tabBarBadgeStyle: {
+              backgroundColor: Colors.light.tint,
+              color: theme === 'light' ? white : black
+            }
           }}
         />
         <Tabs.Screen
@@ -102,7 +108,7 @@ export default function TabLayout() {
           name="camera"
           options={{
             title: 'Camera',
-            headerShown: true,
+            headerShown: false,
             headerShadowVisible: true,
             headerTitle: 'Measure Fingers',
             headerTitleAlign: 'center',
@@ -115,6 +121,13 @@ export default function TabLayout() {
             },
             tabBarButton:() => null,
             tabBarStyle: { display: 'none' },
+          }}
+        />
+        <Tabs.Screen
+          name="permissions"
+          options={{
+            headerShown: false,
+            tabBarButton:() => null,
           }}
         />
       </Tabs>

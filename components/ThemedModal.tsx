@@ -1,6 +1,9 @@
-import React from 'react';
-import { Modal, View, StyleSheet, ModalProps, ViewStyle, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import { Modal, View, StyleSheet, ModalProps, ViewStyle, Dimensions, TouchableOpacity } from 'react-native';
 import { ThemedView } from './ThemedView';
+import { Ionicons } from '@expo/vector-icons';
+import useColorSchemeTheme from '@/hooks/useColorScheme';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 interface ThemedModalProps extends Omit<ModalProps, 'visible'> {
   animationType?: 'fade' | 'slide' | 'none';
@@ -26,9 +29,15 @@ const ThemedModal: React.FC<ThemedModalProps> = ({
     const screenSize = axis === 'width' ? Dimensions.get('window').width : Dimensions.get('window').height;
     return parseFloat(dimension) / 100 * screenSize;
   };
-
+  const theme = useColorSchemeTheme();
   const modalWidth = calculateDimension(width, 'width');
   const modalHeight = calculateDimension(height, 'height');
+  const [forceClose, setForceClose] = useState(false);
+
+  const handleClose = () => {
+    setForceClose(true); // Trigger force close
+    if (onClose) onClose(); // Trigger the onClose callback from the parent if provided
+  };
 
   return (
     <Modal
@@ -41,6 +50,12 @@ const ThemedModal: React.FC<ThemedModalProps> = ({
       <ThemedView style={styles.centeredView}>
         <ThemedView style={[styles.modalView, { width: modalWidth, height: modalHeight }]}>
           {children}
+          <TouchableOpacity 
+            style={styles.closeButton}
+            onPress={handleClose}
+            >
+            <Ionicons color={theme === 'light' ? '#D4AF37' : '#D4AF37'} name='close-circle' size={32}/>
+          </TouchableOpacity>
         </ThemedView>
       </ThemedView>
     </Modal>
@@ -68,6 +83,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   } as ViewStyle,
+  closeButton: {
+    position: 'absolute',
+    top:0,
+    right: 0,
+    padding: 10,
+  }
 });
 
 export default ThemedModal;

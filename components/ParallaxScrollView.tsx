@@ -9,6 +9,7 @@ import Animated, {
 
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
+import FocusAwareStatusBar from './navigation/ContentAwareTabStatusBar';
 
 const DEFAULT_HEADER_HEIGHT = 250;
 
@@ -57,10 +58,7 @@ export default function ParallaxScrollView({
         height: headerHeight 
       }]}
     >
-      <StatusBar
-        animated={true}
-        barStyle='light-content'
-      />
+      <FocusAwareStatusBar animated barStyle="light-content"/>
       <Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
         <Animated.View
           style={[

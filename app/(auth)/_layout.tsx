@@ -22,7 +22,7 @@ export default function AppLayout() {
 
   return (
       <Stack>
-        <Stack.Screen name="landing" options={{ headerShown: false }}/>
+        <Stack.Screen name="landing" options={{ presentation: 'modal', headerShown: false }}/>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     )
