@@ -113,8 +113,10 @@ export const appData = {
       bangles: [
                 {
                     id: 12423,
-                    img: ['image7'],
-                    name: 'Gold Bangle',
+                    img: [
+                        require('@/assets/images/bangles/bangle1.png'),
+                    ],
+                    name: 'Seanono Lover',
                     description: 'Elegant gold bangle with intricate design.',
                     rating: 4,
                     sold: 10,
@@ -123,8 +125,10 @@ export const appData = {
                 },
                 {
                     id: 12323,
-                    img: ['image8'],
-                    name: 'Silver Bangle',
+                   img: [
+                        require('@/assets/images/bangles/bangle2.png'),
+                    ],
+                    name: 'Jaigga',
                     description: 'Stylish silver bangle with modern design.',
                     rating: 4.5,
                     sold: 30,
