@@ -1,18 +1,14 @@
-  import { useRouter, useLocalSearchParams } from 'expo-router';
+  import { router, useLocalSearchParams } from 'expo-router';
   import { View, Text, StyleSheet, Button, Image, Dimensions, TouchableHighlight } from 'react-native';
   import { appData } from '@/assets/data/appData';
   import ParallaxScrollView from '@/components/ParallaxScrollView';
   import { ThemedView } from '@/components/ThemedView';
-  import { useAssets } from 'expo-asset';
-  import Loader from '@/components/Loader';
   import { FlashList } from '@shopify/flash-list';
-  import { useState } from 'react';
 
   const { width, height } = Dimensions.get('screen');
 
   export default function ProductDetails() {
     const { id } = useLocalSearchParams();
-    const router = useRouter();
     // Safely access the categories and rings
     const rings = appData.categories.find((category) => category.rings)?.rings || [];
     const product = rings.find((item) => item.id.toString() === id);
@@ -25,18 +21,7 @@
         </View>
       );
     }
-    const [image, selectedImage] = useState(product.img[0])
-    // Load images using useAssets hook
-    const [assets] = useAssets([
-      ...product.img,  // Dynamically load product images
-    ]);
 
-    // Check if assets are loaded before rendering
-    if (!assets || assets.length < 1) {
-      return (
-        <Loader/>
-      );
-    }
 
     return (
       <>
@@ -57,14 +42,14 @@
         >
         <View style={{height: '100%',alignItems: 'center', justifyContent:'center'}}>
         <FlashList
-          data={assets}
+          data={product.img}
           estimatedItemSize={5}
           horizontal
           renderItem={({ item }) => (
             <TouchableHighlight
-              onPress={() => selectedImage(item.uri)}
+              onPress={() => console.log('pressed')}
             >
-              <Image source={{ uri: item.uri }} style={styles.ProductImageItem} />
+              <Image source={item} style={styles.ProductImageItem} />
             </TouchableHighlight>
           )}
         />
@@ -86,7 +71,7 @@
             style={styles.headerContent}
           >
             <Image 
-              source={image ? image : assets[0]} 
+              source={product.img[0]}
               style={styles.headerProductImageHeader}
             />
           </ThemedView>

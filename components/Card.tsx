@@ -1,9 +1,8 @@
-import React from 'react';
-import { View, Image, StyleSheet, Dimensions, TouchableHighlight } from 'react-native';
+import { Image, StyleSheet, Dimensions, TouchableHighlight } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
-import { Link, router } from 'expo-router';
+import { Link } from 'expo-router';
 
 const { width, height } = Dimensions.get('screen')
 
