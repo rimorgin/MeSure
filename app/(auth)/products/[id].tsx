@@ -25,7 +25,9 @@ import { useFavoritesStore } from '@/state/appStore';
     const theme = useColorSchemeTheme(); 
     // Safely access the categories and rings
     const rings = appData.categories.find((category) => category.rings)?.rings || [];
-    const product = rings.find((item) => item.id.toString() === id);
+    const product = appData.categories
+    .flatMap(category => category.rings ? category.rings : category.bangles || [])
+    .find(item => item.id.toString() === id);
 
     if (!product) {
       return (
