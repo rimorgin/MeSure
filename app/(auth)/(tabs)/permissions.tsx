@@ -40,8 +40,7 @@ export default function PermissionsScreen() {
     }
   })
 
-  console.log(mediaLibraryPermission)
-  console.log(cameraPermissionStatus)
+  
 
   return (
     <ThemedView style={styles.container}>
@@ -54,7 +53,7 @@ export default function PermissionsScreen() {
     </View>
     <View style={styles.spacer} />
 
-    <View style={styles.row}>
+    <View style={[styles.row, {marginLeft: 10}]}>
         <Ionicons
         name="lock-closed-outline"
         color={"orange"}
@@ -65,24 +64,7 @@ export default function PermissionsScreen() {
 
     <View style={styles.spacer} />
 
-    <View
-        style={StyleSheet.compose(styles.row, styles.permissionContainer)}
-    >
-        <Ionicons name="camera-outline" color={"gray"} size={ICON_SIZE} />
-        <View style={styles.permissionText}>
-        <ThemedText type="subtitle">Camera</ThemedText>
-        <ThemedText>Used for taking photos, measuring finger sizes, and try ons.</ThemedText>
-        </View>
-        <Switch
-        trackColor={{ true: "orange" }}
-        value={cameraPermissionStatus === "granted"}
-        onChange={requestCameraPermission}
-        />
-    </View>
-
-    <View style={styles.spacer} />
-
-    <View
+   <View
         style={StyleSheet.compose(styles.row, styles.permissionContainer)}
     >
         <Ionicons name="library-outline" color={"gray"} size={ICON_SIZE} />
@@ -97,6 +79,23 @@ export default function PermissionsScreen() {
         onChange={async () => await requestMediaLibraryPermission()}
         />
     </View>
+
+    <View style={styles.spacer} />
+     <View
+        style={StyleSheet.compose(styles.row, styles.permissionContainer)}
+    >
+        <Ionicons name="camera-outline" color={"gray"} size={ICON_SIZE} />
+        <View style={styles.permissionText}>
+        <ThemedText type="subtitle">Camera</ThemedText>
+        <ThemedText>Used for taking photos, measuring finger sizes, and try ons.</ThemedText>
+        </View>
+        <Switch
+        trackColor={{ true: "orange" }}
+        value={cameraPermissionStatus === "granted"}
+        onChange={requestCameraPermission}
+        />
+    </View>
+    
 
     <View style={styles.spacer} />
     <View style={styles.spacer} />
@@ -123,6 +122,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "bold",
     letterSpacing: 2,
+    marginLeft: 5
   },
   row: {
     flexDirection: "row",

@@ -10,6 +10,7 @@ import useColorSchemeTheme, { useColorScheme } from '@/hooks/useColorScheme';
 import { toastConfig } from '@/components/Toast';
 import { FontProvider } from '@/provider/FontContext';
 import { useNetInfo } from "@react-native-community/netinfo";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -62,13 +63,15 @@ export default function RootLayout() {
 
   
   return (
-    <SessionProvider>
-        <FontProvider>
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <Slot />
-            <Toast config={toastConfig} position='top' topOffset={20}/>
-          </ThemeProvider>
-        </FontProvider>
-    </SessionProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SessionProvider>
+          <FontProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+              <Slot />
+              <Toast config={toastConfig} position='top' topOffset={20}/>
+            </ThemeProvider>
+          </FontProvider>
+      </SessionProvider>
+    </GestureHandlerRootView>
   );
 }

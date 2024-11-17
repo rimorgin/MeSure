@@ -38,8 +38,8 @@ export default function CameraApp() {
   const [bodyPart, setBodyPart] = useState('');
   const [loading, setLoading] = useState(false);
   const [measured, setMeasured] = useState(false);
-  const [showBodyPartDialog, setShowBodyPartDialog] = useState(true);
-  const [showCoinDialog, setShowCoinDialog] = useState(true);
+  const [showBodyPartDialog, setShowBodyPartDialog] = useState(false);
+  const [showCoinDialog, setShowCoinDialog] = useState(false);
 
   if (!device) {
     return (
@@ -82,8 +82,6 @@ export default function CameraApp() {
 
   const format = useCameraFormat(device, [
     { 
-      autoFocusSystem: 'contrast-detection',
-      photoHdr: true,
       fps: 'max',
       photoAspectRatio: 16/9,
       photoResolution: 'max'
@@ -116,13 +114,14 @@ export default function CameraApp() {
     if (!hasPermission && !mediaLibraryPermission) {
       
      router.push('/(auth)/(tabs)/permissions')
-    }
-    if (hasPermission) {
+    } else if (hasPermission && mediaLibraryPermission) {
       initializeCamera(true);
+      setShowBodyPartDialog(true);
+      setShowCoinDialog(true);
   }
-  }, [hasPermission]);
+  }, [hasPermission, mediaLibraryPermission]);
 
-  if (!hasPermission) {
+  if (!hasPermission && mediaLibraryPermission) {
     return <Loader/>;
   }
 
@@ -153,7 +152,7 @@ export default function CameraApp() {
         <>
           <TouchableOpacity 
             style={{top:50, left:0, position:'absolute', zIndex:1}}
-            onPress={() => router.back()}
+            onPress={() => router.push('/profile')}
           >
             <Ionicons 
               name='return-up-back' 
@@ -219,7 +218,7 @@ export default function CameraApp() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={{top:50, left:0, position:'absolute', zIndex:2}}
-            onPress={() => router.back()}
+            onPress={() => router.push('/profile')}
           >
             <Ionicons 
               name='return-up-back' 

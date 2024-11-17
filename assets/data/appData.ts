@@ -54,46 +54,54 @@ export const appData = {
             name: 'rings',
             rings: [
                 {
-                    id: 0,
+                    id: 12412,
                     img: [
                         require('@/assets/images/rings/TiffanyKhalafRing.png'),
                         require('@/assets/images/rings/TiffanyKhalafRing2.png'),
                         require('@/assets/images/rings/TiffanyKhalafRing3.png'),
                     ],
                     name: 'Tiffany Khalaf',
-                    description: '123asfaesgaiorpzshgoiserignes',
+                    description: 'Oval diamond centre and floral diamond halo engagement ring set in 18ct yellow gold.',
                     rating: 5,
-                    price: '15000'
+                    sold: 44,
+                    price: '15000',
+                    stock:100,
                 },
                 {
-                    id: 1,
+                    id: 92460,
                     img: [
                         require('@/assets/images/rings/WinstonKhalafRing.png'),
                     ],
                     name: 'Winston Khalaf',
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 3,
-                    price: '13000'
+                    sold: 20,
+                    price: '13000',
+                    stock:120,
                 },
                 {
-                    id: 2,
+                    id: 51234,
                     img: [
                         require('@/assets/images/rings/WinstonKhalafRing.png'),
                     ],
                     name: 'Mejur Khalaf',
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 4,
-                    price: '20000'
+                    sold: 14,
+                    price: '20000',
+                    stock:30,
                 },
                 {
-                    id: 3,
+                    id: 14634,
                     img: [
                         require('@/assets/images/rings/ArpelsKhalafRing.png'),
                     ],
                     name: 'Mejur Khalaf',
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 4,
-                    price: '20000'
+                    sold: 24,
+                    price: '20000',
+                    stock:90,
                 },
 
             ],
@@ -101,7 +109,30 @@ export const appData = {
         },
         {
             id:1,
-            name: 'bangles'
+            name: 'bangles',
+      bangles: [
+                {
+                    id: 12423,
+                    img: ['image7'],
+                    name: 'Gold Bangle',
+                    description: 'Elegant gold bangle with intricate design.',
+                    rating: 4,
+                    sold: 10,
+                    price: '5000',
+                    stock: 50,
+                },
+                {
+                    id: 12323,
+                    img: ['image8'],
+                    name: 'Silver Bangle',
+                    description: 'Stylish silver bangle with modern design.',
+                    rating: 4.5,
+                    sold: 30,
+                    price: '3000',
+                    stock: 70,
+                },
+        ],
+            
         }
     ]
 };

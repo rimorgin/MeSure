@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Dimensions, TouchableHighlight } from 'react-native';
+import { Image, StyleSheet, Dimensions, TouchableHighlight, TouchableOpacity } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
@@ -28,7 +28,7 @@ export default function ItemCard({ item }: ItemCardProps) {
 
 
   return (
-    <TouchableHighlight style={styles.button}>
+    <TouchableOpacity style={styles.button}>
       <Link href={{
           pathname: '/products/[id]',
           params: { id: item.id },
@@ -47,7 +47,7 @@ export default function ItemCard({ item }: ItemCardProps) {
             </ThemedText>
         </ThemedView>
       </Link>
-    </TouchableHighlight>
+    </TouchableOpacity>
   );
 }
 
