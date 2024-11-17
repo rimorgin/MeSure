@@ -3,7 +3,7 @@ import { View, Image, StyleSheet, Dimensions, TouchableHighlight } from 'react-n
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 
 const { width, height } = Dimensions.get('screen')
 
@@ -29,10 +29,11 @@ export default function ItemCard({ item }: ItemCardProps) {
 
 
   return (
-    <TouchableHighlight
-        onPress={() => router.push(`/(auth)/(product)/${item.id}`)}
-        style={styles.button}
-    >
+    <TouchableHighlight style={styles.button}>
+      <Link href={{
+          pathname: '/products/[id]',
+          params: { id: item.id },
+        }}>
         <ThemedView style={styles.cardContainer}>
             <Image source={item.img[0]} style={styles.image} />
             <ThemedText 
@@ -46,6 +47,7 @@ export default function ItemCard({ item }: ItemCardProps) {
             >Php {item.price}
             </ThemedText>
         </ThemedView>
+      </Link>
     </TouchableHighlight>
   );
 }

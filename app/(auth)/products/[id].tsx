@@ -11,11 +11,11 @@
   const { width, height } = Dimensions.get('screen');
 
   export default function ProductDetails() {
-    const { productId } = useLocalSearchParams();
+    const { id } = useLocalSearchParams();
     const router = useRouter();
     // Safely access the categories and rings
     const rings = appData.categories.find((category) => category.rings)?.rings || [];
-    const product = rings.find((item) => item.id.toString() === productId);
+    const product = rings.find((item) => item.id.toString() === id);
 
     if (!product) {
       return (

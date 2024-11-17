@@ -14,7 +14,6 @@ import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import { Drawer } from 'react-native-drawer-layout';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { useState } from 'react';
-import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import ItemCard from '@/components/Card';
 
 const { width, height } = Dimensions.get('screen');

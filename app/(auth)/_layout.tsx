@@ -21,7 +21,7 @@ export default function AppLayout() {
       <Stack>
         <Stack.Screen name="landing" options={{ presentation: 'modal', headerShown: false }}/>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(product)/[productId]" options={{ headerShown: false }} />
+        <Stack.Screen name="products/[id]" options={{ headerShown: false }} />
       </Stack>
     )
 }
