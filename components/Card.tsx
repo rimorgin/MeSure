@@ -23,6 +23,7 @@ const ratingStars = (rating: number): string => {
   }
   return '⭐'.repeat(rating);
 };
+
 export default function ItemCard({ item }: ItemCardProps) {
   const theme = useColorSchemeTheme();
 

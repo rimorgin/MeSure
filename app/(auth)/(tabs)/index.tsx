@@ -1,12 +1,11 @@
-import { Image, StyleSheet, Platform, Dimensions, TouchableOpacity, View } from 'react-native';
-import { HelloWave } from '@/components/HelloWave'; // Custom component (not used here)
+import { Image, StyleSheet, Dimensions, TouchableOpacity, View } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView'; // A scroll view with parallax effect
 import { ThemedText } from '@/components/ThemedText'; // Text component with theming support
 import { ThemedView } from '@/components/ThemedView'; // View component with theming support
 import SearchInput from '@/components/SearchBar'; // Custom search input component
 import Ionicons from '@expo/vector-icons/Ionicons'; // Icons from Expo Ionicons package
 import { router } from 'expo-router'; // Router for navigation
-import { Colors, tintColorLight, white } from '@/constants/Colors'; // Color constants
+import { black, Colors, tintColorLight, white } from '@/constants/Colors'; // Color constants
 import { FlashList } from "@shopify/flash-list"; // High-performance list component
 import { appData } from '@/assets/data/appData'; // Data source for categories and items
 import { ThemedTouchableFilled } from '@/components/ThemedButton'; // Themed button component
@@ -14,93 +13,114 @@ import { Drawer } from 'react-native-drawer-layout'; // Drawer layout for side m
 import useColorSchemeTheme from '@/hooks/useColorScheme'; // Hook for getting theme
 import { useState } from 'react'; // React hook for managing state
 import ItemCard from '@/components/Card'; // Component for rendering individual items
+import { useCartStore } from '@/state/appStore';
 
 // Get screen dimensions
-const { width, height } = Dimensions.get('screen');
-
-// Access the "rings" and "bangles" data from the appData categories
-const rings = appData.categories[0].rings;
-const bangles = appData.categories[1].bangles;
+const { width } = Dimensions.get('screen');
 
 export default function HomeScreen() {
   const theme = useColorSchemeTheme(); // Get the current theme (light/dark)
+  const cart = useCartStore((state) => state.cart);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search input
   const [openFilter, setOpenFilter] = useState(false); // State to manage whether the filter drawer is open
-  const [selectedCategory, setSelectedCategory] = useState<'rings' | 'bangles' | 'both'>( 'both'); // Default to 'both'
+  const [sortOption, setSortOption] = useState<'name' | 'price'>('name'); // Default sorting by name
+
+  // Access the "rings" and "bangles" data from the appData categories using find
+  const ringsCategory = appData.categories.find(category => category.name === 'rings');
+  const banglesCategory = appData.categories.find(category => category.name === 'bangles');
+
+  const rings = ringsCategory ? ringsCategory.rings : []; // Fallback to empty array if not found
+  const bangles = banglesCategory ? banglesCategory.bangles : []; // Fallback to empty array if not found
+
+  const [selectedCategory, setSelectedCategory] = useState<'rings' | 'bangles' | 'All'>('All'); // Default to 'All'
 
   // Handler for category selection (rings or bangles)
-  const handleCategorySelect = (category: 'rings' | 'bangles') => {
+  const handleCategorySelect = (category: 'All' | 'rings' | 'bangles') => {
     setSelectedCategory(category); // Set the selected category
   };
 
-  // Reset to show both rings and bangles
-  const resetCategorySelection = () => {
-    setSelectedCategory('both');
-  };
-
   // Get data for the selected category (either rings, bangles, or both)
-  const selectedProducts = selectedCategory === 'both'
-    ? [...rings, ...bangles] // Combine both rings and bangles
-    : selectedCategory === 'rings'
-    ? rings // Only rings
-    : bangles; // Only bangles
+  const selectedProducts = 
+    selectedCategory === 'All'
+      ? [...(rings || []), ...(bangles || [])] // Combine all products
+      : selectedCategory === 'rings'
+      ? rings || [] // Only rings
+      : bangles || []; // Only bangles
 
   // Function to handle search input
   const handleSearch = (text: string) => {
-    console.log('Searching for:', text);
+    setSearchTerm(text); // Update the search term
   };
 
-  return (
+  // Function to sort products based on the selected option
+  const sortProducts = (products: any[]) => {
+    return products.sort((a, b) => {
+      if (sortOption === 'name') {
+        return a.name.localeCompare(b.name); // Sort by name
+      } else if (sortOption === 'price') {
+        return a.price - b.price; // Sort by price
+      }
+      return 0; // Default case
+    });
+  };
+
+  // Sort selected products
+  const sortedProducts = sortProducts([...selectedProducts]); // Create a new array for sorting
+
+  // Filter products based on the search term
+  const filteredProducts = sortedProducts.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+ return (
     <>
-      {/* ParallaxScrollView for a scrollable page with a parallax effect */}
       <ParallaxScrollView
-        noContentPadding // Disable default content padding
-        headerHeight={width * 0.32} // Header height based on screen width
-        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }} // Background color for the header
+        noContentPadding
+        headerHeight={width * 0.32}
+        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
         headerImage={
-          // Image to display in the parallax header
           <Image
-            source={require('@/assets/images/dark-bgcloth.png')} // Background image
-            style={styles.headerImg} // Style for the header image
+            source={require('@/assets/images/dark-bgcloth.png')}
+            style={styles.headerImg}
           />
         }
         headerOverlayedContent={
-          // Content overlaid on the parallax header
           <ThemedView transparent style={styles.headerContent}>
-            {/* Search bar */}
             <SearchInput onSearch={handleSearch} />
-            
-            {/* Cart button */}
             <TouchableOpacity onPress={() => router.push('/cart')}>
               <Ionicons
-                style={styles.cartButton} // Button styling
-                name="cart-sharp" // Icon name
-                size={24} 
-                color={tintColorLight} 
+                style={styles.cartButton}
+                name="cart-sharp"
+                size={24}
+                color={tintColorLight}
               />
-              {/* Badge for cart item count */}
               <View style={styles.cartCount}>
-                <ThemedText customColor={white}>3</ThemedText>
+                <ThemedText customColor={white}>{cart.length}</ThemedText>
               </View>
             </TouchableOpacity>
           </ThemedView>
         }
       >
-        {/* Drawer for the filter menu */}
         <Drawer
-          drawerPosition="right" // Position the drawer on the right
-          open={openFilter} // Controlled by state
-          onOpen={() => setOpenFilter(true)} // Open handler
-          onClose={() => setOpenFilter(false)} // Close handler
+          drawerPosition="right"
+          open={openFilter}
+          onOpen={() => setOpenFilter(true)}
+          onClose={() => setOpenFilter(false)}
           renderDrawerContent={() => (
-            // Content inside the drawer
             <View style={styles.drawerContent}>
-              <ThemedText>Filter Options</ThemedText>
+              {/* Sorting Options */}
+            <View style={styles.sortOptions}>
+              <TouchableOpacity onPress={() => setSortOption('name')}>
+                <ThemedText customColor={black}>Sort by Name</ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setSortOption('price')}>
+                <ThemedText customColor={black}>Sort by Price</ThemedText>
+              </TouchableOpacity>
+            </View>
             </View>
           )}
         >
-          {/* Main content container */}
           <ThemedView style={styles.contentContainer}>
-            {/* Title */}
             <ThemedText 
               type="semititle"
               font="glacialIndifferenceBold"
@@ -108,45 +128,39 @@ export default function HomeScreen() {
               Discover Elegance
             </ThemedText>
 
-            {/* Filter button */}
             <Ionicons.Button 
               style={styles.filterButton}
               name="filter" 
               size={30}
               backgroundColor="transparent"
               color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
-              onPress={() => setOpenFilter(prev => !prev)} // Toggle filter drawer
+              onPress={() => setOpenFilter(prev => !prev)}
             />
             
-            {/* Horizontal list of categories */}
+            
+
             <FlashList
-              data={appData.categories} // Data for the list
-              horizontal // Display items horizontally
+              data={appData.categories}
+              horizontal
               renderItem={({ item }) => (
                 <ThemedTouchableFilled 
-                  style={{ marginRight: 10, borderRadius: 30 }} // Styling for category buttons
-                  onPress={() => handleCategorySelect(item.name as 'rings' | 'bangles')} // Set the selected category
+                  style={{ marginRight: 10, borderRadius: 30 }}
+                  onPress={() => handleCategorySelect(item.name as 'All' | 'rings' | 'bangles')}
                 >
-                  <ThemedText customColor={white}>{item.name}</ThemedText>
+                  <ThemedText type='default' customColor={white}>{item.name}</ThemedText>
                 </ThemedTouchableFilled>
               )}
-              estimatedItemSize={2} // Estimate of item size for performance
+              estimatedItemSize={3}
             />
 
-            {/* Reset button to show both rings and bangles */}
-            <TouchableOpacity onPress={resetCategorySelection} style={styles.resetButton}>
-              <ThemedText customColor={white}>Show All</ThemedText>
-            </TouchableOpacity>
-
-            {/* Vertical list of selected category items */}
             <ThemedView style={styles.listItems}>
               <FlashList
-                data={selectedProducts} // Data for the selected category (rings, bangles, or both)
-                keyExtractor={(item) => item.id.toString()} // Unique key for each item
-                numColumns={2} // Display items in 2 columns
-                renderItem={({ item }) => <ItemCard item={item} />} // Render individual items
-                estimatedItemSize={100} // Estimate of item size for performance
-                showsVerticalScrollIndicator={false} // Hide scroll indicator
+                data={filteredProducts} // Use filtered products
+                keyExtractor={(item) => item.id.toString()}
+                numColumns={2}
+                renderItem={({ item }) => <ItemCard item={item} />}
+                estimatedItemSize={100}
+                showsVerticalScrollIndicator={false}
               />
             </ThemedView>
           </ThemedView>
@@ -205,22 +219,17 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    height: height,
     padding: 20,
+    paddingBottom: 100,
     overflow: 'hidden',
   },
   listItems: {
     flex: 1,
-    height: height,
     overflow: 'hidden',
   },
-  resetButton: {
-    marginTop: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    backgroundColor: Colors.light.tint,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
+  sortOptions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
   },
 });

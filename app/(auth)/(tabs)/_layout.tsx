@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { black, Colors, white } from '@/constants/Colors';
 import useColorSchemeTheme, { useColorScheme } from '@/hooks/useColorScheme';
-import { useIsAppFirstLaunchStore } from '@/state/appStore';
+import { useCartStore, useIsAppFirstLaunchStore } from '@/state/appStore';
 import { Dimensions, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
@@ -16,6 +16,7 @@ export default function TabLayout() {
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
   const showIntro = useIsAppFirstLaunchStore((state) => state.showIntro);
   const { hideIntro } = useIsAppFirstLaunchStore();
+  const cart = useCartStore((state) => state.cart)
 
   // Check for first launch before rendering the component
   useEffect(() => {
@@ -85,7 +86,7 @@ export default function TabLayout() {
                 color={color}
               />
             ),
-            tabBarBadge: 3,
+            tabBarBadge: cart.length,
             tabBarBadgeStyle: {
               backgroundColor: Colors.light.tint,
               color: theme === 'light' ? white : black

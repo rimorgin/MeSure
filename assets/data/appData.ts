@@ -51,6 +51,10 @@ export const appData = {
     categories: [
         {
             id:0,
+            name: 'All'
+        },
+        {
+            id:1,
             name: 'rings',
             rings: [
                 {
@@ -61,7 +65,8 @@ export const appData = {
                         require('@/assets/images/rings/TiffanyKhalafRing3.png'),
                     ],
                     name: 'Tiffany Khalaf',
-                    description: 'Oval diamond centre and floral diamond halo engagement ring set in 18ct yellow gold.',
+                    sizes: [12,14,16,18,20],
+                    description: 'Oval diamond centre and floral diamond halo engagement ring set in 18ct yellow gold. Oval diamond centre and floral diamond halo engagement ring set in 18ct yellow gold. Oval diamond centre and floral diamond halo engagement ring set in 18ct yellow gold.',
                     rating: 5,
                     sold: 44,
                     price: '15000',
@@ -73,6 +78,7 @@ export const appData = {
                         require('@/assets/images/rings/WinstonKhalafRing.png'),
                     ],
                     name: 'Winston Khalaf',
+                    sizes: [12,14,16,18,20,22],
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 3,
                     sold: 20,
@@ -85,6 +91,7 @@ export const appData = {
                         require('@/assets/images/rings/WinstonKhalafRing.png'),
                     ],
                     name: 'Mejur Khalaf',
+                    sizes: [12,16,18,20],
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 4,
                     sold: 14,
@@ -97,6 +104,7 @@ export const appData = {
                         require('@/assets/images/rings/ArpelsKhalafRing.png'),
                     ],
                     name: 'Mejur Khalaf',
+                    sizes: [12,14,16],
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 4,
                     sold: 24,
@@ -108,15 +116,16 @@ export const appData = {
             
         },
         {
-            id:1,
+            id:2,
             name: 'bangles',
-      bangles: [
+            bangles: [
                 {
                     id: 12423,
                     img: [
                         require('@/assets/images/bangles/bangle1.png'),
                     ],
                     name: 'Seanono Lover',
+                    sizes: [12,14,16,18,20],
                     description: 'Elegant gold bangle with intricate design.',
                     rating: 4,
                     sold: 10,
@@ -125,18 +134,18 @@ export const appData = {
                 },
                 {
                     id: 12323,
-                   img: [
+                    img: [
                         require('@/assets/images/bangles/bangle2.png'),
                     ],
                     name: 'Jaigga',
+                    sizes: [12,14,16,18,20],
                     description: 'Stylish silver bangle with modern design.',
                     rating: 4.5,
                     sold: 30,
                     price: '3000',
                     stock: 70,
                 },
-        ],
-            
-        }
+            ], 
+        },
     ]
 };

@@ -1,22 +1,21 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, Button, Image, Dimensions, TouchableHighlight, FlatList, TouchableOpacity, ImageBackground, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, Button, Image, Dimensions, TouchableHighlight, FlatList, TouchableOpacity } from 'react-native';
 import { appData } from '@/assets/data/appData';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedView } from '@/components/ThemedView';
-import { FlashList } from '@shopify/flash-list';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ThemedText } from '@/components/ThemedText';
 import { Foundation, Ionicons } from '@expo/vector-icons';
 import { black, tintColorLight, white } from '@/constants/Colors';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
-import BottomSheet, { BottomSheetView, useBottomSheet } from '@gorhom/bottom-sheet';
-import CustomBackdrop from '@/components/BottomSheet/BackDrop';
-import CustomBackground from '@/components/BottomSheet/Background';
+import ThemedBottomSheet, { ThemedBottomSheetRef } from '@/components/ThemedBottomSheet';
 import ThemedDivider from '@/components/ThemedDivider';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { useFavoritesStore } from '@/state/appStore';
+import { useCartStore, useFavoritesStore } from '@/state/appStore';
+import { ratingStars } from '@/utils/ratings';
+
 
   const { width, height } = Dimensions.get('screen');
 
@@ -39,39 +38,40 @@ import { useFavoritesStore } from '@/state/appStore';
     }
     const [image, setImage] = useState(product.img[0])
     const [favorite, setFavorite] = useState(false)
-    const bottomSheetRef = useRef<BottomSheet>(null);
+    const bottomSheetRef = useRef<ThemedBottomSheetRef>(null);
     const [quantity, setQuantity] = useState(0);
-    const [buyOrCart, setBuyOrCart] = useState('')
+    const [sizes, setSize] = useState(0);
     const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [textHeight, setTextHeight] = useState(0);
+    const maxHeight = 28;
 
-    const selectedImage = (item: Image) => {
-        setImage(item);
+    const { addToCart } = useCartStore();
+
+    const handleTextLayout = (event: any) => {
+      const { height } = event.nativeEvent.layout;
+      setTextHeight(height);
     };
 
-    const openBottomSheet = () => bottomSheetRef.current?.snapToIndex(0);
-    const closeBottomSheet = () => bottomSheetRef.current?.close();
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false)
 
-    const handleSheetChanges = useCallback((index: number) => {
-      console.log('handleSheetChanges', index);
-      if (index === -1) {
-        setIsBottomSheetOpen(false); // Set state to false when bottom sheet closes
-      } else {
-        setIsBottomSheetOpen(true);
-      }
-    }, []);
+
+    const openBottomSheet = () => bottomSheetRef.current?.open();
+    const closeBottomSheet = () => bottomSheetRef.current?.close();
 
     const increment = () => setQuantity(prev => prev + 1);
     const decrement = () => setQuantity(prev => (prev > 1 ? prev - 1 : prev));
 
-    const ratingStars = (rating: number) => {
-      return '★'.repeat(Math.max(0, Math.min(5, rating)));
-    };
-
     useEffect(() => {
       setFavorite(isFavorite(product.id))
-      console.log(favorite)
     },[])
+
+    const handleSelectedSize = (size:number) => {
+      if (size === sizes) {
+        setSize(0);
+        return;
+      }
+      setSize(size)
+    }
 
     const handleFavoriteToggle = () => {
       if (favorite) {
@@ -81,12 +81,25 @@ import { useFavoritesStore } from '@/state/appStore';
       }
       setFavorite(!favorite); // Toggle favorite state
     }; 
-
+    
+    const handleAddToCart = () => {
+      if (quantity > 0 && sizes !== 0) {
+        const cartItem = { 
+          id: product.id,
+          name: product.name,
+          quantity: quantity,
+          size: sizes,
+          price: product.price,
+          img: product.img[0]
+        }
+        addToCart(cartItem)
+        closeBottomSheet();
+        setQuantity(0);
+        setSize(0);
+      }
+    }
     return (
       <>
-      {isBottomSheetOpen && (
-      <View style={{height:height, width: width, backgroundColor:'rgba(0,0,0,0.5)', position: 'absolute', zIndex:1}}/>
-      )}
       <ThemedView
           style={[
             styles.listView,
@@ -102,20 +115,24 @@ import { useFavoritesStore } from '@/state/appStore';
             }}
             showsHorizontalScrollIndicator={false}
             renderItem={({ item }) => {
-                const isSelected = item === selectedImage; // Check if the current item is selected
-
+                const isSelected = item.id === image.id; 
                 return (
                 <TouchableHighlight
                     onPress={() => setImage(item)}
                     activeOpacity={0.7}
                     underlayColor="#CCC"
-                    style={styles.touchableContainer}
+                    style={[styles.touchableContainer,
+                      isSelected ? { borderRadius: 50 } : {}  // Apply borderRadius only for selected image
+                    ]}
                 >
-                    <ImageBackground 
-                      source={item} 
-                      style={styles.ProductImageItem} 
-                      imageStyle={isSelected && { opacity: 0.8, backgroundColor: '#CCC'}}
-                    />
+                  <Image 
+                    source={item}  // Assuming item has a 'source' property for the image source
+                    style={[
+                      styles.ProductImageItem, 
+                      isSelected ? { borderRadius: 50 } : {} // Base styles for all images
+                      
+                    ]}
+                  />
                 </TouchableHighlight>
                 );
             }}
@@ -123,12 +140,13 @@ import { useFavoritesStore } from '@/state/appStore';
       </ThemedView>
       <ParallaxScrollView
         //roundedHeader
+        scrollable={false}
         headerHeight={height * 0.45}
         headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
         headerImage={
           <Image
             style={styles.headerImg}
-            source={require('@/assets/images/dark-bgcloth.png')}
+            source={require('@/assets/images/product-page-bg.png')}
           />
         }
         headerOverlayedContent={
@@ -184,12 +202,63 @@ import { useFavoritesStore } from '@/state/appStore';
           </ThemedText>
           </ThemedView>
           <ThemedText 
-            font='glacialIndifferenceRegular' 
-            type='default'
-            lightColor='#301713'
-            style={[styles.description, {letterSpacing:2, marginTop:20}]}
-            >{product.description}
+              font='montserratRegular' 
+              type='default'
+              lightColor='#301713'
+              style={{letterSpacing:1, marginTop:20, marginBottom: 8}}
+            >SIZES
           </ThemedText>
+          <ThemedView>
+            <FlatList
+              data={product.sizes}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item }) => {
+                const isSelected = item === sizes; 
+                return (
+                <TouchableOpacity 
+                  style={[
+                    styles.sizesButton,
+                    isSelected && {backgroundColor:'#D4AF37', borderColor:'#301713'}
+                  ]}
+                  onPress={() => handleSelectedSize(item)}
+                >
+                  <ThemedText>{item}</ThemedText>
+                </TouchableOpacity>
+              )}}
+            />
+          </ThemedView>
+          <ThemedText 
+              font='montserratRegular' 
+              type='default'
+              lightColor='#301713'
+              style={{letterSpacing:1, marginTop:20}}
+            >DESCRIPTION
+          </ThemedText>
+          <ThemedView
+            style={[
+              styles.expandableDescription,
+              isExpanded && {height:'auto'}
+            ]}
+          >
+            <ThemedText 
+              font='glacialIndifferenceRegular' 
+              type='default'
+              lightColor='#301713'
+              onLayout={handleTextLayout}
+              style={[styles.description, { letterSpacing: 2, marginTop: 5 }]}
+              >{product.description} 
+              
+            </ThemedText>
+            {/* Conditionally render the "See more/less" text */}
+            {textHeight > maxHeight && (
+              <TouchableOpacity onPress={() => setIsExpanded(prev => !prev)}>
+                <ThemedText font='glacialIndifferenceBold'>
+                  See {isExpanded ? 'less' : 'more'}...
+                </ThemedText>
+              </TouchableOpacity>
+            )}
+          </ThemedView>
           <View style={{marginTop:30}}/>
           <ThemedView style={{flexDirection: 'row', justifyContent:'space-between'}}>
             <ThemedView>
@@ -246,84 +315,84 @@ import { useFavoritesStore } from '@/state/appStore';
               </ThemedView>
             </TouchableOpacity>
           </ThemedView>
-
           <View style={{marginTop:30}}/>
-          <ThemedView style={{flexDirection:'row', alignItems: 'center',gap:5}}>
-            <ThemedText 
-              font='spaceMonoRegular' 
-              type='subtitle'
-              lightColor='#301713'
-              style={{}}
-              >Php {product.price}
-            </ThemedText>
-            <Foundation name="pricetag-multiple" size={35} color={tintColorLight} />
-          </ThemedView>
-
           <ThemedView
-            style={{
-              width: '100%',
-              justifyContent:'space-between',
-              paddingHorizontal: 10,
-              marginTop: 50,
-              flexDirection: 'row'
-            }}
-          >
-            <ThemedTouchableFilled
-              style={{width:'45%'}}
-              variant='opacity'
-              onPress={() => {
-                openBottomSheet();
-                setBuyOrCart('Add to cart');
+              style={{
+                width: '100%',
+                justifyContent:'space-between',
+                flexDirection: 'row',
+                position: 'absolute',
+                bottom: -25
               }}
             >
-              <ThemedText>Add to cart</ThemedText>
-            </ThemedTouchableFilled>
-            <ThemedTouchableFilled
-              style={{width:'45%'}}
-              variant='opacity'
-              onPress={() => {
-                openBottomSheet();
-                setBuyOrCart('Buy');
-              }}
-            >
-              <ThemedText>Buy now</ThemedText>
-            </ThemedTouchableFilled>
+              <ThemedView style={{flexDirection:'row', alignItems: 'center',gap:5}}>
+                <ThemedText 
+                  font='spaceMonoRegular' 
+                  type='subtitle'
+                  lightColor='#301713'
+                  style={{}}
+                  >Php {product.price}
+                </ThemedText>
+              <Foundation name="pricetag-multiple" size={35} color={tintColorLight} />
+              </ThemedView>
+              <ThemedTouchableFilled
+                style={{width:'50%',borderRadius:20}}
+                variant='opacity'
+                onPress={() => {
+                  openBottomSheet();
+                }}
+              >
+                <ThemedText>Add to cart</ThemedText>
+              </ThemedTouchableFilled>
           </ThemedView>
         </ThemedView>
-        <BottomSheet
-          ref={bottomSheetRef}
-          index={-1}  
-          snapPoints={['80%']} 
-          enablePanDownToClose={true}
-          style={styles.bottomSheet}
-          onChange={handleSheetChanges}
-          backdropComponent={CustomBackdrop}
-        >
-          <BottomSheetView style={styles.contentContainer}>
-            <ThemedView style={{
-              flexDirection: 'row', 
-              justifyContent:'space-between',
-              width: '100%',
-              paddingHorizontal: 20
-            }}>
-              <ThemedView style={{flexDirection:'row', justifyContent:'center', alignItems:'flex-end'}}>
-              <Image source={image} style={styles.BottomSheetImage}/>
-              <ThemedView style={{marginLeft: 5}}>
-                <ThemedText>Php {product.price}</ThemedText>
-                <ThemedText>Stock: {product.stock}</ThemedText>
-              </ThemedView>
-              </ThemedView>
-              <TouchableOpacity onPress={closeBottomSheet}>
-                <Ionicons name='close' size={30}/>
-              </TouchableOpacity>
-            
+        <ThemedBottomSheet ref={bottomSheetRef}>
+          <ThemedView style={{
+            flexDirection: 'row', 
+            justifyContent:'space-between',
+            width: '100%',
+            paddingHorizontal: 20
+          }}>
+            <ThemedView style={{flexDirection:'row', justifyContent:'center', alignItems:'flex-end'}}>
+            <Image source={image} style={styles.BottomSheetImage}/>
+            <ThemedView style={{marginLeft: 5}}>
+              <ThemedText>Php {product.price}</ThemedText>
+              <ThemedText>Stock: {product.stock}</ThemedText>
             </ThemedView>
-            <ThemedDivider width={0.5} marginY={10}/>
-            <ThemedView>
+            </ThemedView>
+            <TouchableOpacity onPress={closeBottomSheet}>
+              <Ionicons name='close' size={30}/>
+            </TouchableOpacity>
+          
+          </ThemedView>
+          <ThemedDivider width={0.5} marginY={10}/>
+          <ThemedView>
+            <ThemedText style={{marginBottom:5}}>sizes</ThemedText>
+            <FlatList
+              data={product.sizes}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item }) => {
+                const isSelected = item === sizes; 
+                return (
+                <TouchableOpacity 
+                  style={[
+                    styles.sizesButton,
+                    isSelected && {backgroundColor:'#D4AF37', borderColor:'#301713'}
+                  ]}
+                  onPress={() => handleSelectedSize(item)}
+                >
+                  <ThemedText>{item}</ThemedText>
+                </TouchableOpacity>
+              )}}
+            />
+          </ThemedView>
+          <ThemedDivider width={0.5} marginY={10}/>
+          <ThemedView>
             <ThemedText>variants</ThemedText>
-            <ThemedDivider width={0.5} marginY={10}/>
-            </ThemedView>
-            <ThemedView style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <ThemedDivider width={0.2} marginY={10}/>
+          </ThemedView>
+          <ThemedView style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <ThemedText>quantity</ThemedText>
             <View style={styles.quantityContainer}>
               <TouchableOpacity onPress={decrement} style={styles.button}>
@@ -334,15 +403,14 @@ import { useFavoritesStore } from '@/state/appStore';
                 <Text style={styles.buttonText}>+</Text>
               </TouchableOpacity>
             </View>
-            </ThemedView>
-            <ThemedTouchableFilled
-              onPress={() => ''} 
-              style={{position:'absolute', bottom:0, width: '100%', alignSelf: 'center' }}
-            >
-              <ThemedText>{buyOrCart}</ThemedText>
-            </ThemedTouchableFilled>
-          </BottomSheetView>
-        </BottomSheet>
+          </ThemedView>
+          <ThemedTouchableFilled
+            onPress={handleAddToCart} 
+            style={{position:'absolute', bottom:0, width: '100%', alignSelf: 'center' }}
+          >
+            <ThemedText>Add to cart</ThemedText>
+          </ThemedTouchableFilled>
+        </ThemedBottomSheet>
       </ParallaxScrollView>
 
       </>
@@ -368,29 +436,29 @@ import { useFavoritesStore } from '@/state/appStore';
     headerButtonRow: {
       position:'absolute', 
       width:width, 
-      top: 60, 
+      top: 50, 
       paddingHorizontal: 20, 
       justifyContent: 'space-between', 
       flexDirection: 'row', 
       zIndex: 1
     },
     ProductImageItem: {
-      width: width * 0.2,
-      height: width * 0.2,
+      width: width * 0.18,
+      height: width * 0.18,
       borderRadius: 10,
     },
     listView: {
       position: 'absolute',
       borderRadius: 45,
       top: height * 0.45,
-      width: width * 0.7,
-      height: width * 0.25,
+      width: width * 0.65,
+      height: width * 0.225,
       elevation: 2,
       shadowColor: '#000',
       alignSelf: 'center',
-      zIndex: 5,
+      zIndex: 2,
       transform: [{
-        translateY: -66,
+        translateY: -50,
      }]
     },
     touchableContainer: {
@@ -402,15 +470,24 @@ import { useFavoritesStore } from '@/state/appStore';
     },
     container: {
       flex: 1,
-      paddingTop: width/15,
+      paddingTop: width/19,
       height: height * 0.45
+    },
+    sizesButton: {
+      borderRadius: 25,
+      borderWidth: 1,
+      borderColor: '#CCC',
+      padding: 10,
+      paddingHorizontal: 12,
+      marginRight: 8
+    },
+    expandableDescription: { 
+      height: width * 0.15,
     },
     description: {
       color: '#555',
-      height: width * 0.18,
     },
     bottomSheet: {
-      zIndex: 100,
       shadowColor: black, 
       shadowOffset: { width: 0, height: 10 },  
       shadowOpacity: 0.44,
@@ -421,12 +498,13 @@ import { useFavoritesStore } from '@/state/appStore';
     },
     contentContainer: {
       flex: 1,
-      padding: 20,
+      padding: 10,
+      paddingHorizontal: 30,
       backgroundColor: white,
     },
     BottomSheetImage: {
-      width: width * 0.3,
-      height:  width * 0.3,
+      width: width * 0.25,
+      height:  width * 0.25,
     },
     quantityContainer: {
       flexDirection: "row",
@@ -443,11 +521,11 @@ import { useFavoritesStore } from '@/state/appStore';
     },
     buttonText: {
       fontSize: 20,
-      fontWeight: "bold",
+      color: Colors.light.text,
     },
     quantity: {
       fontSize: 18,
       marginHorizontal: 10,
-      fontWeight: "bold",
+      color: Colors.light.text,
     },
     });

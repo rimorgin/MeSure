@@ -74,7 +74,7 @@ export default function ProfileScreen() {
         </ThemedView>
       }
       >
-      <ThemedText type="default" style={{marginBottom:-10}}>Inventories</ThemedText>
+      <ThemedText type="default" style={{marginVertical:10}}>Inventories</ThemedText>
       <ThemedView style={styles.inventories}>
         <Collapsible 
           transparent
@@ -127,7 +127,7 @@ export default function ProfileScreen() {
         </Collapsible>
         
       </ThemedView>
-      <ThemedText type="default" style={{marginBottom:-10, marginTop:10}}>Preferences</ThemedText>
+      <ThemedText type="default" style={{marginVertical:10}}>Preferences</ThemedText>
       <ThemedView style={styles.inventories}>
         <TouchableOpacity
           style={styles.button}

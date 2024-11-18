@@ -182,23 +182,25 @@ export const useFavoritesStore = create<FavoritesStorage>()(
 
 // Cart Store
 interface CartItem {
-  id: string;
+  id:number;
   name: string;
-  price: number;
+  size: number;
+  price: string;
   quantity: number;
   imageUrl?: string; // Optional field for product image
 }
-
+// Update CartStorage interface if necessary
 interface CartStorage {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeFromCart: (id: number) => void;
+  updateQuantity: (id: number, quantity: number) => void;
   clearCart: () => void;
   totalItems: () => number;
   totalPrice: () => number;
 }
 
+// Your Zustand store implementation
 export const useCartStore = create<CartStorage>()(
   devtools(
     persist(
@@ -210,7 +212,6 @@ export const useCartStore = create<CartStorage>()(
           const existingItem = cart.find((cartItem) => cartItem.id === item.id);
 
           if (existingItem) {
-
             set({
               cart: cart.map((cartItem) =>
                 cartItem.id === item.id
@@ -246,7 +247,7 @@ export const useCartStore = create<CartStorage>()(
         totalItems: () => get().cart.reduce((total, item) => total + item.quantity, 0),
 
         totalPrice: () =>
-          get().cart.reduce((total, item) => total + item.price * item.quantity, 0),
+          get().cart.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0), // Ensure price is parsed to float
       }),
       {
         name: 'USER_CART', // AsyncStorage key

@@ -1,8 +1,10 @@
-import { Text, type TextProps, StyleSheet, Dimensions } from 'react-native';
+import { Text, type TextProps, StyleSheet, Dimensions, PixelRatio } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useFont } from '@/provider/FontContext';
 
-const width = Dimensions.get('screen').width
+const {width, fontScale} = Dimensions.get('screen')
+
+export const getFontSize = (size:number) => { return size / fontScale };
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -38,7 +40,7 @@ export function ThemedText({
   customColor, // Custom color override
   type = 'default',
   font = 'none',
-  size,
+  size = getFontSize(16),
   textAligned = 'auto',
   ...rest
 }: ThemedTextProps) {
@@ -58,9 +60,8 @@ export function ThemedText({
 
   return (
     <Text
-      adjustsFontSizeToFit
       style={[
-        { color, fontFamily, fontSize: size || width/25, textAlign: textAligned },
+        { color, fontFamily, fontSize: size, textAlign: textAligned },
         type === 'default' ? styles.default : undefined,
         type === 'xtitle' ? styles.xtitle : undefined,
         type === 'title' ? styles.title : undefined,
@@ -77,8 +78,7 @@ export function ThemedText({
 
 const styles = StyleSheet.create({
   default: {
-    fontSize: width/30,
-    lineHeight: 24,
+    fontSize: getFontSize(16),
   },
   defaultSemiBold: {
     fontSize: 16,
@@ -89,15 +89,15 @@ const styles = StyleSheet.create({
     fontSize: 38,
   },
   title: {
-    fontSize: width/15,
+    fontSize: getFontSize(32),
     letterSpacing: 2
   },
   semititle: {
-    fontSize: width/20, 
+    fontSize: getFontSize(24), 
     letterSpacing: 2.5
   },
   subtitle: {
-    fontSize: width/25,
+    fontSize: getFontSize(20),
   },
   link: {
     lineHeight: 30,

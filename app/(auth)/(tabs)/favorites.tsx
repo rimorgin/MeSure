@@ -18,8 +18,6 @@ export default function Favorites() {
   // Fetch favorites and actions from the Zustand store
   const { favorites, addFavorite, removeFavorite, isFavorite } = useFavoritesStore((state) => state);
 
-  console.log(favorites)
-
   const ringsCategory = appData.categories.find((category) => category.name === 'rings');
   const banglesCategory = appData.categories.find((category) => category.name === 'bangles');
 
@@ -77,9 +75,7 @@ export default function Favorites() {
             },
           ]}
         >
-          
-            <ThemedText style={styles.deleteButtonText}>Delete</ThemedText>
-          
+            <ThemedText style={styles.deleteButtonText}>Delete</ThemedText> 
         </Animated.View>
         </TouchableOpacity>
       </View>
@@ -109,7 +105,7 @@ export default function Favorites() {
       </View>
     </Swipeable>
   );
-};
+  };
   return (
     <SafeAreaView style={styles.container}>
       <FocusAwareStatusBar barStyle="dark-content" animated />

@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { StatusBar, StyleSheet, useColorScheme } from 'react-native';
+import { Dimensions, StatusBar, StyleSheet, useColorScheme } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -12,6 +12,7 @@ import { ThemedText } from '@/components/ThemedText';
 import FocusAwareStatusBar from './navigation/FocusAwareStatusBarTabConf';
 
 const DEFAULT_HEADER_HEIGHT = 250;
+const height = Dimensions.get('screen').height
 
 type Props = PropsWithChildren<{
   headerOverlayedContent?: ReactElement;
@@ -21,6 +22,7 @@ type Props = PropsWithChildren<{
   overlayedContent?: boolean;
   roundedHeader?: boolean;
   noContentPadding?: boolean;
+  scrollable?: boolean;
 }>;
 
 export default function ParallaxScrollView({
@@ -31,7 +33,8 @@ export default function ParallaxScrollView({
   headerBackgroundColor,
   overlayedContent = false,
   roundedHeader = false,
-  noContentPadding = false
+  noContentPadding = false,
+  scrollable = true
 }: Props) {
   const colorScheme = useColorScheme() ?? 'light';
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
@@ -61,7 +64,12 @@ export default function ParallaxScrollView({
       }]}
     >
       <FocusAwareStatusBar animated barStyle="light-content"/>
-      <Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
+      <Animated.ScrollView 
+        ref={scrollRef} 
+        scrollEventThrottle={16}
+        scrollEnabled={scrollable}
+        nestedScrollEnabled={scrollable}
+      >
         <Animated.View
           style={[
             styles.header,
