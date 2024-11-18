@@ -114,9 +114,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 0.4,
-    gap: 16,
     width: '100%',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    zIndex: 10
   },
   overlayedContent: {
     flex: 0.4,

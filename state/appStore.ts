@@ -172,6 +172,9 @@ export const useFavoritesStore = create<FavoritesStorage>()(
       {
         name: 'USER_FAVORITES',
         storage: createJSONStorage(() => AsyncStorage),
+        onRehydrateStorage:() => {
+          
+        }
       }
     )
   )
@@ -207,7 +210,7 @@ export const useCartStore = create<CartStorage>()(
           const existingItem = cart.find((cartItem) => cartItem.id === item.id);
 
           if (existingItem) {
-            // Update quantity if the item already exists
+
             set({
               cart: cart.map((cartItem) =>
                 cartItem.id === item.id

@@ -1,6 +1,8 @@
-import { Text, type TextProps, StyleSheet } from 'react-native';
+import { Text, type TextProps, StyleSheet, Dimensions } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useFont } from '@/provider/FontContext';
+
+const width = Dimensions.get('screen').width
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -52,10 +54,13 @@ export function ThemedText({
   // Determine font family based on the provided 'font' prop
   const fontFamily = font === 'none' ? 'system' : fontStyles[font];
 
+  //console.log(width / 30)
+
   return (
     <Text
+      adjustsFontSizeToFit
       style={[
-        { color, fontFamily, fontSize: size || 16, textAlign: textAligned },
+        { color, fontFamily, fontSize: size || width/25, textAlign: textAligned },
         type === 'default' ? styles.default : undefined,
         type === 'xtitle' ? styles.xtitle : undefined,
         type === 'title' ? styles.title : undefined,
@@ -72,7 +77,7 @@ export function ThemedText({
 
 const styles = StyleSheet.create({
   default: {
-    fontSize: 16,
+    fontSize: width/30,
     lineHeight: 24,
   },
   defaultSemiBold: {
@@ -84,15 +89,15 @@ const styles = StyleSheet.create({
     fontSize: 38,
   },
   title: {
-    fontSize: 32,
+    fontSize: width/15,
     letterSpacing: 2
   },
   semititle: {
-    fontSize: 24, 
+    fontSize: width/20, 
     letterSpacing: 2.5
   },
   subtitle: {
-    fontSize: 20,
+    fontSize: width/25,
   },
   link: {
     lineHeight: 30,

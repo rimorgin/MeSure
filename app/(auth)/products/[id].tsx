@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, Button, Image, Dimensions, TouchableHighlight, FlatList, TouchableOpacity, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, Button, Image, Dimensions, TouchableHighlight, FlatList, TouchableOpacity, ImageBackground, ViewStyle } from 'react-native';
 import { appData } from '@/assets/data/appData';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedView } from '@/components/ThemedView';
@@ -50,6 +50,16 @@ import { useFavoritesStore } from '@/state/appStore';
 
     const openBottomSheet = () => bottomSheetRef.current?.snapToIndex(0);
     const closeBottomSheet = () => bottomSheetRef.current?.close();
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false)
+
+    const handleSheetChanges = useCallback((index: number) => {
+      console.log('handleSheetChanges', index);
+      if (index === -1) {
+        setIsBottomSheetOpen(false); // Set state to false when bottom sheet closes
+      } else {
+        setIsBottomSheetOpen(true);
+      }
+    }, []);
 
     const increment = () => setQuantity(prev => prev + 1);
     const decrement = () => setQuantity(prev => (prev > 1 ? prev - 1 : prev));
@@ -74,6 +84,9 @@ import { useFavoritesStore } from '@/state/appStore';
 
     return (
       <>
+      {isBottomSheetOpen && (
+      <View style={{height:height, width: width, backgroundColor:'rgba(0,0,0,0.5)', position: 'absolute', zIndex:1}}/>
+      )}
       <ThemedView
           style={[
             styles.listView,
@@ -238,7 +251,7 @@ import { useFavoritesStore } from '@/state/appStore';
           <ThemedView style={{flexDirection:'row', alignItems: 'center',gap:5}}>
             <ThemedText 
               font='spaceMonoRegular' 
-              type='semititle'
+              type='subtitle'
               lightColor='#301713'
               style={{}}
               >Php {product.price}
@@ -283,6 +296,7 @@ import { useFavoritesStore } from '@/state/appStore';
           snapPoints={['80%']} 
           enablePanDownToClose={true}
           style={styles.bottomSheet}
+          onChange={handleSheetChanges}
           backdropComponent={CustomBackdrop}
         >
           <BottomSheetView style={styles.contentContainer}>
@@ -370,7 +384,7 @@ import { useFavoritesStore } from '@/state/appStore';
       borderRadius: 45,
       top: height * 0.45,
       width: width * 0.7,
-      height: width * 0.3,
+      height: width * 0.25,
       elevation: 2,
       shadowColor: '#000',
       alignSelf: 'center',
@@ -388,11 +402,10 @@ import { useFavoritesStore } from '@/state/appStore';
     },
     container: {
       flex: 1,
-      paddingTop: 50,
+      paddingTop: width/15,
       height: height * 0.45
     },
     description: {
-      fontSize: 16,
       color: '#555',
       height: width * 0.18,
     },
@@ -405,7 +418,7 @@ import { useFavoritesStore } from '@/state/appStore';
       elevation: 10, 
       backgroundColor: white,
       borderRadius: 20,
-  },
+    },
     contentContainer: {
       flex: 1,
       padding: 20,
