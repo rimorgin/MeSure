@@ -111,6 +111,34 @@ export const appData = {
                     price: '20000',
                     stock:90,
                 },
+                {
+                    id: 11111,
+                    img: [
+                        require('@/assets/images/rings/ring_main1.png'),
+                    ],
+                    name: 'Ring with AR [1]',
+                    sizes: [6.5, 8, 8.5, 9.5, 10, 10.5, 11.5, 12.5],
+                    description: '123asfaesgaiorpzshgoiserignes',
+                    rating: 4,
+                    sold: 24,
+                    price: '20000',
+                    stock:90,
+                },
+
+                {
+                    id: 11112,
+                    img: [
+                        require('@/assets/images/rings/ring_main2.png'),
+                    ],
+                    name: 'Ring with AR [2]',
+                    sizes: [7.5, 8, 8.5, 9.5, 10.5],
+                    description: '123asfaesgaiorpzshgoiserignes',
+                    rating: 4,
+                    sold: 24,
+                    price: '20000',
+                    stock:90,
+                },
+
 
             ],
             
@@ -144,6 +172,33 @@ export const appData = {
                     sold: 30,
                     price: '3000',
                     stock: 70,
+                },
+                {
+                    id: 12523,
+                    img: [
+                        require('@/assets/images/bangles/bangle_main1.png'),
+                    ],
+                    name: 'Bangle with AR [1]',
+                    sizes: [17, 19],
+                    description: 'Elegant gold bangle with intricate design.',
+                    rating: 4,
+                    sold: 10,
+                    price: '5000',
+                    stock: 50,
+                },
+
+                {
+                    id: 12623,
+                    img: [
+                        require('@/assets/images/bangles/bangle_main2.png'),
+                    ],
+                    name: 'Bangle with AR [2]',
+                    sizes: [15, 17, 18, 19],
+                    description: 'Elegant gold bangle with intricate design.',
+                    rating: 4,
+                    sold: 10,
+                    price: '5000',
+                    stock: 50,
                 },
             ], 
         },
