@@ -2,7 +2,7 @@
 
 
 import React, { useState } from 'react';
-import { TouchableOpacity, TextInput, StyleSheet, View, SafeAreaView } from 'react-native';
+import { TouchableOpacity, TextInput, StyleSheet, View, SafeAreaView, Image, Dimensions, StatusBar } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
@@ -12,11 +12,20 @@ import { router } from 'expo-router';
 import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton';
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/provider/AuthContext';
-import { white } from '@/constants/Colors';
+import { Colors, white } from '@/constants/Colors';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import useColorSchemeTheme from '@/hooks/useColorScheme';
+import Loader from '@/components/Loader';
+
+const width = Dimensions.get('screen').width
 
 // Yup schema validation
 const schema = yup.object().shape({
+  userFullName: yup
+    .string()
+    .min(3, 'Username must be at least 5 characters')
+    .required('Full name is required'),
+
   Email: yup
     .string()
     .required('Email is required')
@@ -43,6 +52,7 @@ const schema = yup.object().shape({
 })
 
 const defaultValues = {
+  userFullName: "",
   Email: "",
   Username: "",
   password: "",
@@ -53,167 +63,208 @@ const defaultValues = {
 
 export default function Register() {
   const { signUp } = useSession()
+  const theme = useColorSchemeTheme();
+  const [loading, setLoading] = useState(false);
   const { control, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
-  const onSubmit = (data: { Email: string; password: string; Username: string; confirmPassword: string }) => {
+  const onSubmit = async (data: { Email: string; password: string; Username: string; confirmPassword: string, userFullName: string }) => {
     //console.log('Form Data: ', data);
-    const { Email, password, Username } = data;
+    setLoading(true);
+    const { Email, password, Username, userFullName } = data;
+    
     // signup function
-    signUp(Email, password, Username);
+    await signUp(Email, password, Username, userFullName);
+    setLoading(false);
   };
 
 
   return (
+    <>
+    {loading && <Loader/> }
     <SafeAreaView style={styles.container}>
-      <ThemedView style={styles.formcontainer}>
-        {/* Title */}
-        <ThemedText type="semititle" font="cocoGothicRegular">
-          Al-Khalaf Gold & Jewelry
-        </ThemedText>
-
-        <ThemedText 
-          font='spaceMonoRegular'
-          style={{fontSize:14, marginBottom:20}}
-        >
-          Powered by MeSure
-        </ThemedText>
-
-        {/* Username Input */}
-        <Controller
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              placeholder="Username"
-            />
-          )}
-          name="Username"
-          rules={{ required: true }}
-          defaultValue={defaultValues.Username}
-        />
-        {errors?.Username?.message && (
-          <ThemedText type="defaultSemiBold" style={styles.error}>
-            {errors.Username.message}
-          </ThemedText>
-        )}
-
-        {/* Email Input */}
-        <Controller
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              placeholder="Email"
-            />
-          )}
-          name="Email"
-          rules={{ required: true }}
-          defaultValue={defaultValues.Email}
-        />
-        {errors?.Email?.message && (
-          <ThemedText type="defaultSemiBold" style={styles.error}>
-            {errors.Email.message}
-          </ThemedText>
-        )}
-
-        {/* Password Input */}
-        <Controller
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry
-              placeholder="Password"
-            />
-          )}
-          name="password"
-          rules={{ required: true }}
-          defaultValue=""
-        />
-        {errors?.password?.message && (
-          <ThemedText type="defaultSemiBold" style={styles.error}>
-            {errors.password.message}
-          </ThemedText>
-        )}
-
-        {/* Confirm Password Input */}
-        <Controller
-          control={control}
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextInput
-              style={styles.input}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry
-              placeholder="Confirm Password"
-            />
-          )}
-          name="confirmPassword"
-          rules={{ required: true }}
-          defaultValue=""
-        />
-        {errors?.confirmPassword?.message && (
-          <ThemedText type="defaultSemiBold" style={styles.error}>
-            {errors.confirmPassword.message}
-          </ThemedText>
-        )}
-
-        {/* Register Button */}
-        <ThemedTouchableFilled style ={styles.button} onPress={handleSubmit(onSubmit)}>
-          <ThemedText 
-            customColor={white}
-            type='default'
-          > Register
-          </ThemedText>
-        </ThemedTouchableFilled>
-
-
-        <View style={styles.socialLoginContainer}>
-      <ThemedText type='default' style={styles.socialButtonText}>Or Sign up using</ThemedText>
-            <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="facebook" size={20} color="#4267B2" />
-              <ThemedText type="default" style={styles.socialButtonText}>Sign up with Facebook</ThemedText>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="google" size={20} color="#DB4437" />
-              <ThemedText type="default" style={styles.socialButtonText}>Sign up with Google</ThemedText>
-            </TouchableOpacity>
-
-  
-          </View>
-          
-         <ThemedTouchablePlain
-          variant='opacity'
-          onPress={() => router.push('/login')}
-        >
-          <ThemedText type='link'> 
-            Already have an account? 
-          </ThemedText>
-        </ThemedTouchablePlain>
-
-
-        {/* The orange thingy at the bottom */}
-        <Svg style={{ position: 'absolute', bottom: 0, left: 0 }} width="100%" height="150">
-          <Path
-            fill="#D4AF37"
-            fillOpacity="1"
-            d="M0,64L30,85.3C60,107,120,149,180,149.3C240,149,300,107,360,96C420,85,480,107,540,133.3C600,160,660,192,720,181.3C780,171,840,117,900,106.7C960,96,1020,128,1080,138.7C1140,149,1200,139,1260,112C1320,85,1380,43,1410,21.3L1440,0L1440,320L1410,320C1380,320,1320,320,1260,320C1200,320,1140,320,1080,320C1020,320,960,320,900,320C840,320,780,320,720,320C660,320,600,320,540,320C480,320,420,320,360,320C300,320,240,320,180,320C120,320,60,320,30,320L0,320Z"
+      <StatusBar 
+        barStyle={theme==='light' ? 'dark-content' : 'light-content'} 
+        backgroundColor={theme === 'light' ? Colors.light.background : Colors.dark.background} 
+      />
+      <ThemedView style={{flex:1}}>
+        <ThemedView style={styles.formcontainer}>
+          <Image 
+            source={require('@/assets/images/app-icon.png')} 
+            style={styles.image}
           />
-        </Svg>
+          {/* Title */}
+          <ThemedText type="semititle" font="cocoGothicRegular">
+            Al-Khalaf Gold & Jewelry
+          </ThemedText>
+
+          <ThemedText 
+            font='spaceMonoRegular'
+            style={{fontSize:14, marginBottom:20}}
+          >
+            Powered by MeSure
+          </ThemedText>
+
+          {/* userFullName Input */}
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Full name"
+              />
+            )}
+            name="userFullName"
+            rules={{ required: true }}
+            defaultValue={defaultValues.userFullName}
+          />
+          {errors?.userFullName?.message && (
+            <ThemedText type="defaultSemiBold" style={styles.error}>
+              {errors.userFullName.message}
+            </ThemedText>
+          )}
+
+          {/* Username Input */}
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Username"
+              />
+            )}
+            name="Username"
+            rules={{ required: true }}
+            defaultValue={defaultValues.Username}
+          />
+          {errors?.Username?.message && (
+            <ThemedText type="defaultSemiBold" style={styles.error}>
+              {errors.Username.message}
+            </ThemedText>
+          )}
+
+          {/* Email Input */}
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                placeholder="Email"
+              />
+            )}
+            name="Email"
+            rules={{ required: true }}
+            defaultValue={defaultValues.Email}
+          />
+          {errors?.Email?.message && (
+            <ThemedText type="defaultSemiBold" style={styles.error}>
+              {errors.Email.message}
+            </ThemedText>
+          )}
+
+          {/* Password Input */}
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry
+                placeholder="Password"
+              />
+            )}
+            name="password"
+            rules={{ required: true }}
+            defaultValue=""
+          />
+          {errors?.password?.message && (
+            <ThemedText type="defaultSemiBold" style={styles.error}>
+              {errors.password.message}
+            </ThemedText>
+          )}
+
+          {/* Confirm Password Input */}
+          <Controller
+            control={control}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                style={styles.input}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry
+                placeholder="Confirm Password"
+              />
+            )}
+            name="confirmPassword"
+            rules={{ required: true }}
+            defaultValue=""
+          />
+          {errors?.confirmPassword?.message && (
+            <ThemedText type="defaultSemiBold" style={styles.error}>
+              {errors.confirmPassword.message}
+            </ThemedText>
+          )}
+
+          {/* Register Button */}
+          <ThemedTouchableFilled style ={styles.button} onPress={handleSubmit(onSubmit)}>
+            <ThemedText 
+              customColor={white}
+              type='default'
+            > Register
+            </ThemedText>
+          </ThemedTouchableFilled>
+
+
+          <View style={styles.socialLoginContainer}>
+        <ThemedText type='default' style={styles.socialButtonText}>Or Sign up using</ThemedText>
+              <TouchableOpacity style={styles.socialButton}>
+                <FontAwesome name="facebook" size={20} color="#4267B2" />
+                <ThemedText type="default" style={styles.socialButtonText}>Sign up with Facebook</ThemedText>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.socialButton}>
+                <FontAwesome name="google" size={20} color="#DB4437" />
+                <ThemedText type="default" style={styles.socialButtonText}>Sign up with Google</ThemedText>
+              </TouchableOpacity>
+
+    
+            </View>
+            
+          <ThemedTouchablePlain
+            variant='opacity'
+            onPress={() => router.push('/login')}
+          >
+            <ThemedText type='link'> 
+              Already have an account? 
+            </ThemedText>
+          </ThemedTouchablePlain>
+
+
+          {/* The orange thingy at the bottom BUTTON ALREADY HAVE AN ACCOUNT CAN"T BE PRESSED IF THERE IS
+          <Svg style={{ position: 'absolute', bottom: 0, left: 0 }} width="100%" height="150">
+            <Path
+              fill="#D4AF37"
+              fillOpacity="1"
+              d="M0,64L30,85.3C60,107,120,149,180,149.3C240,149,300,107,360,96C420,85,480,107,540,133.3C600,160,660,192,720,181.3C780,171,840,117,900,106.7C960,96,1020,128,1080,138.7C1140,149,1200,139,1260,112C1320,85,1380,43,1410,21.3L1440,0L1440,320L1410,320C1380,320,1320,320,1260,320C1200,320,1140,320,1080,320C1020,320,960,320,900,320C840,320,780,320,720,320C660,320,600,320,540,320C480,320,420,320,360,320C300,320,240,320,180,320C120,320,60,320,30,320L0,320Z"
+            />
+          </Svg>
+          */}
+        </ThemedView>
       </ThemedView>
     </SafeAreaView>
+    </>
   );
 }
 
@@ -223,9 +274,13 @@ const styles = StyleSheet.create({
   },
   formcontainer: {
     flex: 1,
-    backgroundColor: '#FFF',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  image: {
+    height: width * 0.2,
+    width: width * 0.2,
+    marginBottom: 15
   },
   input: {
     width: "85%",

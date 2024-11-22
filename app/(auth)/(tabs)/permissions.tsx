@@ -14,6 +14,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Camera, CameraPermissionStatus } from "react-native-vision-camera";
 import { Ionicons } from "@expo/vector-icons";
+import FocusAwareStatusBar from "@/components/navigation/FocusAwareStatusBarTabConf";
 
 const ICON_SIZE = 26;
 
@@ -44,6 +45,7 @@ export default function PermissionsScreen() {
 
   return (
     <ThemedView style={styles.container}>
+    <FocusAwareStatusBar barStyle="dark-content" animated />
     <View style={styles.spacer} />
     
     <View style={styles.title}>

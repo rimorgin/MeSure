@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { appData } from '@/assets/data/appData';
 import { Easing } from 'react-native-reanimated';
 import { ThemedTouchablePlain } from './ThemedButton';
-import { useIsAppFirstLaunchStore } from '@/state/appStore';
+import { useIsAppFirstLaunchStore } from '@/store/appStore';
 import { ThemedText } from './ThemedText';
 
 // Get the screen dimensions for layout

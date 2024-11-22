@@ -4,9 +4,9 @@ import React from 'react'
 import { Dimensions, FlatList, Image, ListRenderItemInfo, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
-import { useIsAppFirstLaunchStore } from '@/state/appStore'
+import { useIsAppFirstLaunchStore } from '@/store/appStore'
 import { useAssets } from 'expo-asset'
-import { white, black } from '@/constants/Colors'
+import { white, black, darkBrown } from '@/constants/Colors'
 import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton'
 import ParallaxScrollView from '@/components/ParallaxScrollView'
 import Slider from '@/components/Slider'
@@ -51,7 +51,7 @@ function Landing() {
   return (
     <ParallaxScrollView
       headerHeight={height * 0.6}
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: darkBrown, dark: '#1D3D47' }}
       headerImage={
         <Image
           style={styles.headerImg}

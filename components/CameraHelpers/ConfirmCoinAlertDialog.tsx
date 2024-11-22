@@ -8,6 +8,7 @@ import { ThemedTouchableFilled } from '@/components/ThemedButton';
 
 interface ConfirmCoinAlertDialogProps {
   showCoinDialog: boolean;
+  setShowCoinDialog: (showCoinDialog: boolean) => void;
   bodyPart?: string;
   coin?: number;
   setCoin: React.Dispatch<React.SetStateAction<number>>;
@@ -15,12 +16,17 @@ interface ConfirmCoinAlertDialogProps {
 
 const ConfirmCoinAlertDialog: React.FC<ConfirmCoinAlertDialogProps> = ({
   showCoinDialog = false,
+  setShowCoinDialog,
   coin,
   setCoin,
-  bodyPart = 'body part'
+  bodyPart = 'body part',
 }) => {
   return (
-    <ThemedModal showModal={showCoinDialog} height={300}>
+    <ThemedModal 
+      showModal={showCoinDialog} 
+      onClose={() => setShowCoinDialog(false)}
+      height={300}
+    >
     <ThemedText type="semititle" style={{ textAlign: 'left', width: '100%', paddingLeft: 10, paddingTop: 10 }}>
         What coin are you using?
     </ThemedText>

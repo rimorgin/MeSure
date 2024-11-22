@@ -4,6 +4,7 @@ import Animated, {
   useAnimatedStyle,
   interpolateColor,
 } from "react-native-reanimated";
+import { Colors, darkBrown, tintColorLight } from "@/constants/Colors";
 
 const CustomBackground: React.FC<BottomSheetBackgroundProps> = ({
   style,
@@ -15,8 +16,9 @@ const CustomBackground: React.FC<BottomSheetBackgroundProps> = ({
     backgroundColor: interpolateColor(
       animatedIndex.value,
       [-1, 0],
-      ["#ffffff", "#a8b5eb"]
+      ['#EFE8D8', '#EFE8D8']
     ),
+    
   }));
   const containerStyle = useMemo(
     () => [style, containerAnimatedStyle],

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react'
-import { TouchableOpacity, Button, StyleSheet, TextInput, View, Dimensions, KeyboardAvoidingView } from "react-native";
+import { TouchableOpacity, Button, StyleSheet, TextInput, View, Dimensions, KeyboardAvoidingView, Image, StatusBar } from "react-native";
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -11,13 +11,17 @@ import auth from '@react-native-firebase/auth'
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { getWindowDimensions } from '@/hooks/getWindowDimensions';
 import { Link, router } from 'expo-router';
 import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton';
 import ThemedModal from '@/components/ThemedModal';
 import ThemedDivider from '@/components/ThemedDivider';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import useColorSchemeTheme from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
+import Loader from '@/components/Loader';
+
+const width = Dimensions.get('screen').width
 
 // Define schemas
 const loginSchema = yup.object().shape({
@@ -42,7 +46,9 @@ type FormData = {
 export default function Login() {
   const { signIn } = useSession();
   const [modal, resetPasswordModal] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [resetPw, setResetPw] = useState(false);
+  const theme = useColorSchemeTheme();
   // Use schema based on whether modal is open
   const schema = modal ? resetSchema : loginSchema;
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
@@ -51,9 +57,11 @@ export default function Login() {
   });
 
   // Handle form submission
-  const onSubmit = (data: {email: string; password: string} ) => {
+  const onSubmit = async (data: {email: string; password: string} ) => {
+    setLoading(true);
     const { email, password } = data;
-    signIn(email, password);
+    await signIn(email, password);
+    setLoading(false);
   };
 
   const handleResetPassword = async (data: {email: string}) => {
@@ -65,9 +73,10 @@ export default function Login() {
 
   return (
     <>
+    {loading && <Loader/> }
     <ThemedModal 
       showModal={modal}
-      onRequestClose={() => resetPasswordModal(false)}
+      onClose={() => resetPasswordModal(false)}
     >
       {!resetPw ? (
         <>
@@ -163,8 +172,16 @@ export default function Login() {
     </ThemedModal>
 
     <SafeAreaView style={styles.container}>
+      <StatusBar 
+        barStyle={theme==='light' ? 'dark-content' : 'light-content'} 
+        backgroundColor={theme === 'light' ? Colors.light.background : Colors.dark.background} 
+      />
+      <ThemedView style={{flex:1}}>
       <ThemedView style={styles.formcontainer}>
-        
+        <Image 
+          source={require('@/assets/images/app-icon.png')} 
+          style={styles.image}
+        />
         {/* The title */}
         <ThemedText 
           type='semititle' 
@@ -284,6 +301,7 @@ export default function Login() {
         </Svg>
           
       </ThemedView>
+      </ThemedView>
     </SafeAreaView>
     </>
     
@@ -297,9 +315,13 @@ const styles = StyleSheet.create({
   },
   formcontainer: {
     flex: 1,
-    backgroundColor: '#FFF',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  image: {
+    height: width * 0.2,
+    width: width * 0.2,
+    marginBottom: 15
   },
   input: {
     width: "85%",

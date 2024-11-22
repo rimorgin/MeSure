@@ -1,9 +1,8 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Redirect, router, Stack, Slot } from 'expo-router';
+import { Slot } from 'expo-router';
 import { SessionProvider } from "@/provider/AuthContext";
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
 import useColorSchemeTheme, { useColorScheme } from '@/hooks/useColorScheme';
@@ -11,6 +10,8 @@ import { toastConfig } from '@/components/Toast';
 import { FontProvider } from '@/provider/FontContext';
 import { useNetInfo } from "@react-native-community/netinfo";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useCartStore, useFavoritesStore } from '@/store/appStore';
+import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -18,6 +19,10 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorSchemeTheme();
   const { isConnected } = useNetInfo();
+  const { fetchFavorites } = useFavoritesStore();
+  const { fetchCart } = useCartStore();
+  const [docId, setDocId] = useState('');
+
  /*
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -39,9 +44,11 @@ export default function RootLayout() {
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
+          
           return response.json();
         })
         .then(data => {
+          
           Toast.show({
             type: 'success',
             text1: 'Connected',
@@ -68,7 +75,11 @@ export default function RootLayout() {
           <FontProvider>
             <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
               <Slot />
-              <Toast config={toastConfig} position='top' topOffset={20}/>
+              <Toast 
+                config={toastConfig} 
+                position='top' 
+                topOffset={50}
+              />
             </ThemeProvider>
           </FontProvider>
       </SessionProvider>

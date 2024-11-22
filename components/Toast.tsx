@@ -9,9 +9,10 @@ import Toast, { BaseToast, ErrorToast,  ToastConfigParams } from 'react-native-t
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 import { Text } from 'react-native';
+import { HelloWave } from './HelloWave';
 
 // Define the structure of your custom toast props
-interface TomatoToastProps {
+interface CustomToastProps {
   text1: string;  // Title
   text2: any;     // Allow any type for props, but this should ideally be more specific
 }
@@ -40,10 +41,10 @@ export const toastConfig = {
       }}
     />
   ),
-  tomatoToast: ({ text1, text2 }: ToastConfigParams<TomatoToastProps>) => (
-    <ThemedView style={{ height: 60, width: '100%', backgroundColor: 'tomato' }}>
+  customToast: ({ text1, text2 }: ToastConfigParams<CustomToastProps>) => (
+    <ThemedView style={{ height: 80, width: '100%', backgroundColor: 'tomato' }}>
       <Text>{text1}</Text>
-      <Text>{text2}</Text>
+      <HelloWave/>
     </ThemedView>
   ),
 };

@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Image, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -8,9 +8,26 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from './ThemedView';
+import { useIsAppFirstLaunchStore, useUserIdStore } from '@/store/appStore';
 
-export function HelloWave() {
+interface HelloWaveProps {
+  showIntro?: boolean;
+}
+
+export function HelloWave({} : HelloWaveProps) {
   const rotationAnimation = useSharedValue(0);
+  const userFullName = useUserIdStore((state) => state.userFullName);
+  const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch)
+  const showIntro = useIsAppFirstLaunchStore((state) => state.showIntro)
+
+  const nameParts = userFullName?.split(' ') || [];
+
+  // Set the first word as the first name
+  const firstName = nameParts[0] || '';
+
+  // Set the last word as the last name
+  const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
 
   rotationAnimation.value = withRepeat(
     withSequence(withTiming(25, { duration: 150 }), withTiming(0, { duration: 150 })),
@@ -22,16 +39,41 @@ export function HelloWave() {
   }));
 
   return (
-    <Animated.View style={animatedStyle}>
+    <>
+    {/* 
+    {showIntro ? (
       <ThemedText style={styles.text}>👋</ThemedText>
-    </Animated.View>
+    ) : (
+      <Animated.View style={animatedStyle}>
+        <ThemedText style={styles.text}>👋</ThemedText>
+      </Animated.View>
+    )}
+    */}
+    
+    <ThemedView style={{flexDirection:'row', gap: 10, justifyContent: 'center', alignItems: 'center'}}>
+    <Image 
+      source={require('@/assets/images/app-icon.png')} 
+      style={styles.image}
+    />
+    <ThemedView>
+      <ThemedText type="semititle" font="cocoGothicBold">
+        Welcome, {'\n'}
+        <ThemedText type="default" font="montserratRegular">
+          {firstName + ' ' + lastName}
+        </ThemedText>
+      </ThemedText>
+    </ThemedView>
+    </ThemedView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   text: {
-    fontSize: 30,
-    lineHeight: 32,
-    marginTop: -6,
+    fontSize: 40,
   },
+  image: {
+    width: 50,
+    height: 50
+  }
 });

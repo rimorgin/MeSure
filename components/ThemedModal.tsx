@@ -19,7 +19,7 @@ const ThemedModal: React.FC<ThemedModalProps> = ({
   onClose,
   width = '80%',
   height = '50%',
-  animationType = 'none',
+  animationType = 'fade',
   transparent = true,
   children,
   ...modalProps
@@ -45,7 +45,7 @@ const ThemedModal: React.FC<ThemedModalProps> = ({
       animationType={animationType}
       transparent={transparent}
       visible={showModal}
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
       {...modalProps}
     >
       <ThemedView style={styles.centeredView}>

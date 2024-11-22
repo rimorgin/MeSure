@@ -3,12 +3,14 @@ import React, { useEffect } from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { black, Colors, white } from '@/constants/Colors';
 import useColorSchemeTheme, { useColorScheme } from '@/hooks/useColorScheme';
-import { useCartStore, useIsAppFirstLaunchStore } from '@/state/appStore';
-import { Dimensions, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useCartStore, useIsAppFirstLaunchStore } from '@/store/appStore';
+import { Dimensions, Modal, StyleSheet, Touchable, TouchableOpacity, View } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import Slider from '@/components/Slider';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useFont } from '@/provider/FontContext';
+import Loader from '@/components/Loader';
 
 export default function TabLayout() {
   const colorScheme = useColorSchemeTheme();
@@ -18,12 +20,18 @@ export default function TabLayout() {
   const { hideIntro } = useIsAppFirstLaunchStore();
   const cart = useCartStore((state) => state.cart)
 
+  const { fontsLoaded, fontStyles } = useFont();
+
   // Check for first launch before rendering the component
   useEffect(() => {
     if (firstLaunch) {
       router.replace('/(auth)/landing');
     }
   }, [firstLaunch]);
+
+  if (firstLaunch) {
+    return <Loader/>
+  }
 
   const IntroModal = () => {
     return (
@@ -62,6 +70,11 @@ export default function TabLayout() {
                 color={color}
               />
             ),
+            headerShown: false,
+            headerTitle: 'MeSure',
+            headerShadowVisible: true,
+            headerTintColor: '#fff',
+            
           }}
         />
         <Tabs.Screen
@@ -80,6 +93,8 @@ export default function TabLayout() {
           name="cart"
           options={{
             title: 'Cart',
+            tabBarStyle: { display: 'none' },
+            tabBarButton:() => null,
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
                 name={focused ? 'cart' : 'cart-outline'}
@@ -115,8 +130,30 @@ export default function TabLayout() {
         <Tabs.Screen
           name="permissions"
           options={{
-            headerShown: false,
+            headerShown: true,
             tabBarButton:() => null,
+            headerTitle: 'Permissions',
+            headerTitleAlign: 'center',
+            headerTitleStyle: {
+              fontSize: 25,
+              fontFamily: fontStyles.montserratBold
+            },
+            headerLeft: () => {
+              return (
+                <TouchableOpacity 
+                  style={{left:20}}
+                  onPress={() => router.back()}
+                >
+                  <Ionicons
+                    name="return-up-back"
+                    size={32}
+                  />
+                </TouchableOpacity>
+              )
+            },
+            headerBackgroundContainerStyle: {
+              
+            }
           }}
         />
       </Tabs>
@@ -129,10 +166,11 @@ const styles = StyleSheet.create({
   floatingTabBar: {
     position: 'absolute',
     bottom: 20, // Adjust to control floating height
-    left: 20,
-    right: 20,
+    left: 60,
+    right: 60,
     height: 60, // Adjust height as needed
     borderRadius: 30, // Makes it fully rounded
+    paddingBottom: 6,
     backgroundColor: 'white', // Customize the background
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 5 },

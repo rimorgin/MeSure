@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ActivityIndicator, Dimensions, StatusBar, StyleSheet, Text, TouchableOpacity, useColorScheme, View, Image, SafeAreaView, Platform } from 'react-native';
+import { ActivityIndicator, Dimensions, StatusBar, StyleSheet, Text, TouchableOpacity, useColorScheme, View, Image, SafeAreaView, Platform, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { 
   Camera, 
   CameraDeviceFormat, 
@@ -21,6 +21,7 @@ import ConfirmCoinAlertDialog from '@/components/CameraHelpers/ConfirmCoinAlertD
 import ConfirmBodyPartAlertDialog from '@/components/CameraHelpers/ConfirmBodyPartAlertDialog';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import Loader from '@/components/Loader';
+import { useUserMeasurementStorage } from '@/store/appStore';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -40,6 +41,12 @@ export default function CameraApp() {
   const [measured, setMeasured] = useState(false);
   const [showBodyPartDialog, setShowBodyPartDialog] = useState(false);
   const [showCoinDialog, setShowCoinDialog] = useState(false);
+  const [inputFocus, setInputFocus] = useState(false);
+  const { fingerMeasurements, wristMeasurement, setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
+
+  //on camera measurement successful exit
+  const [ok, setOk] = useState(false);
+
 
   if (!device) {
     return (
@@ -100,15 +107,57 @@ export default function CameraApp() {
     setMeasured(true)
   };
 
-  useEffect(() => {
-  // This function will run when the component unmounts
-  return () => {
-    setBodyPart('');
-    setCoin(0);
-    setShowBodyPartDialog(true);
-    setShowCoinDialog(false);
+  const [fingerSizes, setFingerSizes] = useState({
+    thumb: '',
+    index: '',
+    middle: '',
+    ring: '',
+    pinky: '',
+  });
+  const [wristSize, setWristSize] = useState('');
+
+  const handleFingerChange = (name: string, value: string) => {
+    setFingerSizes((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
-}, []);
+
+  useEffect(() => {
+    if (
+      fingerSizes.thumb !== '' && 
+      fingerSizes.index !== '' && 
+      fingerSizes.middle !== '' && 
+      fingerSizes.ring !== '' && 
+      fingerSizes.pinky !== ''
+    ) {
+      setOk(true);
+    } else if (wristSize !== '') {
+      setOk(true);
+    } else {
+      setOk(false);
+    }
+  },[fingerSizes, wristSize])
+
+  
+  const handleFinishedMeasurement = () => {
+    if (bodyPart === 'fingers') {
+      setFingerMeasurements(fingerSizes)
+    } else {
+      setWristMeasurement(wristSize)
+    }
+    router.push('/(auth)/(tabs)/profile')
+  }
+
+  useEffect(() => {
+    // This function will run when the component unmounts
+    return () => {
+      setBodyPart('');
+      setCoin(0);
+      setShowBodyPartDialog(true);
+      setShowCoinDialog(false);
+    };
+  }, []);
 
   useEffect(() => {
     if (!hasPermission && !mediaLibraryPermission) {
@@ -125,11 +174,18 @@ export default function CameraApp() {
     return <Loader/>;
   }
 
+  console.log('zustand',fingerMeasurements)
+  console.log('zustand',wristMeasurement)
+  
   return (
     <>
     <FocusAwareStatusBar barStyle="dark-content" animated />
+    <TouchableWithoutFeedback 
+      onPress={Keyboard.dismiss}
+    >
     <SafeAreaView style={styles.container}>
       <ConfirmCoinAlertDialog 
+        setShowCoinDialog={() => setShowCoinDialog(false)} 
         showCoinDialog={showCoinDialog}
         bodyPart={bodyPart} 
         setCoin={(coin) => { 
@@ -137,7 +193,8 @@ export default function CameraApp() {
           setShowCoinDialog(false); 
         }} // Hide the dialog after selection
       />
-      <ConfirmBodyPartAlertDialog 
+      <ConfirmBodyPartAlertDialog
+        setShowBodyPartDialog={() => setShowBodyPartDialog(false)}
         showBodyPartDialog={showBodyPartDialog} 
         bodyPart={bodyPart} 
         setBodyPart={(part) => { 
@@ -165,6 +222,86 @@ export default function CameraApp() {
             source={{ uri: typeof photo === 'string' ? photo : `file://${photo.path}` }}
             style={styles.image}
           />
+          <View
+            style={[
+              styles.textInputContainer,
+              {top: inputFocus ? height * 0.48 : height * 0.7,}
+            ]}
+          > 
+          {measured && (
+            bodyPart === 'fingers' ? (
+            <>
+            <View>
+              <Text style={styles.text}>Thumb</Text>
+              <TextInput 
+                keyboardType='numeric'
+                onFocus={()=> setInputFocus(true)}
+                onEndEditing={() => setInputFocus(false)}
+                style={styles.textInput}
+                value={fingerSizes.thumb}
+                onChangeText={(value) => handleFingerChange('thumb', value)}
+              />
+            </View>
+            <View>
+              <Text style={styles.text}>Index</Text>
+              <TextInput 
+              keyboardType='numeric'
+              onFocus={()=> setInputFocus(true)}
+              onEndEditing={() => setInputFocus(false)}
+              style={styles.textInput}
+              value={fingerSizes.index}
+              onChangeText={(value) => handleFingerChange('index', value)}
+            />
+            </View>
+            <View>
+              <Text style={styles.text}>Middle</Text>
+              <TextInput 
+              keyboardType='numeric'
+              onFocus={()=> setInputFocus(true)}
+              onEndEditing={() => setInputFocus(false)}
+              style={styles.textInput}
+              value={fingerSizes.middle}
+              onChangeText={(value) => handleFingerChange('middle', value)}
+            />
+            </View>
+            <View>
+              <Text style={styles.text}>Ring</Text>
+              <TextInput 
+              keyboardType='numeric'
+              onFocus={()=> setInputFocus(true)}
+              onEndEditing={() => setInputFocus(false)}
+              style={styles.textInput}
+              value={fingerSizes.ring}
+              onChangeText={(value) => handleFingerChange('ring', value)}
+            />
+            </View>
+            <View>
+              <Text style={styles.text}>Pinky</Text>
+              <TextInput 
+              keyboardType='numeric'
+              onFocus={()=> setInputFocus(true)}
+              onEndEditing={() => setInputFocus(false)}
+              style={styles.textInput}
+              value={fingerSizes.pinky}
+              onChangeText={(value) => handleFingerChange('pinky', value)}
+            />
+            </View>
+            </>
+            ) : (
+            <View>
+              <Text style={styles.text}>Wrist Size</Text>
+              <TextInput 
+                keyboardType='numeric'
+                onFocus={()=> setInputFocus(true)}
+                onEndEditing={() => setInputFocus(false)}
+                style={styles.textInput}
+                value={wristSize}
+                onChangeText={(value) => setWristSize(value)}
+              />
+            </View>
+            )
+            )}
+          </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={() => {
               setPhoto(undefined);
@@ -180,6 +317,11 @@ export default function CameraApp() {
             {!measured && (
               <TouchableOpacity style={styles.confirmButton} onPress={processConfirmedImage}>
                 <Text style={styles.confirmText}>Confirm</Text>
+              </TouchableOpacity>
+            )}
+            {measured && (
+              <TouchableOpacity style={styles.confirmButton} onPress={handleFinishedMeasurement}>
+                <Text style={styles.confirmText}>Ok</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity>
@@ -255,6 +397,7 @@ export default function CameraApp() {
         </>
       )}
     </SafeAreaView>
+    </TouchableWithoutFeedback>
     </>
   );
 }
@@ -305,5 +448,26 @@ const styles = StyleSheet.create({
     height: width * (4 / 3),
     width: width,
     alignSelf: 'center', // Center the image horizontally
-},
+  },
+  textInputContainer: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 25,
+    flexDirection: 'row'
+  },
+  textInput: {
+    borderWidth:3,
+    borderColor: white,
+    padding: 3,
+    paddingHorizontal: 8,
+    color: white,
+    fontSize: 18,
+    textAlign: 'center'
+  },
+  text: {
+    color: white,
+    marginBottom:3,
+    textAlign: 'center'
+  }
 });

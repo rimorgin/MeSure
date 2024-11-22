@@ -8,17 +8,18 @@ export const tintColorDark = '#D4AF37';
 export const BadgeTint = '#D4AF37';
 export const white = '#fff'
 export const black = '#1c1c1d'
+export const darkBrown = '#301713'
 
 export const Colors = {
   light: {
     text: '#11181C',
-    background: '#fff',
+    background: '#F8F4EC',
     tint: tintColorLight,
-    icon: '#687076',
+    icon: darkBrown,
     button: '#D4AF37',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
-    divider: '#ccc',
+    divider: darkBrown,
     nav: white
   },
   dark: {

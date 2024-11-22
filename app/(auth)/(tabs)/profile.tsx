@@ -4,7 +4,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/provider/AuthContext';
-import { useColorSchemeStore, useIsAppFirstLaunchStore } from '@/state/appStore';
+import { useColorSchemeStore, useIsAppFirstLaunchStore, useUserIdStore, useUserMeasurementStorage } from '@/store/appStore';
 import { appData } from '@/assets/data/appData';
 import { Colors, white } from '@/constants/Colors';
 import ThemedDivider from '@/components/ThemedDivider';
@@ -14,6 +14,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import { router } from 'expo-router';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
+import { ExternalLink } from '@/components/ExternalLink';
+import * as WebBrowser from 'expo-web-browser';
 
 
 const { width } = Dimensions.get('screen');
@@ -23,7 +25,20 @@ export default function ProfileScreen() {
     const theme = useColorSchemeTheme() ?? 'light';
     const { toggleTheme } = useColorSchemeStore();
     const isEnabled = theme === 'dark';
+    const { resetApp } = useIsAppFirstLaunchStore();
+    const userFullName = useUserIdStore((state) => state.userFullName);
+    const { fingerMeasurements, wristMeasurement, setFingerMeasurements, setWristMeasurement, resetMeasurements } = useUserMeasurementStorage();
+    const [result, setResult] = useState(null);
 
+    const nameParts = userFullName?.split(' ') || [];
+
+    // Set the first word as the first name
+    const firstName = nameParts[0] || '';
+
+    // Set the last word as the last name
+    const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+
+    
     const handleSignOut = () => {
       signOut();
     }
@@ -32,6 +47,23 @@ export default function ProfileScreen() {
       toggleTheme(theme === 'light' ? 'dark' : 'light');
     };
 
+    // Function to open an external link
+  const handleOpenInAppBrowser = async (url: any) => {
+    try {
+      const result = await WebBrowser.openBrowserAsync(url, {
+        enableBarCollapsing: true, // Allows the toolbar to collapse
+        dismissButtonStyle: 'close', // Adds a close button
+        showTitle: true
+
+      });
+
+      if (result.type === 'dismiss') {
+        console.log('Browser dismissed by the user');
+      }
+    } catch (error: any) {
+      console.error('Error opening in-app browser:', error.message);
+    }
+  };
   return (
     <ParallaxScrollView
       headerHeight={width * 0.5}
@@ -58,7 +90,7 @@ export default function ProfileScreen() {
               customColor={white}
               style={{marginLeft:-10}}
             >
-              Vondat {'\n'} Gatchalian
+              {firstName} {'\n'} {lastName}
             </ThemedText>
             <ThemedText
               font='montserratLight' 
@@ -81,23 +113,81 @@ export default function ProfileScreen() {
           icon='resize'
           dropdownIconPlacement='right'
           title='Saved Measurements'
-          height={150}
+          height={!fingerMeasurements.index && 
+                !fingerMeasurements.middle && 
+                !fingerMeasurements.pinky &&
+                !fingerMeasurements.ring &&
+                !fingerMeasurements.thumb ? 150 : 250
+              }
         >
           <ThemedView
             transparent
             style={styles.dropdownContent}
           >
-             <ThemedText 
-              type="default" 
-              textAligned='center'
-            >You currently have no saved measurements.
-            </ThemedText>
+            <ThemedView  transparent style={{flexDirection:'row'}}> 
+              <ThemedView transparent style={{gap:5 }}>
+              <ThemedText 
+                type="default" 
+                style={{width:100}}
+                textAligned={!fingerMeasurements.index && 
+                !fingerMeasurements.middle && 
+                !fingerMeasurements.pinky &&
+                !fingerMeasurements.ring &&
+                !fingerMeasurements.thumb ? 'center' : 'left'
+              }
+              >{!fingerMeasurements.index && 
+                !fingerMeasurements.middle && 
+                !fingerMeasurements.pinky &&
+                !fingerMeasurements.ring &&
+                !fingerMeasurements.thumb ? `No saved finger sizes yet.` : (
+                <>
+                  
+                  <ThemedText font='montserratSemiBold'>Thumb: </ThemedText>
+                  {`${fingerMeasurements.thumb} \n`} 
+                  <ThemedText font='montserratSemiBold'>Index: </ThemedText>
+                  {`${fingerMeasurements.index} \n`}
+                  <ThemedText font='montserratSemiBold'>Middle: </ThemedText>
+                  {`${fingerMeasurements.middle} \n`} 
+                  <ThemedText font='montserratSemiBold'>Ring: </ThemedText>
+                  {`${fingerMeasurements.ring} \n`}
+                  <ThemedText font='montserratSemiBold'>Pinky: </ThemedText>
+                  {`${fingerMeasurements.pinky} \n`}
+                </>
+              )}
+              </ThemedText>
+              </ThemedView>
+              <ThemedDivider orientation='vertical' marginX={10}/>
+              <ThemedView transparent style={{gap:5}}>
+                <ThemedText 
+                  type="default" 
+                  textAligned='center'
+                  style={{width:100}}
+                >{!wristMeasurement ? `No saved wrist size yet.` : (
+                  <>
+                    <ThemedText font='montserratSemiBold'>Wrist: </ThemedText>
+                    {`${wristMeasurement} \n`} 
+
+                  </>
+                )}
+                </ThemedText>
+              </ThemedView>
+            </ThemedView>
+            <ThemedView
+              transparent
+              style={{flexDirection:'row', gap: 10}}>
+            <ThemedTouchableFilled
+                variant='opacity'
+                onPress={() => router.push('/(auth)/(tabs)/camera')}
+             >
+              <ThemedText type="default">Find size</ThemedText>
+             </ThemedTouchableFilled>
              <ThemedTouchableFilled
                 variant='opacity'
                 onPress={() => router.push('/(auth)/(tabs)/camera')}
              >
-              <ThemedText type="default">Add Measurement</ThemedText>
+              <ThemedText type="default">Add Manually</ThemedText>
              </ThemedTouchableFilled>
+             </ThemedView>
           </ThemedView>
         </Collapsible>
         <ThemedDivider width={1.2} marginY={5}/>
@@ -160,6 +250,30 @@ export default function ProfileScreen() {
           />
           <ThemedText type="default">Logout</ThemedText>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={resetApp}
+        >
+           <Ionicons
+            name='refresh'
+            size={25}
+            color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+          />
+          <ThemedText type="default">RESET // debugging only</ThemedText>
+        </TouchableOpacity>
+        <ThemedView transparent> 
+          <ThemedText
+            style={{ marginBottom: 10 }}
+          >
+            Check out this link:
+          </ThemedText>
+          <ThemedText>{result && JSON.stringify(result)}</ThemedText>
+          <TouchableOpacity 
+          onPress={() => handleOpenInAppBrowser('https://google.com')}>
+            <ThemedText type='link'>sample external in-app web</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
         {/* 
         <ThemedDivider />
         

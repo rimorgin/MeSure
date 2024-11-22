@@ -1,11 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, Button, Image, Dimensions, TouchableHighlight, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Button, Image, Dimensions, TouchableHighlight, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { appData } from '@/assets/data/appData';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedView } from '@/components/ThemedView';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ThemedText } from '@/components/ThemedText';
-import { Foundation, Ionicons } from '@expo/vector-icons';
+import { AntDesign, Foundation, Ionicons } from '@expo/vector-icons';
 import { black, tintColorLight, white } from '@/constants/Colors';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
@@ -13,8 +13,12 @@ import ThemedBottomSheet, { ThemedBottomSheetRef } from '@/components/ThemedBott
 import ThemedDivider from '@/components/ThemedDivider';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { useCartStore, useFavoritesStore } from '@/state/appStore';
+import { useCartStore, useFavoritesStore } from '@/store/appStore';
 import { ratingStars } from '@/utils/ratings';
+import ThemedModal from '@/components/ThemedModal';
+import { HelloWave } from '@/components/HelloWave';
+import auth from '@react-native-firebase/auth';
+import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
 
 
   const { width, height } = Dimensions.get('screen');
@@ -41,29 +45,35 @@ import { ratingStars } from '@/utils/ratings';
     const bottomSheetRef = useRef<ThemedBottomSheetRef>(null);
     const [quantity, setQuantity] = useState(0);
     const [sizes, setSize] = useState(0);
+    const { cart, addToCart } = useCartStore();
     const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
     const [isExpanded, setIsExpanded] = useState(false);
     const [textHeight, setTextHeight] = useState(0);
     const maxHeight = 28;
+    const [arAlertModal, setArAlertModal] = useState(false);
+    const [docId, setDocId] = useState('');
+    
 
-    const { addToCart } = useCartStore();
+    useEffect(() => {
+      setFavorite(isFavorite(product.id))
+
+      const getDocId = async () => {
+        const docId = await fetchUserDocIdByAuthId();
+        setDocId(docId);
+      }
+      getDocId();
+    },[])
 
     const handleTextLayout = (event: any) => {
       const { height } = event.nativeEvent.layout;
       setTextHeight(height);
     };
-
-
-
+    
     const openBottomSheet = () => bottomSheetRef.current?.open();
     const closeBottomSheet = () => bottomSheetRef.current?.close();
 
     const increment = () => setQuantity(prev => prev + 1);
     const decrement = () => setQuantity(prev => (prev > 1 ? prev - 1 : prev));
-
-    useEffect(() => {
-      setFavorite(isFavorite(product.id))
-    },[])
 
     const handleSelectedSize = (size:number) => {
       if (size === sizes) {
@@ -73,33 +83,60 @@ import { ratingStars } from '@/utils/ratings';
       setSize(size)
     }
 
-    const handleFavoriteToggle = () => {
+    const handleFavoriteToggle = async () => {
+      const data = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      img: product.img[0]
+    }
+      
       if (favorite) {
-        removeFavorite(product.id); // Remove from favorites
+        removeFavorite(docId, product.id); // Remove from favorites
       } else {
-        addFavorite(product.id); // Add to favorites
+        addFavorite(docId, product.id); // Add to favorites
       }
       setFavorite(!favorite); // Toggle favorite state
+    
     }; 
     
     const handleAddToCart = () => {
       if (quantity > 0 && sizes !== 0) {
         const cartItem = { 
           id: product.id,
-          name: product.name,
           quantity: quantity,
           size: sizes,
           price: product.price,
-          img: product.img[0]
         }
-        addToCart(cartItem)
+        addToCart(docId, cartItem)
         closeBottomSheet();
         setQuantity(0);
         setSize(0);
       }
     }
+
+    const handleArClick = () => {
+      if (product.AR) {
+        //router.push('/(auth)/(tabs)/arcamera')
+      } else {
+        setArAlertModal(true);
+      }
+    }
+
     return (
       <>
+      <ThemedModal
+        showModal={arAlertModal}
+        onClose={() => setArAlertModal(false)}
+        height={250}
+      >
+        <ThemedView style={{flex:1, gap: 20,alignItems:'center', justifyContent:'center'}}>
+          <ThemedText font='montserratSemiBold' style={{textAlign:'center'}}>This {product.name} is not available for AR Try-On yet.</ThemedText>
+          <ThemedTouchableFilled onPress={() => setArAlertModal(false)}>
+            <ThemedText>Confirm</ThemedText>
+          </ThemedTouchableFilled>
+        </ThemedView>
+      </ThemedModal>
       <ThemedView
           style={[
             styles.listView,
@@ -142,10 +179,11 @@ import { ratingStars } from '@/utils/ratings';
         //roundedHeader
         scrollable={false}
         headerHeight={height * 0.45}
-        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+        headerBackgroundColor={{ light: '#301713', dark: '#1D3D47' }}
         headerImage={
           <Image
             style={styles.headerImg}
+            blurRadius={2}
             source={require('@/assets/images/product-page-bg.png')}
           />
         }
@@ -162,13 +200,26 @@ import { ratingStars } from '@/utils/ratings';
               color={white}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleFavoriteToggle}>
+          <ThemedView transparent style={{flexDirection:'row', gap: 20}}>
+            <TouchableOpacity onPress={handleFavoriteToggle}>
             <Ionicons 
               name={favorite ? 'heart' : "heart-outline"}
               size={40}
               color={favorite ? '#FF0000' : white}
             />
           </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => router.push('/cart')}>
+            <Ionicons
+              name="cart-outline"
+              size={40}
+              color={white}
+            />
+            <ThemedView style={styles.cartCount}>
+              <ThemedText customColor={white}>{cart.length}</ThemedText>
+            </ThemedView>
+          </TouchableOpacity>
+          </ThemedView>
           </ThemedView>
           <ThemedView
             transparent
@@ -183,138 +234,146 @@ import { ratingStars } from '@/utils/ratings';
         }
       >
         <ThemedView style={styles.container}>
-          <ThemedView style={{
-            flexDirection:'row', 
-            justifyContent:'space-between',
-            alignItems:'center'
-          }}>
-          <ThemedText 
-            font='glacialIndifferenceBold' 
-            type='title'
-            lightColor='#301713'
-            >{product.name}
-          </ThemedText>
-          <ThemedText 
-            font='glacialIndifferenceRegular' 
-            type='default'
-            lightColor='#301713'
-            >{product.sold} sold
-          </ThemedText>
-          </ThemedView>
-          <ThemedText 
-              font='montserratRegular' 
-              type='default'
-              lightColor='#301713'
-              style={{letterSpacing:1, marginTop:20, marginBottom: 8}}
-            >SIZES
-          </ThemedText>
-          <ThemedView>
-            <FlatList
-              data={product.sizes}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              renderItem={({ item }) => {
-                const isSelected = item === sizes; 
-                return (
-                <TouchableOpacity 
-                  style={[
-                    styles.sizesButton,
-                    isSelected && {backgroundColor:'#D4AF37', borderColor:'#301713'}
-                  ]}
-                  onPress={() => handleSelectedSize(item)}
-                >
-                  <ThemedText>{item}</ThemedText>
-                </TouchableOpacity>
-              )}}
-            />
-          </ThemedView>
-          <ThemedText 
-              font='montserratRegular' 
-              type='default'
-              lightColor='#301713'
-              style={{letterSpacing:1, marginTop:20}}
-            >DESCRIPTION
-          </ThemedText>
           <ThemedView
-            style={[
-              styles.expandableDescription,
-              isExpanded && {height:'auto'}
-            ]}
-          >
+            style={{paddingBottom: 50}}>
+            <ThemedView style={{
+              flexDirection:'row', 
+              justifyContent:'space-between',
+              alignItems:'center'
+            }}>
+            <ThemedText 
+              font='glacialIndifferenceBold' 
+              type='title'
+              lightColor='#301713'
+              >{product.name}
+            </ThemedText>
             <ThemedText 
               font='glacialIndifferenceRegular' 
               type='default'
               lightColor='#301713'
-              onLayout={handleTextLayout}
-              style={[styles.description, { letterSpacing: 2, marginTop: 5 }]}
-              >{product.description} 
-              
+              >{product.sold} sold
             </ThemedText>
-            {/* Conditionally render the "See more/less" text */}
-            {textHeight > maxHeight && (
-              <TouchableOpacity onPress={() => setIsExpanded(prev => !prev)}>
-                <ThemedText font='glacialIndifferenceBold'>
-                  See {isExpanded ? 'less' : 'more'}...
-                </ThemedText>
-              </TouchableOpacity>
-            )}
-          </ThemedView>
-          <View style={{marginTop:30}}/>
-          <ThemedView style={{flexDirection: 'row', justifyContent:'space-between'}}>
-            <ThemedView>
-              <ThemedText 
+            </ThemedView>
+            <ThemedText 
                 font='montserratRegular' 
                 type='default'
                 lightColor='#301713'
-                style={{letterSpacing:1, marginTop:5}}
-                >PRODUCT RATING
-              </ThemedText>
-              <ThemedText 
-                type='semititle'
-                lightColor='#5B3A14'
-                >{ratingStars(product.rating)}
-              </ThemedText>
-            </ThemedView>
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={()=> console.log('pressed')}
-            >
-              <ThemedView style={{
-                flexDirection:'row', 
-                justifyContent: 'center', 
-                alignItems:'center', 
-                zIndex:5, 
-                backgroundColor:theme === 'light' ? '#301713' : tintColorLight,
-                right: -25,
-                borderTopLeftRadius: 25,
-                borderBottomLeftRadius:  25,
-                paddingVertical: 10,
-                paddingLeft: 30
-              }}>
-                <ThemedView  transparent style={{flexDirection:'column'}}>
-                  <ThemedText 
-                    font='montserratSemiBold' 
-                    type='default'
-                    lightColor={white}
-                    style={{letterSpacing:1, right:7}}
-                    >TRY IT OUT
-                  </ThemedText>
-                  <ThemedText 
-                    font='montserratRegular' 
-                    lightColor={white}
-                    style={{letterSpacing:1, fontSize:12, right:17}}
-                    >Discover the best
-                  </ThemedText>
-                </ThemedView>
-              <FontAwesome6 
-                name="hand-sparkles" 
-                size={50} 
-                color={white}
-                style={{right:18}}
+                style={{letterSpacing:1, marginTop:20, marginBottom: 8}}
+              >SIZES
+            </ThemedText>
+            <ThemedView>
+              <FlatList
+                data={product.sizes}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={({ item }) => {
+                  const isSelected = item === sizes; 
+                  return (
+                  <TouchableOpacity 
+                    style={[
+                      styles.sizesButton,
+                      isSelected && {backgroundColor:'#D4AF37', borderColor:'#301713'}
+                    ]}
+                    onPress={() => handleSelectedSize(item)}
+                  >
+                    <ThemedText>{item}</ThemedText>
+                  </TouchableOpacity>
+                )}}
               />
+            </ThemedView>
+            <ThemedText 
+                font='montserratRegular' 
+                type='default'
+                lightColor='#301713'
+                style={{letterSpacing:1, marginTop:20}}
+              >DESCRIPTION
+            </ThemedText>
+            <ThemedView
+              style={[
+                styles.expandableDescription,
+                isExpanded && {height:'auto'}
+              ]}
+            >
+              <ThemedText 
+                font='glacialIndifferenceRegular' 
+                type='default'
+                lightColor='#301713'
+                onLayout={handleTextLayout}
+                style={[styles.description, { letterSpacing: 2, marginTop: 5 }]}
+                >{product.description} 
+                
+              </ThemedText>
+              {/* Conditionally render the "See more/less" text */}
+              {textHeight > maxHeight && (
+                <TouchableOpacity onPress={() => setIsExpanded(prev => !prev)}>
+                  <ThemedText font='glacialIndifferenceBold'>
+                    See {isExpanded ? 'less' : 'more'}...
+                  </ThemedText>
+                </TouchableOpacity>
+              )}
+            </ThemedView>
+            <View style={{marginTop:30}}/>
+            <ThemedView style={{flexDirection: 'row', justifyContent:'space-between'}}>
+              <ThemedView>
+                <ThemedText 
+                  font='montserratRegular' 
+                  type='default'
+                  lightColor='#301713'
+                  style={{letterSpacing:1, marginTop:5}}
+                  >PRODUCT RATING
+                </ThemedText>
+                <ThemedText 
+                  type='semititle'
+                  lightColor='#5B3A14'
+                  >{ratingStars(product.rating)}
+                </ThemedText>
               </ThemedView>
-            </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={handleArClick}
+              >
+                <ThemedView style={{
+                  flexDirection:'row', 
+                  justifyContent: 'center', 
+                  alignItems:'center', 
+                  zIndex:5, 
+                  backgroundColor:theme === 'light' ? '#301713' : tintColorLight,
+                  right: -25,
+                  borderTopLeftRadius: 25,
+                  borderBottomLeftRadius:  25,
+                  paddingVertical: 10,
+                  paddingLeft: 30,
+                }}>
+                  <ThemedView  transparent style={{flexDirection:'column'}}>
+                    <ThemedText 
+                      font='montserratSemiBold' 
+                      type='default'
+                      lightColor={white}
+                      style={{letterSpacing:1, right:7}}
+                      >TRY IT OUT
+                    </ThemedText>
+                    <ThemedText 
+                      font='montserratRegular' 
+                      lightColor={white}
+                      style={{letterSpacing:1, fontSize:12, right:17}}
+                      >Discover the best
+                    </ThemedText>
+                  </ThemedView>
+                <FontAwesome6 
+                  name="hand-sparkles" 
+                  size={50} 
+                  color={white}
+                  style={{right:18}}
+                />
+                </ThemedView>
+              </TouchableOpacity>
+            </ThemedView>
           </ThemedView>
+
+
+
+
+
           <View style={{marginTop:30}}/>
           <ThemedView
               style={{
@@ -341,7 +400,7 @@ import { ratingStars } from '@/utils/ratings';
                 onPress={() => {
                   openBottomSheet();
                 }}
-              >
+              > 
                 <ThemedText>Add to cart</ThemedText>
               </ThemedTouchableFilled>
           </ThemedView>
@@ -351,7 +410,8 @@ import { ratingStars } from '@/utils/ratings';
             flexDirection: 'row', 
             justifyContent:'space-between',
             width: '100%',
-            paddingHorizontal: 20
+            paddingHorizontal: 20,
+            backgroundColor: theme === 'light' ? '#F8F4EC' : '#1c1c1d'
           }}>
             <ThemedView style={{flexDirection:'row', justifyContent:'center', alignItems:'flex-end'}}>
             <Image source={image} style={styles.BottomSheetImage}/>
@@ -395,12 +455,20 @@ import { ratingStars } from '@/utils/ratings';
           <ThemedView style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <ThemedText>quantity</ThemedText>
             <View style={styles.quantityContainer}>
-              <TouchableOpacity onPress={decrement} style={styles.button}>
-                <Text style={styles.buttonText}>-</Text>
+              <TouchableOpacity onPress={decrement}>
+                <AntDesign 
+                  name="minuscircleo" 
+                  size={24} 
+                  color={theme==='light' ? Colors.light.icon : Colors.dark.icon}
+                />
               </TouchableOpacity>
               <Text style={styles.quantity}>{quantity}</Text>
-              <TouchableOpacity onPress={increment} style={styles.button}>
-                <Text style={styles.buttonText}>+</Text>
+              <TouchableOpacity onPress={increment}>
+                <AntDesign 
+                  name="pluscircle" 
+                  size={24} 
+                  color={theme==='light' ? Colors.light.icon : Colors.dark.icon}
+                />
               </TouchableOpacity>
             </View>
           </ThemedView>
@@ -461,6 +529,21 @@ import { ratingStars } from '@/utils/ratings';
         translateY: -50,
      }]
     },
+    cartCount: {
+      position: 'absolute',
+      alignItems: 'center',
+      top: 0,
+      right: 0,
+      backgroundColor: tintColorLight,
+      width: 25,
+      height: 25, 
+      zIndex: 2,
+      borderRadius: 15,
+      transform: [
+        { translateX: 10 },
+        { translateY: -10 },
+      ],
+    },
     touchableContainer: {
       borderRadius: 10,
       margin: 5,
@@ -510,22 +593,30 @@ import { ratingStars } from '@/utils/ratings';
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      borderColor: '#CCC',
-      borderWidth: 0.8,
+      //borderColor: '#CCC',
+      //borderWidth: 0.8,
       borderRadius: 5,
-    },
-    button: {
-      backgroundColor: "#ddd",
-      paddingHorizontal: 8,
-      borderRadius: 5,
-    },
-    buttonText: {
-      fontSize: 20,
-      color: Colors.light.text,
     },
     quantity: {
       fontSize: 18,
       marginHorizontal: 10,
       color: Colors.light.text,
     },
-    });
+    button: {
+      paddingHorizontal: 10,
+      borderRadius: 20,
+      textAlign: 'center',
+      borderWidth: 1,
+      borderColor: '#CCC'
+    },
+    button2: {
+      paddingHorizontal: 8,
+      borderRadius: 20,
+      textAlign: 'center'
+    },
+    buttonText: {
+      fontSize: 20,
+      color: Colors.light.text,
+      textAlignVertical: 'center'
+    },
+  });

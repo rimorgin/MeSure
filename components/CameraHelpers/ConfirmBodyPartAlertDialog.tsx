@@ -8,17 +8,23 @@ import { ThemedTouchableFilled } from '@/components/ThemedButton';
 
 interface ConfirmBodyPartAlertDialogProps {
   showBodyPartDialog?: boolean;
+  setShowBodyPartDialog: (showBodyPartDialog: boolean) => void;
   bodyPart: string;
   setBodyPart: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ConfirmBodyPartAlertDialog: React.FC<ConfirmBodyPartAlertDialogProps> = ({
   showBodyPartDialog = true,
+  setShowBodyPartDialog,
   bodyPart,
   setBodyPart,
 }) => {
   return (
-      <ThemedModal showModal={showBodyPartDialog} height={300}>
+      <ThemedModal 
+        showModal={showBodyPartDialog} 
+        onClose={() => setShowBodyPartDialog(false)}
+        height={300}
+      >
         <ThemedText type="semititle" style={{ textAlign: 'left', width: '100%', paddingLeft: 10, paddingTop: 10 }}>
           What body part are you measuring?
         </ThemedText>

@@ -1,4 +1,4 @@
-import { useColorSchemeStore } from '@/state/appStore';
+import { useColorSchemeStore } from '@/store/appStore';
 import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
@@ -17,3 +17,4 @@ export default function useColorSchemeTheme(){
 
     return theme;
 }
+

@@ -5,6 +5,7 @@ import { Animated, StyleSheet, TouchableOpacity, useColorScheme, View } from 're
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
+import useColorSchemeTheme from '@/hooks/useColorScheme';
 
 
 type IoniconName = 
@@ -31,7 +32,7 @@ export function Collapsible({
   dropdownIconPlacement = 'right',
 }: PropsWithChildren<CollapsibleProps>) {
   const [isOpen, setIsOpen] = useState(false);
-  const theme = useColorScheme() ?? 'light';
+  const theme = useColorSchemeTheme() ?? 'light';
 
   // Animated value for rotation
   const rotationAnim = useRef(new Animated.Value(0)).current;
@@ -91,7 +92,7 @@ export function Collapsible({
             <Ionicons 
               name={icon}
               size={25}
-              color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+              color={theme === 'light' ? '#301713' : '#9BA1A6'}
               style={styles.icon}
             
             />

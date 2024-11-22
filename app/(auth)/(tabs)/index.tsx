@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Dimensions, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Dimensions, TouchableOpacity, View, SafeAreaView, Platform, StatusBar, ScrollView } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView'; // A scroll view with parallax effect
 import { ThemedText } from '@/components/ThemedText'; // Text component with theming support
 import { ThemedView } from '@/components/ThemedView'; // View component with theming support
@@ -11,9 +11,14 @@ import { appData } from '@/assets/data/appData'; // Data source for categories a
 import { ThemedTouchableFilled } from '@/components/ThemedButton'; // Themed button component
 import { Drawer } from 'react-native-drawer-layout'; // Drawer layout for side menus
 import useColorSchemeTheme from '@/hooks/useColorScheme'; // Hook for getting theme
-import { useState } from 'react'; // React hook for managing state
-import ItemCard from '@/components/Card'; // Component for rendering individual items
-import { useCartStore } from '@/state/appStore';
+import { useEffect, useState } from 'react'; // React hook for managing state
+import { CategoryCard, ItemCard } from '@/components/ThemedCard'; // Component for rendering individual items
+import { useCartStore } from '@/store/appStore';
+import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
+import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
+import { HelloWave } from '@/components/HelloWave';
+import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
+import auth from '@react-native-firebase/auth'
 
 // Get screen dimensions
 const { width } = Dimensions.get('screen');
@@ -24,6 +29,8 @@ export default function HomeScreen() {
   const [searchTerm, setSearchTerm] = useState(''); // State for search input
   const [openFilter, setOpenFilter] = useState(false); // State to manage whether the filter drawer is open
   const [sortOption, setSortOption] = useState<'name' | 'price'>('name'); // Default sorting by name
+  // Add state for sort order
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   // Access the "rings" and "bangles" data from the appData categories using find
   const ringsCategory = appData.categories.find(category => category.name === 'rings');
@@ -52,13 +59,17 @@ export default function HomeScreen() {
     setSearchTerm(text); // Update the search term
   };
 
-  // Function to sort products based on the selected option
+  // Function to sort products based on the selected option and order
   const sortProducts = (products: any[]) => {
     return products.sort((a, b) => {
       if (sortOption === 'name') {
-        return a.name.localeCompare(b.name); // Sort by name
+        return sortOrder === 'asc' 
+          ? a.name.localeCompare(b.name) 
+          : b.name.localeCompare(a.name);
       } else if (sortOption === 'price') {
-        return a.price - b.price; // Sort by price
+        return sortOrder === 'asc' 
+          ? a.price - b.price 
+          : b.price - a.price;
       }
       return 0; // Default case
     });
@@ -70,37 +81,13 @@ export default function HomeScreen() {
   // Filter products based on the search term
   const filteredProducts = sortedProducts.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  );[]
 
  return (
     <>
-      <ParallaxScrollView
-        noContentPadding
-        headerHeight={width * 0.32}
-        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-        headerImage={
-          <Image
-            source={require('@/assets/images/dark-bgcloth.png')}
-            style={styles.headerImg}
-          />
-        }
-        headerOverlayedContent={
-          <ThemedView transparent style={styles.headerContent}>
-            <SearchInput onSearch={handleSearch} />
-            <TouchableOpacity onPress={() => router.push('/cart')}>
-              <Ionicons
-                style={styles.cartButton}
-                name="cart-sharp"
-                size={24}
-                color={tintColorLight}
-              />
-              <View style={styles.cartCount}>
-                <ThemedText customColor={white}>{cart.length}</ThemedText>
-              </View>
-            </TouchableOpacity>
-          </ThemedView>
-        }
-      >
+    <SafeAreaView style={styles.container}>
+      <FocusAwareStatusBar barStyle="dark-content" animated />
+      <ScrollView>
         <Drawer
           drawerPosition="right"
           open={openFilter}
@@ -109,50 +96,85 @@ export default function HomeScreen() {
           renderDrawerContent={() => (
             <View style={styles.drawerContent}>
               {/* Sorting Options */}
-            <View style={styles.sortOptions}>
-              <TouchableOpacity onPress={() => setSortOption('name')}>
-                <ThemedText customColor={black}>Sort by Name</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setSortOption('price')}>
-                <ThemedText customColor={black}>Sort by Price</ThemedText>
-              </TouchableOpacity>
-            </View>
+              <View style={styles.sortOptions}>
+                <TouchableOpacity onPress={() => setSortOption('name')}>
+                  <ThemedText customColor={black}>Sort by Name</ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setSortOption('price')}>
+                  <ThemedText customColor={black}>Sort by Price</ThemedText>
+                </TouchableOpacity>
+              </View>
+              {/* Sort Order Options */}
+              <View style={styles.sortOrder}>
+                <TouchableOpacity onPress={() => setSortOrder('asc')}>
+                  <ThemedText customColor={black}>Ascending</ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setSortOrder('desc')}>
+                  <ThemedText customColor={black}>Descending</ThemedText>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
         >
           <ThemedView style={styles.contentContainer}>
+            <ThemedView style={styles.headerContent}>
+            <ThemedView style={{flexDirection:'row', justifyContent:'space-between'}}>
+              <HelloWave/>
+             
+              <TouchableOpacity 
+                onPress={() => router.push('/cart')}>
+                <Ionicons
+                  style={styles.cartButton}
+                  name="cart-sharp"
+                  size={24}
+                  color={tintColorLight}
+                />
+                <ThemedView style={styles.cartCount}>
+                  <ThemedText customColor={white}>{cart.length}</ThemedText>
+                </ThemedView>
+              </TouchableOpacity>
+            </ThemedView>
+
+            
+            <ThemedView style={{flexDirection:'row', justifyContent: 'space-between'}}>
+              <SearchInput onSearch={handleSearch} />
+              <TouchableOpacity
+                onPress={() => setOpenFilter(prev => !prev)}
+              >
+                <Ionicons 
+                  style={styles.filterButton}
+                  name="filter" 
+                  size={30}
+                  backgroundColor="transparent"
+                  color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+                  
+                />
+              </TouchableOpacity>
+            </ThemedView>
+            
+            <ThemedView>
             <ThemedText 
-              type="semititle"
-              font="glacialIndifferenceBold"
-            >
-              Discover Elegance
-            </ThemedText>
-
-            <Ionicons.Button 
-              style={styles.filterButton}
-              name="filter" 
-              size={30}
-              backgroundColor="transparent"
-              color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
-              onPress={() => setOpenFilter(prev => !prev)}
-            />
-            
-            
-
+                style={{marginBottom: 8}}
+                type="semititle"
+                font="glacialIndifferenceBold"
+              >
+                Discover Elegance
+              </ThemedText>
             <FlashList
               data={appData.categories}
               horizontal
-              renderItem={({ item }) => (
-                <ThemedTouchableFilled 
-                  style={{ marginRight: 10, borderRadius: 30 }}
-                  onPress={() => handleCategorySelect(item.name as 'All' | 'rings' | 'bangles')}
-                >
-                  <ThemedText type='default' customColor={white}>{item.name}</ThemedText>
-                </ThemedTouchableFilled>
-              )}
+              renderItem={({ item, index }) => {
+                return (
+                  <CategoryCard
+                    item={item}
+                    isOdd={index % 2 === 0} 
+                    handleCategorySelect={() => handleCategorySelect(item.name as 'All' | 'rings' | 'bangles')}
+                 />
+              )}}
               estimatedItemSize={3}
             />
-
+            </ThemedView>
+            </ThemedView>
             <ThemedView style={styles.listItems}>
               <FlashList
                 data={filteredProducts} // Use filtered products
@@ -165,13 +187,19 @@ export default function HomeScreen() {
             </ThemedView>
           </ThemedView>
         </Drawer>
-      </ParallaxScrollView>
+      </ScrollView>
+    </SafeAreaView>
     </>
   );
 }
 
 // Styles for various components
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.light.background,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
   drawerContent: {
     flex: 1,
     backgroundColor: Colors.light.background,
@@ -179,12 +207,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   headerContent: {
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    flexDirection: 'row',
     width: '100%',
-    height: '100%',
-    marginTop: 15,
+    gap: 25
   },
   headerImg: {
     height: '100%',
@@ -195,7 +219,6 @@ const styles = StyleSheet.create({
     opacity: 0.888,
   },
   cartButton: {
-    backgroundColor: white, 
     padding: 8, 
     borderRadius: 8,
   },
@@ -219,7 +242,8 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingTop: 15,
     paddingBottom: 100,
     overflow: 'hidden',
   },
@@ -232,4 +256,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginVertical: 10,
   },
+  sortOrder: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+
 });

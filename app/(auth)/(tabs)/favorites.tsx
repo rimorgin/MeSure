@@ -1,22 +1,24 @@
-import { StyleSheet, Platform, SafeAreaView, StatusBar, View, FlatList, Image, Animated, TouchableOpacity } from 'react-native';
+import { StyleSheet, Platform, SafeAreaView, StatusBar, View, FlatList, Image, Animated, TouchableOpacity, Dimensions } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Ionicons } from '@expo/vector-icons';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import { Drawer } from 'react-native-drawer-layout';
 import { appData } from '@/assets/data/appData';
-import { useFavoritesStore } from '@/state/appStore';
+import { useFavoritesStore, useUserIdStore } from '@/store/appStore';
 import { Swipeable } from 'react-native-gesture-handler';
+
+const width = Dimensions.get('screen').width
 
 export default function Favorites() {
   const theme = useColorSchemeTheme();
   const [openFilter, setOpenFilter] = useState(false);
-
+  const userId = useUserIdStore((state) => state.userId);
   // Fetch favorites and actions from the Zustand store
-  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavoritesStore((state) => state);
+  const { favorites, addFavorite, removeFavorite, isFavorite, fetchFavorites } = useFavoritesStore((state) => state);
 
   const ringsCategory = appData.categories.find((category) => category.name === 'rings');
   const banglesCategory = appData.categories.find((category) => category.name === 'bangles');
@@ -36,9 +38,10 @@ export default function Favorites() {
 
   const handleDelete = (itemId: number) => {
     // Handle deletion of the item from favorites here
-    removeFavorite(itemId);  // Assuming removeFavorite is a function from Zustand store
+    removeFavorite(userId, itemId);
   };
 
+ 
 
   const renderRightActions = (
     progress: Animated.AnimatedInterpolation<number>,
@@ -65,7 +68,7 @@ export default function Favorites() {
         </View>
         <TouchableOpacity 
           style={{width:'20%'}}
-          onPress={() => removeFavorite(id)}>
+          onPress={() => handleDelete(id)}>
         <Animated.View
           style={[
             styles.deleteButton,
@@ -83,31 +86,31 @@ export default function Favorites() {
   };
 
   const renderItem = ({ item }: { item: any }) => {
-  return (
-    <Swipeable
-      renderRightActions={(progress, dragX) => renderRightActions(progress, dragX, item.id)}
-      friction={2} // Make the swipe a bit easier to start
-      overshootLeft={false} // Prevent overshooting on the left
-      overshootRight={false} // Prevent overshooting on the right
-      rightThreshold={40} // Make it easier to swipe
-    >
-      <View style={styles.itemContainer}>
-        <Image source={item.img[0]} style={styles.image} />
-        <View style={styles.details}>
-          <ThemedText style={styles.title}>{item.name}</ThemedText>
-          <ThemedText style={styles.description}>{item.description}</ThemedText>
-          <ThemedText style={styles.price}>Price: {item.price}</ThemedText>
-          {item.stock ? (
-            <ThemedText style={styles.stock}>Stock: {item.stock}</ThemedText>
-          ) : null}
-          <ThemedText style={styles.rating}>Rating: {item.rating}</ThemedText>
-        </View>
-      </View>
-    </Swipeable>
-  );
+    return (
+      <Swipeable
+        renderRightActions={(progress, dragX) => renderRightActions(progress, dragX, item.id)}
+        friction={2} // Make the swipe a bit easier to start
+        overshootLeft={false} // Prevent overshooting on the left
+        overshootRight={false} // Prevent overshooting on the right
+        rightThreshold={40} // Make it easier to swipe
+      >
+        <ThemedView style={styles.itemContainer}>
+          <Image source={item.img[0]} style={styles.image} />
+          <View style={styles.details}>
+            <ThemedText style={styles.title}>{item.name}</ThemedText>
+            <ThemedText style={styles.description}>{item.description}</ThemedText>
+            <ThemedText style={styles.price}>Price: {item.price}</ThemedText>
+            {item.stock ? (
+              <ThemedText style={styles.stock}>Stock: {item.stock}</ThemedText>
+            ) : null}
+            <ThemedText style={styles.rating}>Rating: {item.rating}</ThemedText>
+          </View>
+        </ThemedView>
+      </Swipeable>
+    );
   };
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {backgroundColor: theme === 'light' ? Colors.light.background : Colors.dark.background,}]}>
       <FocusAwareStatusBar barStyle="dark-content" animated />
       <ThemedView style={styles.header}>
         <ThemedText font='montserratBold' type='title'>Favorites</ThemedText>
@@ -148,7 +151,6 @@ export default function Favorites() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
@@ -166,13 +168,12 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     marginBottom: 16,
-    backgroundColor: Colors.light.tint,
     borderRadius: 8,
     overflow: 'hidden',
   },
   image: {
-    width: 80,
-    height: 80,
+    width: width * 0.3,
+    height: width * 0.3,
     marginRight: 16,
   },
   details: {
