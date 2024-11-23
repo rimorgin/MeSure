@@ -16,7 +16,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { useCartStore, useFavoritesStore } from '@/store/appStore';
 import { ratingStars } from '@/utils/ratings';
 import ThemedModal from '@/components/ThemedModal';
-import { HelloWave } from '@/components/HelloWave';
+import { HelloWave } from '@/components/Header';
 import auth from '@react-native-firebase/auth';
 import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
 

@@ -6,7 +6,6 @@ import { TouchableOpacity, TextInput, StyleSheet, View, SafeAreaView, Image, Dim
 import { ThemedText } from '@/components/ThemedText';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
-import Svg, { Path } from 'react-native-svg';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { router } from 'expo-router';
 import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton';

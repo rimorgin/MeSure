@@ -12,11 +12,10 @@ SAMPLE USE
 */
 
 import React, { ReactNode } from 'react';
-import { Text, TouchableOpacity, TouchableHighlight, StyleSheet, ViewStyle, TextStyle, StyleProp } from 'react-native';
+import { TouchableOpacity, TouchableHighlight, StyleSheet, ViewStyle, StyleProp } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { Colors } from '@/constants/Colors';
 import { useFont } from '@/provider/FontContext';
-import { ThemedText } from './ThemedText';
 
 interface ButtonProps {
   onPress: () => void;

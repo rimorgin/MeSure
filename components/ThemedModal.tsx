@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Modal, View, StyleSheet, ModalProps, ViewStyle, Dimensions, TouchableOpacity } from 'react-native';
+import { Modal, StyleSheet, ModalProps, ViewStyle, Dimensions, TouchableOpacity } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { Ionicons } from '@expo/vector-icons';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { black, tintColorLight, white } from '@/constants/Colors';
 
 interface ThemedModalProps extends Omit<ModalProps, 'visible'> {
@@ -74,7 +73,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   } as ViewStyle,
   modalView: {
-    backgroundColor: 'white',
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',

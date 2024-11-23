@@ -63,8 +63,8 @@ export default function AppLayout() {
   return (
       <Stack initialRouteName={firstLaunch ? 'landing' : '(tabs)'}>
         <Stack.Screen name="landing" options={{ presentation: 'modal', headerShown: false }}/>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="products/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'fade_from_bottom' }} />
+        <Stack.Screen name="products/[id]" options={{ headerShown: false, animation: 'fade_from_bottom' }} />
       </Stack>
     )
 }

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react'
-import { TouchableOpacity, Button, StyleSheet, TextInput, View, Dimensions, KeyboardAvoidingView, Image, StatusBar } from "react-native";
+import { TouchableOpacity, StyleSheet, TextInput, View, Dimensions, Image, StatusBar } from "react-native";
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -11,7 +11,7 @@ import auth from '@react-native-firebase/auth'
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton';
 import ThemedModal from '@/components/ThemedModal';
 import ThemedDivider from '@/components/ThemedDivider';

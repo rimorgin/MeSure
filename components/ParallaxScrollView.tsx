@@ -1,5 +1,5 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { Dimensions, StatusBar, StyleProp, StyleSheet, useColorScheme, ViewStyle } from 'react-native';
+import { Dimensions, StyleProp, StyleSheet, useColorScheme, ViewStyle } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedRef,
@@ -8,7 +8,6 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
 import FocusAwareStatusBar from './navigation/FocusAwareStatusBarTabConf';
 
 const DEFAULT_HEADER_HEIGHT = 250;

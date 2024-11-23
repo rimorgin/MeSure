@@ -141,12 +141,21 @@ export default function Cart() {
     });
 
     return (
-      <View style={styles.swipedRow}>
-        <View style={styles.swipedConfirmationContainer}>
-          <ThemedText style={styles.deleteConfirmationText}>Are you sure?</ThemedText>
-        </View>
+      <ThemedView lightColor='#EFE8D8'
+        style={[
+          styles.swipedRow,
+          { backgroundColor: theme === 'light' ? '#EBE0C6' : Colors.dark.background }
+        ]}>
+        <ThemedView transparent style={styles.swipedConfirmationContainer}>
+          <ThemedText font='cocoGothicBold' >Are you sure?</ThemedText>
+        </ThemedView>
         <TouchableOpacity 
-          style={{width:'20%'}}
+          style={{
+            width:'20%',
+            marginRight: -5,
+            backgroundColor: theme === 'light' ? darkBrown : Colors.dark.background,
+            alignItems:'center'
+          }}
           onPress={() => removeFromCart(userId, id, size, qty, price)}>
         <Animated.View
           style={[
@@ -157,10 +166,10 @@ export default function Cart() {
             },
           ]}
         >
-            <ThemedText style={styles.deleteButtonText}>Delete</ThemedText> 
+            <ThemedText lightColor='#EFE8D8' style={styles.deleteButtonText}>Delete</ThemedText> 
         </Animated.View>
         </TouchableOpacity>
-      </View>
+      </ThemedView>
     );
   };
 
@@ -299,7 +308,28 @@ export default function Cart() {
             data={allCartItems}
             keyExtractor={(item) => `${item.id.toString()}-${item.size}-${item.quantity}`}
             renderItem={renderItem}
-            ListEmptyComponent={<ThemedText>No cart items found!</ThemedText>}
+            ListEmptyComponent={() => {
+              return (
+                <ThemedView style={styles.emptyScreenContainer}>
+                  <Image 
+                    style={styles.emptyScreenImage}
+                    source={require('@/assets/images/noItemsEmoji.png')}
+                  />
+                  <ThemedText
+                    style={{marginVertical: 15}}
+                    type='subtitle'
+                    font='glacialIndifferenceBold'
+                  >
+                    Your cart is empty
+                  </ThemedText>
+                  <ThemedTouchableFilled
+                    onPress={() => router.push('/(auth)/(tabs)/')}
+                  >
+                    <ThemedText>Browse items</ThemedText>
+                  </ThemedTouchableFilled>
+                </ThemedView>
+              )
+            }}
             contentContainerStyle={styles.list}
             showsVerticalScrollIndicator={false}
             onScroll={handleScroll} // Detect scroll here
@@ -363,6 +393,15 @@ const styles = StyleSheet.create({
   filterButton: {
     paddingHorizontal: 10,
   },
+  emptyScreenContainer: {
+    flex:1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  emptyScreenImage: {
+    height: width * 0.5,
+    width: width * 0.5
+  },
   itemContainer: {
     flexDirection: 'row',
     marginVertical: 16,
@@ -407,19 +446,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingLeft: 5,
-    backgroundColor: '#818181',
     margin: 20,
     minHeight: 50,
+    borderRadius: 10
   },
   swipedConfirmationContainer: {
     flex: 1,
+    alignItems: 'center'
   },
   deleteConfirmationText: {
     color: '#fcfcfc',
     fontWeight: 'bold',
   },
   deleteButton: {
-    backgroundColor: '#b60000',
     flexDirection: 'column',
     justifyContent: 'center',
     height: '100%',

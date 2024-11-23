@@ -1,6 +1,5 @@
 import RNFS from 'react-native-fs';
 
-const appDataPath = `${RNFS.DocumentDirectoryPath}/appData.json`;
 const imagesDirectoryPath = `${RNFS.DocumentDirectoryPath}/images`;
 
 // Ensure images directory exists

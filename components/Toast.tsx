@@ -9,7 +9,7 @@ import Toast, { BaseToast, ErrorToast,  ToastConfigParams } from 'react-native-t
 import { ThemedText } from './ThemedText';
 import { ThemedView } from './ThemedView';
 import { Text } from 'react-native';
-import { HelloWave } from './HelloWave';
+import { HelloWave } from './Header';
 
 // Define the structure of your custom toast props
 interface CustomToastProps {

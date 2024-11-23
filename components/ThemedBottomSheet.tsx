@@ -1,9 +1,8 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import CustomBackdrop from '@/components/BottomSheet/BackDrop'; // Adjust the import as necessary
 import useColorSchemeTheme from '@/hooks/useColorScheme';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import CustomBackground from './BottomSheet/Background';
 
 // Define a type for the ref

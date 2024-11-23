@@ -74,7 +74,7 @@ export default function TabLayout() {
             headerTitle: 'MeSure',
             headerShadowVisible: true,
             headerTintColor: '#fff',
-            
+
           }}
         />
         <Tabs.Screen

@@ -3,7 +3,6 @@ import RNFS from 'react-native-fs';
 import { persist, createJSONStorage, devtools } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
-import { appData } from '@/assets/data/appData';
 
 interface userId {
   userId: string;
@@ -181,32 +180,42 @@ const getAllImages = async (): Promise<string[]> => {
 };
 
 // Zustand store for image storage
-export const useImageStorage = create<ImageStorage>((set) => ({
-  images: null,
+export const useImageStorage = create<ImageStorage>()(
+  devtools(
+    persist(
+      (set,get) => ({
+      images: null,
 
-  fetchImages: async () => {
-    const imagePaths = await getAllImages();
-    set({ images: imagePaths });
-  },
+      fetchImages: async () => {
+        const imagePaths = await getAllImages();
+        set({ images: imagePaths });
+      },
 
-  addImage: async (id, uri) => {
-    await ensureImagesDirectoryExists();
-    const targetPath = `${imagesDirectoryPath}/${id}.jpg`;
-    await RNFS.copyFile(uri, targetPath);
-    const updatedImages = await getAllImages();
-    set({ images: updatedImages });
-  },
+      addImage: async (id, uri) => {
+        await ensureImagesDirectoryExists();
+        const targetPath = `${imagesDirectoryPath}/${id}.jpg`;
+        await RNFS.copyFile(uri, targetPath);
+        const updatedImages = await getAllImages();
+        set({ images: updatedImages });
+      },
 
-  removeImage: async (id) => {
-    const imagePath = `${imagesDirectoryPath}/${id}.jpg`;
-    const exists = await RNFS.exists(imagePath);
-    if (exists) {
-      await RNFS.unlink(imagePath);
-    }
-    const updatedImages = await getAllImages();
-    set({ images: updatedImages });
-  },
-}));
+      removeImage: async (id) => {
+        const imagePath = `${imagesDirectoryPath}/${id}.jpg`;
+        const exists = await RNFS.exists(imagePath);
+        if (exists) {
+          await RNFS.unlink(imagePath);
+        }
+        const updatedImages = await getAllImages();
+        set({ images: updatedImages });
+      },
+      }),
+      {
+        name: 'APP_IMAGES',
+        storage: createJSONStorage(() => AsyncStorage),
+      }
+    ) 
+  )
+)
 
 // Zustand store definition for theme
 interface ColorSchemeStorage {

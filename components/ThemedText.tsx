@@ -1,4 +1,4 @@
-import { Text, type TextProps, StyleSheet, Dimensions, PixelRatio } from 'react-native';
+import { Text, type TextProps, StyleSheet, Dimensions } from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useFont } from '@/provider/FontContext';
 

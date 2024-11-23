@@ -16,7 +16,7 @@ import { CategoryCard, ItemCard } from '@/components/ThemedCard'; // Component f
 import { useCartStore } from '@/store/appStore';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
-import { HelloWave } from '@/components/HelloWave';
+import { HelloWave } from '@/components/Header';
 import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
 import auth from '@react-native-firebase/auth'
 

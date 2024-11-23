@@ -8,12 +8,18 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://api.test.com"
+        "API_URL": "http://34.81.21.169:8080/"
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "preview": {
       "channel": "staging",
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
       "autoIncrement": true

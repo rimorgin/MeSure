@@ -4,7 +4,6 @@ import Animated, {
   useAnimatedStyle,
   interpolateColor,
 } from "react-native-reanimated";
-import { Colors, darkBrown, tintColorLight } from "@/constants/Colors";
 
 const CustomBackground: React.FC<BottomSheetBackgroundProps> = ({
   style,
