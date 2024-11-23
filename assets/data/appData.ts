@@ -1,34 +1,34 @@
 export const appData = {
-    intro:[
+    intro: [
         {
             id: 1,
             img: require('@/assets/images/landing/3d-hand-hold-mobile-phone-with-blank-screen.jpg'),
             title: 'Ring Size Finder',
-            description: 'Try out this Ring Size Finder with a coin without the need going out on Jewelry shops'
+            description: 'Try out this Ring Size Finder with a coin without the need of going out to jewelry shops.',
         },
         {
             id: 2,
             img: require('@/assets/images/landing/10334485.png'),
             title: 'Virtual Try-On',
-            description: 'Have no worries on suitability of rings and bangles with or Try-On feature'
+            description: 'Have no worries about the suitability of rings and bangles with our Virtual Try-On feature.',
         },
         {
             id: 3,
-            img: require('@/assets/images/landing/10334490.png'),
-            title: '',
-            description: ''
+            img: require('@/assets/images/landing/landingpage3.png'),
+            title: 'Exclusive Collections',
+            description: 'Explore our curated collection of rings and bangles crafted for every occasion, from casual wear to elegant events.',
         },
         {
             id: 4,
-            img: require('@/assets/images/landing/10334490.png'),
-            title: '',
-            description: ""
+            img: require('@/assets/images/landing/landingpage4.png'),
+            title: 'Timeless Elegance',
+            description: 'Discover rings and bangles with timeless designs that never go out of style, perfect for elevating any outfit.',
         },
         {
             id: 5,
-            img: require('@/assets/images/landing/10334490.png'),
-            title: '',
-            description: ''
+            img: require('@/assets/images/landing/landingpage5.png'),
+            title: 'Secure and Easy Shopping',
+            description: 'Enjoy a seamless and secure shopping experience with easy payment options and fast delivery.',
         },
     ],
     landingItems: [
