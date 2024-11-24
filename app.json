@@ -23,7 +23,9 @@
       },
       "runtimeVersion": {
         "policy": "appVersion"
-      }
+      },
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "bundleIdentifier": "com.MeSure"
     },
     "android": {
       "adaptiveIcon": {
@@ -103,7 +105,8 @@
             "usesCleartextTraffic": true
           },
           "ios": {
-            "flipper": true
+            "flipper": true,
+            "useFrameworks": "static"
           }
         }
       ]

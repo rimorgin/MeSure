@@ -1,8 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { ActivityIndicator, Dimensions, StatusBar, StyleSheet, Text, TouchableOpacity, useColorScheme, View, Image, SafeAreaView, Platform, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Dimensions, StatusBar, StyleSheet, Text, TouchableOpacity, useColorScheme, View, Image, SafeAreaView, Platform, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { 
   Camera, 
-  CameraDeviceFormat, 
   PhotoFile, 
   useCameraDevice, 
   useCameraFormat, 
@@ -10,18 +9,17 @@ import {
 } from 'react-native-vision-camera';
 import { ThemedView } from '@/components/ThemedView';
 import * as ImagePicker from 'expo-image-picker';
-import { Colors, white } from '@/constants/Colors';
+import { white } from '@/constants/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import ThemedModal from '@/components/ThemedModal';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedTouchableFilled } from '@/components/ThemedButton';
-import { cropImage, processImageHelper, reduceRatio, sortFormats } from '@/utils/cameraHelper';
+import { cropImage, processImageHelper, saveBase64ToLocalStorage, saveImageToGallery } from '@/utils/cameraHelper';
 import { router } from 'expo-router';
 import ConfirmCoinAlertDialog from '@/components/CameraHelpers/ConfirmCoinAlertDialog';
 import ConfirmBodyPartAlertDialog from '@/components/CameraHelpers/ConfirmBodyPartAlertDialog';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import Loader from '@/components/Loader';
-import { useUserMeasurementStorage } from '@/store/appStore';
+import { useUserIdStore, useUserMeasurementStorage } from '@/store/appStore';
+import auth from '@react-native-firebase/auth'
 
 const { width, height } = Dimensions.get('screen');
 
@@ -43,6 +41,7 @@ export default function CameraApp() {
   const [showCoinDialog, setShowCoinDialog] = useState(false);
   const [inputFocus, setInputFocus] = useState(false);
   const { fingerMeasurements, wristMeasurement, setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
+  const userFullName = useUserIdStore((state) => state.userFullName);
 
   //on camera measurement successful exit
   const [ok, setOk] = useState(false);
@@ -139,6 +138,21 @@ export default function CameraApp() {
     }
   },[fingerSizes, wristSize])
 
+  const getFileTypeFromBase64 = (base64String) => {
+  // Extract the MIME type
+  const mimeType = base64String.split(';')[0].split(':')[1];
+  
+  // Log the MIME type and the first 100 characters of the Base64 string
+  console.log('MIME Type:', mimeType);
+  console.log('Base64 String Preview:', base64String.slice(0, 100)); // Adjust the slice length if needed
+  return mimeType;
+};
+
+// Example usage
+//const fileType = getFileTypeFromBase64(photo);
+
+
+  //console.log(fileType)
   
   const handleFinishedMeasurement = () => {
     if (bodyPart === 'fingers') {
@@ -148,6 +162,11 @@ export default function CameraApp() {
     }
     router.push('/(auth)/(tabs)/profile')
   }
+  const handleSaveImage = async () => {
+    await saveBase64ToLocalStorage(photo)
+    //await saveImageToGallery(photo, `${userFullName}-${bodyPart}-size.jpg`)
+  };
+
 
   useEffect(() => {
     // This function will run when the component unmounts
@@ -174,8 +193,8 @@ export default function CameraApp() {
     return <Loader/>;
   }
 
-  console.log('zustand',fingerMeasurements)
-  console.log('zustand',wristMeasurement)
+  //console.log('zustand',fingerMeasurements)
+  //console.log('zustand',wristMeasurement)
   
   return (
     <>
@@ -324,7 +343,7 @@ export default function CameraApp() {
                 <Text style={styles.confirmText}>Ok</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity>
+            <TouchableOpacity onPress={handleSaveImage}>
               <Ionicons 
                 size={45}
                 name="download-outline"

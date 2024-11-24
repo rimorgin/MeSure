@@ -1,16 +1,27 @@
 import { CameraDeviceFormat } from "react-native-vision-camera";
 import * as ImageManipulator from 'expo-image-manipulator';
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import { Alert, Platform } from 'react-native';
 
 
 export const convertBlobToBase64 = (blob: Blob) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
+        reader.readAsDataURL(blob)
         reader.onloadend = () => {
         resolve(reader.result); // The Base64 string is in reader.result
         };
         reader.onerror = reject;
         reader.readAsDataURL(blob);
     });
+};
+
+export const convertBase64ToBlob = (base64: any, mimeType = 'image/png') => {
+  const byteCharacters = atob(base64); // Decode the Base64 string
+  const byteNumbers = new Array(byteCharacters.length).fill(null).map((_, i) => byteCharacters.charCodeAt(i));
+  const byteArray = new Uint8Array(byteNumbers);
+  return new Blob([byteArray], { type: mimeType });
 };
 
 // cameraHelpers.js
@@ -75,7 +86,10 @@ export const processImageHelper = async (photo: any, coin: number, bodyPart: str
       throw new Error('Image processing failed');
     }
 
+    console.log(response)
     const blob = await response.blob();
+    //const blob = await response.blob() as string;
+    console.log(blob);
     const base64String = await convertBlobToBase64(blob) as string;
     return base64String; // Return the base64 string
   } catch (error) {
@@ -83,6 +97,80 @@ export const processImageHelper = async (photo: any, coin: number, bodyPart: str
     return null; // Return null in case of an error
   } 
 };
+
+export const saveImageTOLocalStorage = async (base64String:any) => {
+  // Define the file path
+  const fileUri = FileSystem.documentDirectory + 'myImage.png'; // Change the file name and extension as needed
+
+  // Convert base64 string to binary data
+  const base64Data = base64String.replace(/^data:image\/\w+;base64,/, ''); // Remove the prefix if present
+
+  // Validate base64 string
+  if (!/^[A-Za-z0-9+/=]+$/.test(base64Data)) {
+    throw new Error('Invalid base64 string');
+  }
+  // Write the file
+  await FileSystem.writeAsStringAsync(fileUri, base64Data, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+
+  console.log('File saved to:', fileUri);
+  
+  // Save to Media Library
+  const asset = await MediaLibrary.createAssetAsync(fileUri);
+  console.log('File saved to Media Library:', asset);
+};
+
+/*
+export const saveImageToGallery = async (base64String: any, fileName = 'image.jpg') => {
+  try {
+    // Request media library permissions
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'We need storage permission to save the image.');
+      return;
+    }
+
+    // Ensure base64String is not empty
+    if (!base64String) {
+      throw new Error('Base64 string is empty');
+    }
+
+    // If the base64String contains a data URI, strip out the prefix
+    let base64Code = base64String;
+    if (base64String.startsWith('data:image/')) {
+      const base64Parts = base64String.split(';base64,');
+      if (base64Parts.length > 1) {
+        base64Code = base64Parts[1]; // Extract only the Base64 part
+      } else {
+        throw new Error('Invalid Base64 image data');
+      }
+    }
+
+    // Check if the Base64 string is valid (length must be divisible by 4)
+    if (base64Code.length % 4 !== 0) {
+      throw new Error('Base64 string is not valid: incorrect length');
+    }
+
+    // Define file path for saving
+    const filePath = FileSystem.documentDirectory + fileName;
+
+    // Write the Base64 string to the file system
+    await FileSystem.writeAsStringAsync(filePath, base64Code, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    // Save the image file to the device gallery
+    await MediaLibrary.saveToLibraryAsync(filePath);
+
+    // Show success message
+    Alert.alert('Success', 'Image saved to your gallery.');
+  } catch (error: any) {
+    console.error('Error saving image:', error);
+    Alert.alert('Error', `Failed to save the image: ${error.message}`);
+  }
+};
+*/
 
 // Helper function to reduce the ratio
 export const reduceRatio = (numerator: number, denominator: number) => {
@@ -163,3 +251,4 @@ export const cropImage = async (path: string, imageWidth: number, imageHeight: n
     throw error;
   }
 };
+

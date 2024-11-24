@@ -3,7 +3,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { AntDesign, FontAwesome6, Ionicons } from '@expo/vector-icons';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
-import { Colors, darkBrown } from '@/constants/Colors';
+import { Colors, darkBrown, tintColorLight, white } from '@/constants/Colors';
 import { useEffect, useRef, useState } from 'react';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import { Drawer } from 'react-native-drawer-layout';
@@ -23,7 +23,7 @@ export default function Favorites() {
   const userId = useUserIdStore((state) => state.userId);
   // Fetch favorites and actions from the Zustand store
   const { favorites, addFavorite, removeFavorite, isFavorite, fetchFavorites } = useFavoritesStore((state) => state);
-  const { addToCart } = useCartStore();
+  const { cart, addToCart } = useCartStore();
   const [sizes, setSize] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(0);
 
@@ -337,14 +337,31 @@ export default function Favorites() {
       <FocusAwareStatusBar barStyle="dark-content" animated />
       <ThemedView style={styles.header}>
         <ThemedText font='montserratBold' type='title'>Favorites</ThemedText>
-        <Ionicons.Button
-          style={styles.filterButton}
-          name="filter"
-          size={30}
-          backgroundColor="transparent"
-          color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
-          onPress={() => setOpenFilter((prev) => !prev)}
-        />
+        <ThemedView style={{flexDirection:'row', gap: 5, alignItems:'center'}}>
+          <TouchableOpacity
+           onPress={() => setOpenFilter((prev) => !prev)}>
+            <Ionicons
+              style={styles.filterButton}
+              name="filter"
+              size={30}
+              backgroundColor="transparent"
+              color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={() => router.push('/cart')}>
+            <Ionicons
+              style={styles.cartButton}
+              name="cart-sharp"
+              size={24}
+              color={tintColorLight}
+            />
+            <ThemedView style={styles.cartCount}>
+              <ThemedText customColor={white}>{cart.length}</ThemedText>
+            </ThemedView>
+          </TouchableOpacity>
+        </ThemedView>
+        
       </ThemedView>
       <Drawer
         drawerPosition='right'
@@ -511,6 +528,25 @@ const styles = StyleSheet.create({
     color: '#fcfcfc',
     fontWeight: 'bold',
     padding: 3,
+  },
+  cartButton: {
+    padding: 8, 
+    borderRadius: 8,
+  },
+  cartCount: {
+    position: 'absolute',
+    alignItems: 'center',
+    top: 0,
+    right: 0,
+    backgroundColor: tintColorLight,
+    width: 25,
+    height: 25, 
+    zIndex: 2,
+    borderRadius: 15,
+    transform: [
+      { translateX: 10 },
+      { translateY: -10 },
+    ],
   },
   addToCart: {
     flexDirection: 'column',
