@@ -1,26 +1,20 @@
-import { Tabs, Redirect, router } from 'expo-router';
-import React, { useEffect } from 'react';
+import { Tabs, router } from 'expo-router';
+import { useEffect } from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { black, Colors, white } from '@/constants/Colors';
-import useColorSchemeTheme, { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants/Colors';
+import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { useCartStore, useIsAppFirstLaunchStore } from '@/store/appStore';
-import { Dimensions, Modal, StyleSheet, Touchable, TouchableOpacity, View } from 'react-native';
+import { Modal, StyleSheet } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import Slider from '@/components/Slider';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { useFont } from '@/provider/FontContext';
 import Loader from '@/components/Loader';
 
 export default function TabLayout() {
   const colorScheme = useColorSchemeTheme();
-  const theme = useColorSchemeTheme();
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
   const showIntro = useIsAppFirstLaunchStore((state) => state.showIntro);
   const { hideIntro } = useIsAppFirstLaunchStore();
-  const cart = useCartStore((state) => state.cart)
-
-  const { fontsLoaded, fontStyles } = useFont();
 
   // Check for first launch before rendering the component
   useEffect(() => {
@@ -90,6 +84,25 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
+          name="profile"
+          options={{
+            title: 'Profile',
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon
+                name={focused ? 'person-circle' : 'person-circle-outline'}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="(account)"
+          options={{
+            tabBarButton:() => null,
+          }}
+        />
+        {/* 
+        <Tabs.Screen
           name="cart"
           options={{
             title: 'Cart',
@@ -108,18 +121,8 @@ export default function TabLayout() {
             }
           }}
         />
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: 'Profile',
-            tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? 'person-circle' : 'person-circle-outline'}
-                color={color}
-              />
-            ),
-          }}
-        />
+        */}
+        {/* 
         <Tabs.Screen
           name="camera"
           options={{
@@ -145,17 +148,15 @@ export default function TabLayout() {
                   onPress={() => router.back()}
                 >
                   <Ionicons
-                    name="return-up-back"
+                    name="chevron-back"
                     size={32}
                   />
                 </TouchableOpacity>
               )
             },
-            headerBackgroundContainerStyle: {
-              
-            }
           }}
         />
+        */}
       </Tabs>
       <IntroModal />
     </>

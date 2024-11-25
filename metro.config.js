@@ -1,4 +1,4 @@
-// Learn more https://docs.expo.io/guides/customizing-metro
+/* eslint-env node */
 const { getDefaultConfig } = require('expo/metro-config');
 
 const defaultConfig = getDefaultConfig(__dirname);

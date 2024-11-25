@@ -109,7 +109,7 @@ const ThemedTouchablePlain: React.FC<ButtonProps> = ({
 
   return (
     <ButtonComponent 
-      style={styles.buttonPlain} 
+      style={[styles.buttonPlain, style]} 
       onPress={onPress}
       underlayColor="#301713" // Only for TouchableHighlight
       activeOpacity={0.5} //only for TouchableOpacity

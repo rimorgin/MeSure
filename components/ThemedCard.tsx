@@ -1,16 +1,12 @@
-import { Image, StyleSheet, Dimensions, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Dimensions, TouchableHighlight, View, TouchableOpacity } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
-import useColorSchemeTheme from '@/hooks/useColorScheme';
-import { Link, router } from 'expo-router';
-import { string } from 'yup';
-import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import React from 'react';
-import { ThemedTouchableFilled } from './ThemedButton';
-import { black, darkBrown, white } from '@/constants/Colors';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { ThemedTouchableFilled, ThemedTouchablePlain } from './ThemedButton';
+import { darkBrown } from '@/constants/Colors';
+import { router } from 'expo-router';
 
-const { width, height } = Dimensions.get('screen')
+const { width } = Dimensions.get('screen')
 
 interface ItemCardProps {
   item: {
@@ -20,17 +16,18 @@ interface ItemCardProps {
     description: string;
     price: string;
     rating: number;
+    sold: number
     AR: boolean;
   };
 }
 
 export function ItemCard({ item }: ItemCardProps) {
-  const theme = useColorSchemeTheme();
 
   return (
     <TouchableHighlight 
-      onPress={()=> router.push(`/products/${item.id}`)}
+      onPress={()=> router.push(`/(product)/${item.id}`)}
       style={styles.button}
+      underlayColor={'#EBE0C6'}
     > 
 
         <ThemedView style={styles.cardContainer}>
@@ -48,11 +45,18 @@ export function ItemCard({ item }: ItemCardProps) {
               font='glacialIndifferenceBold'
           >{item.name}
           </ThemedText>
-          <ThemedText 
-              font='spaceMonoRegular' 
-              style={styles.price}
-          >Php {item.price}
-          </ThemedText>
+          <ThemedView transparent style={{flexDirection:'row', alignItems:'flex-end', justifyContent:'space-between', width:'100%'}}>
+            <ThemedText 
+                font='spaceMonoRegular' 
+                style={styles.price}
+            ><ThemedText>₱ </ThemedText>{item.price}
+            </ThemedText>
+            <ThemedText 
+                font='spaceMonoRegular' 
+                style={styles.sold}
+            >{item.sold} sold
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
 
     </TouchableHighlight>
@@ -66,8 +70,10 @@ interface CategoryCardProps {
     name: string;
     iconProvider: string; 
     iconName: string;
+    link?: string;
   };
-  handleCategorySelect: (name: string) => void; // Updated to accept the category name
+  handleCategorySelect?: (name: string) => void; // Updated to accept the category name
+  handleNavigate?: (name: string) => void;
   isOdd: boolean;
 }
 
@@ -77,6 +83,8 @@ const getIconProvider = (providerName: string) => {
       return Ionicons;
     case 'MaterialCommunityIcons':
       return MaterialCommunityIcons;
+    case 'MaterialIcons':
+      return MaterialIcons
     case 'FontAwesome5':
       return FontAwesome5;
     // Add more cases for other icon providers as needed
@@ -92,13 +100,19 @@ export function CategoryCard({ item, handleCategorySelect, isOdd }: CategoryCard
     return null; // Handle the case where the icon provider is not found
   }
 
+  const handleSelect = () => {
+    if (handleCategorySelect) {
+      handleCategorySelect(item.name); // Call only if defined
+    }
+  };
+
   return (
     <ThemedTouchableFilled 
       style={{ 
         marginRight: 10, 
         borderRadius: 30,
       }}
-      onPress={() => handleCategorySelect(item.name)}
+      onPress={handleSelect}
     > 
     <View style={{flexDirection:'row'}}>
       <IconProvider
@@ -122,7 +136,6 @@ const styles = StyleSheet.create({
     width: width/2.4,
     borderRadius: 8,
     padding: 10,
-    alignItems: 'center',
     elevation: 3, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
     shadowOffset: { 
@@ -131,6 +144,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    backgroundColor: '#F1F0F0',
   },
   image: {
     width: width * 0.3,
@@ -138,6 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
     resizeMode: 'cover',
+    alignSelf:'center'
   },
   title: {
     fontSize: 16,
@@ -150,4 +165,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
+  sold: {
+    fontSize: 10,
+    color: '#666',
+  },
 });
+
+export function PurchasesCard({ item, handleNavigate }: CategoryCardProps) {
+  const IconProvider = getIconProvider(item.iconProvider); // Get the icon component based on the provider
+  if (!IconProvider) {
+    console.error(`Icon provider ${item.iconProvider} not found`);
+    return null; // Handle the case where the icon provider is not found
+  }
+
+  const handleNav = () => {
+    handleNavigate?.(item.link || ''); // Optional chaining, shorthand for checking
+    router.push(item.link);
+  };
+
+  return (
+    <TouchableOpacity 
+      style={{ 
+        marginRight: 10, 
+        borderRadius: 30,
+        paddingHorizontal: 10,
+      }}
+      onPress={handleNav}
+    > 
+    <View style={{alignItems:'center'}}>
+      <IconProvider
+        name={item.iconName}
+        size={23}
+        color={darkBrown}
+        style={{marginRight: 10}}
+      />
+      <ThemedText type='default'>{item.name}</ThemedText>
+    </View>
+    </TouchableOpacity>
+  );
+}

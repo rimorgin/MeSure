@@ -1,33 +1,26 @@
+
 import React, { useRef, useState, useEffect } from 'react';
-import { Dimensions, StatusBar, StyleSheet, Text, TouchableOpacity, useColorScheme, View, Image, SafeAreaView, Platform, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { Dimensions, StatusBar, StyleSheet, Text, TouchableOpacity, View, Image, SafeAreaView, Platform, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { 
   Camera, 
   PhotoFile, 
   useCameraDevice, 
-  useCameraFormat, 
-  useCameraPermission
+  useCameraFormat
 } from 'react-native-vision-camera';
-import { ThemedView } from '@/components/ThemedView';
 import * as ImagePicker from 'expo-image-picker';
 import { white } from '@/constants/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import ThemedModal from '@/components/ThemedModal';
-import { cropImage, processImageHelper, saveBase64ToLocalStorage, saveImageToGallery } from '@/utils/cameraHelper';
+import { cropImage, processImageHelper, saveImageToGallery } from '@/utils/cameraHelper';
 import { router } from 'expo-router';
 import ConfirmCoinAlertDialog from '@/components/CameraHelpers/ConfirmCoinAlertDialog';
 import ConfirmBodyPartAlertDialog from '@/components/CameraHelpers/ConfirmBodyPartAlertDialog';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import Loader from '@/components/Loader';
-import { useUserIdStore, useUserMeasurementStorage } from '@/store/appStore';
-import auth from '@react-native-firebase/auth'
+import { useUserStore, useUserMeasurementStorage } from '@/store/appStore';
 
 const { width, height } = Dimensions.get('screen');
 
 export default function CameraApp() {
-  const theme = useColorScheme() ?? 'light';
-  const { hasPermission } = useCameraPermission();
-  const [mediaLibraryPermission] =
-    ImagePicker.useMediaLibraryPermissions();
   const device = useCameraDevice('back');
   const camera = useRef<Camera>(null);
   const [isCameraInitialized, initializeCamera] = useState(false)
@@ -40,20 +33,17 @@ export default function CameraApp() {
   const [showBodyPartDialog, setShowBodyPartDialog] = useState(false);
   const [showCoinDialog, setShowCoinDialog] = useState(false);
   const [inputFocus, setInputFocus] = useState(false);
-  const { fingerMeasurements, wristMeasurement, setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
-  const userFullName = useUserIdStore((state) => state.userFullName);
+  const { setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
+  const userFullName = useUserStore((state) => state.userFullName);
 
-  //on camera measurement successful exit
-  const [ok, setOk] = useState(false);
-
-
-  if (!device) {
-    return (
-      <View style={styles.container}>
-        <Text>No camera device found!</Text>
-      </View>
-    );
-  }
+  const [fingerSizes, setFingerSizes] = useState({
+    thumb: '',
+    index: '',
+    middle: '',
+    ring: '',
+    pinky: '',
+  });
+  const [wristSize, setWristSize] = useState('');
 
   const takePhoto = async () => {
   try {
@@ -94,26 +84,44 @@ export default function CameraApp() {
     }
   ]);
 
+
   const fps = format?.maxFps
 
   const processConfirmedImage = async () => {
     setLoading(true);
-    const base64String = await processImageHelper(photo, coin, bodyPart);
-    if (base64String) {
-      setPhoto(base64String);
+    const data = await processImageHelper(photo, coin, bodyPart);
+    if (data?.processed_image) {
+      setPhoto(`data:image/jpeg;base64,${data.processed_image}`);
+      //console.log(data.hand_label)
+    }
+    if (data?.finger_measurement) {
+      const measurements = data.finger_measurement;
+      
+      // Assuming finger_measurement array order is: pinky, ring, middle, index, thumb
+      if (data?.hand_label === 'Left') {
+        setFingerSizes({
+          pinky: parseFloat(measurements[0]).toFixed(2).toString(),
+          ring: parseFloat(measurements[1]).toFixed(2).toString(),
+          middle: parseFloat(measurements[2]).toFixed(2).toString(),
+          index: parseFloat(measurements[3]).toFixed(2).toString(),
+          thumb: parseFloat(measurements[4]).toFixed(2).toString(),
+        });
+      } else {
+        setFingerSizes({
+          pinky: parseFloat(measurements[4]).toFixed(2).toString(),
+          ring: parseFloat(measurements[3]).toFixed(2).toString(),
+          middle: parseFloat(measurements[2]).toFixed(2).toString(),
+          index: parseFloat(measurements[1]).toFixed(2).toString(),
+          thumb: parseFloat(measurements[0]).toFixed(2).toString(),
+        });
+      }
     }
     setLoading(false);
     setMeasured(true)
+    console.log(fingerSizes)
   };
 
-  const [fingerSizes, setFingerSizes] = useState({
-    thumb: '',
-    index: '',
-    middle: '',
-    ring: '',
-    pinky: '',
-  });
-  const [wristSize, setWristSize] = useState('');
+
 
   const handleFingerChange = (name: string, value: string) => {
     setFingerSizes((prev) => ({
@@ -121,38 +129,6 @@ export default function CameraApp() {
       [name]: value,
     }));
   };
-
-  useEffect(() => {
-    if (
-      fingerSizes.thumb !== '' && 
-      fingerSizes.index !== '' && 
-      fingerSizes.middle !== '' && 
-      fingerSizes.ring !== '' && 
-      fingerSizes.pinky !== ''
-    ) {
-      setOk(true);
-    } else if (wristSize !== '') {
-      setOk(true);
-    } else {
-      setOk(false);
-    }
-  },[fingerSizes, wristSize])
-
-  const getFileTypeFromBase64 = (base64String) => {
-  // Extract the MIME type
-  const mimeType = base64String.split(';')[0].split(':')[1];
-  
-  // Log the MIME type and the first 100 characters of the Base64 string
-  console.log('MIME Type:', mimeType);
-  console.log('Base64 String Preview:', base64String.slice(0, 100)); // Adjust the slice length if needed
-  return mimeType;
-};
-
-// Example usage
-//const fileType = getFileTypeFromBase64(photo);
-
-
-  //console.log(fileType)
   
   const handleFinishedMeasurement = () => {
     if (bodyPart === 'fingers') {
@@ -163,34 +139,29 @@ export default function CameraApp() {
     router.push('/(auth)/(tabs)/profile')
   }
   const handleSaveImage = async () => {
-    await saveBase64ToLocalStorage(photo)
+    await saveImageToGallery(photo, userFullName || 'image', bodyPart)
     //await saveImageToGallery(photo, `${userFullName}-${bodyPart}-size.jpg`)
   };
 
-
   useEffect(() => {
+    initializeCamera(true);
+    setShowBodyPartDialog(true);
+    setShowCoinDialog(true);
     // This function will run when the component unmounts
     return () => {
       setBodyPart('');
       setCoin(0);
-      setShowBodyPartDialog(true);
+      setShowBodyPartDialog(false);
       setShowCoinDialog(false);
     };
   }, []);
 
-  useEffect(() => {
-    if (!hasPermission && !mediaLibraryPermission) {
-      
-     router.push('/(auth)/(tabs)/permissions')
-    } else if (hasPermission && mediaLibraryPermission) {
-      initializeCamera(true);
-      setShowBodyPartDialog(true);
-      setShowCoinDialog(true);
-  }
-  }, [hasPermission, mediaLibraryPermission]);
-
-  if (!hasPermission && mediaLibraryPermission) {
-    return <Loader/>;
+    if (!device) {
+    return (
+      <View style={styles.container}>
+        <Text>No camera device found!</Text>
+      </View>
+    );
   }
 
   //console.log('zustand',fingerMeasurements)
@@ -231,7 +202,7 @@ export default function CameraApp() {
             onPress={() => router.push('/profile')}
           >
             <Ionicons 
-              name='return-up-back' 
+              name='chevron-back' 
               size={40} 
               style={{marginLeft:20}}
               color={white}
@@ -258,6 +229,7 @@ export default function CameraApp() {
                 onEndEditing={() => setInputFocus(false)}
                 style={styles.textInput}
                 value={fingerSizes.thumb}
+                defaultValue={fingerSizes.thumb}
                 onChangeText={(value) => handleFingerChange('thumb', value)}
               />
             </View>
@@ -269,6 +241,7 @@ export default function CameraApp() {
               onEndEditing={() => setInputFocus(false)}
               style={styles.textInput}
               value={fingerSizes.index}
+              defaultValue={fingerSizes.index}
               onChangeText={(value) => handleFingerChange('index', value)}
             />
             </View>
@@ -280,6 +253,7 @@ export default function CameraApp() {
               onEndEditing={() => setInputFocus(false)}
               style={styles.textInput}
               value={fingerSizes.middle}
+              defaultValue={fingerSizes.middle}
               onChangeText={(value) => handleFingerChange('middle', value)}
             />
             </View>
@@ -291,6 +265,7 @@ export default function CameraApp() {
               onEndEditing={() => setInputFocus(false)}
               style={styles.textInput}
               value={fingerSizes.ring}
+              defaultValue={fingerSizes.ring}
               onChangeText={(value) => handleFingerChange('ring', value)}
             />
             </View>
@@ -302,6 +277,7 @@ export default function CameraApp() {
               onEndEditing={() => setInputFocus(false)}
               style={styles.textInput}
               value={fingerSizes.pinky}
+              defaultValue={fingerSizes.pinky}
               onChangeText={(value) => handleFingerChange('pinky', value)}
             />
             </View>
@@ -382,7 +358,7 @@ export default function CameraApp() {
             onPress={() => router.push('/profile')}
           >
             <Ionicons 
-              name='return-up-back' 
+              name='chevron-back' 
               size={40} 
               style={{marginLeft:20}}
               color={white}

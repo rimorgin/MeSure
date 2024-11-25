@@ -2,17 +2,17 @@ import { Redirect, router, Stack } from 'expo-router';
 
 import { useSession } from '@/provider/AuthContext';
 import { ThemedText } from '@/components/ThemedText';
-import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useUserIdStore } from '@/store/appStore';
+import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useUserStore } from '@/store/appStore';
 import { useEffect, useState } from 'react';
 import { ThemedView } from '@/components/ThemedView';
 import { Image } from 'react-native';
 
 export default function AppLayout() {
   const { session, isLoading } = useSession();
-  const userId = useUserIdStore((state) => state.userId);
-  const firstTimeUser = useUserIdStore((state) => state.firstTimeUser);
+  const userId = useUserStore((state) => state.userId);
+  const firstTimeUser = useUserStore((state) => state.firstTimeUser);
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
-  const { getUserFullName } = useUserIdStore();
+  const { getUserFullName } = useUserStore();
   const { fetchFavorites } = useFavoritesStore();
   const { fetchCart } = useCartStore();
   const [fetching, setFetching] = useState(false);
@@ -60,11 +60,28 @@ export default function AppLayout() {
     return <Redirect href="/login" />;
   }
 
+  // Determine the initial route
+  const initialRoute = firstLaunch ? 'landing' : '(tabs)';
+
   return (
-      <Stack initialRouteName={firstLaunch ? 'landing' : '(tabs)'}>
-        <Stack.Screen name="landing" options={{ presentation: 'modal', headerShown: false }}/>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'fade_from_bottom' }} />
-        <Stack.Screen name="products/[id]" options={{ headerShown: false, animation: 'fade_from_bottom' }} />
-      </Stack>
-    )
+    <Stack
+      initialRouteName={initialRoute}
+      screenOptions={{ 
+        headerShown: false, 
+        animation: 'fade_from_bottom'
+      }}
+    >
+      <Stack.Screen
+        name="landing"
+        options={{
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="(camera)" />
+      <Stack.Screen name="(extras)" />
+      <Stack.Screen name="(product)/[id]" />
+    </Stack>
+  );
 }

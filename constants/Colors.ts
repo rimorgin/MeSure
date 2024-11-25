@@ -9,6 +9,7 @@ export const BadgeTint = '#D4AF37';
 export const white = '#fff'
 export const black = '#1c1c1d'
 export const darkBrown = '#301713'
+export const mustard = '#D4AF37';
 
 export const Colors = {
   light: {
@@ -20,7 +21,8 @@ export const Colors = {
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
     divider: darkBrown,
-    nav: white
+    nav: white,
+    checkbox: darkBrown
   },
   dark: {
     text: '#ECEDEE',
@@ -31,6 +33,7 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
     divider: '#fff',
-    nav: '#1c1c1d'
+    nav: '#1c1c1d',
+    checkbox: mustard
   },
 };

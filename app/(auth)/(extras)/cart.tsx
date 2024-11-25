@@ -9,12 +9,13 @@ import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabC
 import { Drawer } from 'react-native-drawer-layout';
 import { router } from 'expo-router';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
-import { useCartStore, useUserIdStore } from '@/store/appStore';
+import { CartItem, useCartStore, useUserStore } from '@/store/appStore';
 import { appData } from '@/assets/data/appData';
 import { FlashList } from '@shopify/flash-list';
 import ThemedDivider from '@/components/ThemedDivider';
 import { Swipeable } from 'react-native-gesture-handler';
 import ThemedBottomSheet, { ThemedBottomSheetRef } from '@/components/ThemedBottomSheet';
+import { ThemedCheckBox } from '@/components/ThemedCheckBox';
 
 const { width, height } = Dimensions.get('screen')
 
@@ -22,8 +23,10 @@ export default function Cart() {
   const theme = useColorSchemeTheme();
   const [openFilter, setOpenFilter] = useState(false);
   const bottomSheetRef = useRef<ThemedBottomSheetRef>(null);
-  const { userId } = useUserIdStore();
-  const { cart, addToCart, removeFromCart, updateQuantity, totalItems, totalPrice } = useCartStore();
+  const { userId } = useUserStore();
+  const { cart, addCheckOutCartItems, removeFromCart, updateQuantity, totalItems, totalPrice } = useCartStore();
+  const [checked, setChecked] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const snapPoints = ['20%', '40%']
   const [sheetIndex, newSheetIndex] = useState(1);
@@ -40,10 +43,12 @@ export default function Cart() {
 
         // Create a new object for each size/quantity combination
         return matchingCartItems.map((cartItem) => ({
-          parentId: item.id, // Common parent ID
-          ...item, // Base item details
+          id: item.id,
+          img: item.img[0], 
+          name: item.name,
           size: cartItem.size, // Cart-specific size
           quantity: cartItem.quantity, // Cart-specific quantity
+          price: cartItem.price
         }));
       })
       .flat() ?? [];
@@ -51,13 +56,14 @@ export default function Cart() {
 
 
   // Get the cart items for rings and bangles based on size and id
-  const cartRingItems = ringsCategory
-    ? groupItemsByIdAndSize(ringsCategory.rings, cart)
+  const cartRingItems = ringsCategory?.rings
+    ? groupItemsByIdAndSize(ringsCategory.rings, cart ?? [])
     : [];
 
-  const cartBangleItems = banglesCategory
-    ? groupItemsByIdAndSize(banglesCategory.bangles, cart)
+  const cartBangleItems = banglesCategory?.bangles
+    ? groupItemsByIdAndSize(banglesCategory.bangles, cart ?? [])
     : [];
+
 
   // Combine both ring and bangle cart items
   const allCartItems = [
@@ -65,26 +71,7 @@ export default function Cart() {
     ...(cartBangleItems ?? []),
   ];
 
-  const groupByParentId = (items: any[]) => {
-    return items.reduce((acc, item) => {
-      if (!acc[item.parentId]) {
-        acc[item.parentId] = [];
-      }
-      acc[item.parentId].push(item);
-      return acc;
-    }, {});
-  };
-
-  // Group the items
-  const groupedCartItems = groupByParentId(allCartItems);
-  const groupedArray = Object.entries(groupedCartItems).map(([id, items]) => ({
-    id,
-    items,
-  }));
-
-  console.log('GROUPED all cart items with same id but have different size and quantity',JSON.stringify(groupedCartItems, null, 2))
-
-
+  //console.log(JSON.stringify(allCartItems,null,2))
 
   const handleScroll = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
@@ -96,14 +83,58 @@ export default function Cart() {
     }
   };
 
-
-  const openBottomSheet = () => bottomSheetRef.current?.open();
-  const closeBottomSheet = () => bottomSheetRef.current?.close();
-
-  const increaseQuantity = (item: any) => updateQuantity(userId, item.id, item.quantity + 1, item.size, item.price);
-  const decreaseQuantity = (item: any) => {
-    if (item.quantity > 1) updateQuantity(userId, item.id, item.quantity - 1, item.size, item.price);
+  // Function to handle "Select All" logic
+  const handleSelectAll = () => {
+    if (checked) {
+      // Uncheck all items
+      setSelectedItems([]);
+    } else {
+      // Select all items
+      setSelectedItems(allCartItems.map((item) => `${item.id}-${item.size}-${item.quantity}-${item.price}`));
+    }
+    setChecked(!checked);
   };
+
+  // Handle individual item selection
+  const toggleItemSelection = (itemKey: string) => {
+    setSelectedItems((prev) =>
+      prev.includes(itemKey)
+        ? prev.filter((key) => key !== itemKey) // Remove item
+        : [...prev, itemKey] // Add item
+    );
+  };
+
+  // Calculate selected total price and items
+  const selectedTotalPrice = cart
+    .filter((item) => selectedItems.includes(`${item.id}-${item.size}-${item.quantity}-${item.price}`))
+    .reduce((sum, item) => sum + parseInt(item.price) * item.quantity, 0);
+
+  const selectedTotalItems = cart
+    .filter((item) => selectedItems.includes(`${item.id}-${item.size}-${item.quantity}-${item.price}`))
+    .reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleProceedToCheckOut = () => {
+    if (selectedItems.length !== 0) {
+      // Process selected items to generate checkout items
+      const itemsToCheckout = selectedItems
+        .map((key) => {
+          const [id, size] = key.split('-').map(Number);
+          return allCartItems.find((item) => item.id === id && item.size === size);
+        })
+        .filter(Boolean) as CartItem[]; // Filter out undefined results
+
+      // Set checkout cart items
+      addCheckOutCartItems([...itemsToCheckout]);
+
+      // Use itemsToCheckout directly for further operations
+      //addCheckOutCartItems(itemsToCheckout); // Pass items directly to the function
+      setSelectedItems([]); // Clear selections after adding to checkout
+      router.push('/(extras)/checkout'); // Navigate to checkout
+    }
+  };
+
+
+
   
   const adjustQuantity = (item: any, type: string) => {
     const newQuantity = type === "increment" ? item.quantity + 1 : item.quantity - 1;
@@ -174,7 +205,7 @@ export default function Cart() {
   };
 
   const renderItem = ({ item }: { item: any }) => {
-    const swipeableKey = `${item.parentId}-${item.size}-${item.quantity}`;
+    const swipeableKey = `${item.id}-${item.size}-${item.quantity}-${item.price}`;
     return (
       <>
         <Swipeable
@@ -184,7 +215,7 @@ export default function Cart() {
             renderRightActions(
               progress,
               dragX,
-              item.parentId, // Use parent ID for operations
+              item.id, // Use parent ID for operations
               item.size,
               item.quantity,
               item.price
@@ -196,7 +227,13 @@ export default function Cart() {
           rightThreshold={40}
         >
           <ThemedView style={styles.itemContainer}>
-            <Image source={item.img[0]} style={styles.image} />
+            <ThemedView style={{flexDirection:'row', gap:10}}>
+              <ThemedCheckBox
+                checked={selectedItems.includes(swipeableKey)}
+                setChecked={() => toggleItemSelection(swipeableKey)}
+              />
+              <Image source={item.img} style={styles.image} />
+            </ThemedView>
             <ThemedView style={styles.details}>
               <ThemedView style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 <ThemedText font="montserratSemiBold">{item.name}</ThemedText>
@@ -256,7 +293,7 @@ export default function Cart() {
         <TouchableOpacity onPress={() => router.back()}>
         <Ionicons 
             style={styles.filterButton}
-            name='return-up-back' 
+            name='chevron-back' 
             size={30}
             backgroundColor='transparent'
             color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
@@ -292,6 +329,13 @@ export default function Cart() {
           />
         </TouchableOpacity>
       </ThemedView>
+      <ThemedView style={{flexDirection:'row', gap: 15, width: '100%', alignItems: 'center', paddingHorizontal: 25, marginLeft: 8, padding:10}}>
+        <ThemedCheckBox 
+          checked={checked} 
+          setChecked={handleSelectAll} 
+        />
+        <ThemedText font='spaceMonoRegular'>Select All</ThemedText>
+      </ThemedView>
       <Drawer
         drawerPosition='right'
         open={openFilter}
@@ -306,7 +350,7 @@ export default function Cart() {
         <ThemedView style={styles.mainContent}>
           <FlatList
             data={allCartItems}
-            keyExtractor={(item) => `${item.id.toString()}-${item.size}-${item.quantity}`}
+            keyExtractor={(item) => `${item.id.toString()}-${item.size}-${item.quantity}-${item.price}`}
             renderItem={renderItem}
             ListEmptyComponent={() => {
               return (
@@ -349,7 +393,7 @@ export default function Cart() {
                   Cart Total
                 </ThemedText>
                 <ThemedText font='spaceMonoRegular' type='subtitle'>
-                  {totalPrice()}
+                  {checked ? totalPrice() : selectedTotalPrice}
                 </ThemedText>
               </ThemedView>
               <ThemedView style={{flexDirection:'row', justifyContent:'space-between'}}>
@@ -357,12 +401,12 @@ export default function Cart() {
                   Total Items
                 </ThemedText>
                 <ThemedText font='spaceMonoRegular'>
-                  {totalItems()}
+                  {checked ? totalItems() : selectedTotalItems}
                 </ThemedText>
               </ThemedView>
            
             <ThemedTouchableFilled
-              onPress={() => console.log('Proceed to Checkout')}
+              onPress={handleProceedToCheckOut}
               style={{width: '80%', alignSelf:'center', position: 'absolute', bottom: 20}}
             >
               <ThemedText font='montserratSemiBold' type='subtitle'>
@@ -431,6 +475,8 @@ const styles = StyleSheet.create({
   mainContent: {
     flex: 1,
     padding: 16,
+    paddingTop: 0,
+    marginTop: -35
   },
   bottomSheetContainer: {
     flex: 1,

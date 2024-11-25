@@ -1,46 +1,28 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { View, Text, StyleSheet, Button, Image, Dimensions, TouchableHighlight, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, Dimensions, TouchableHighlight, FlatList, TouchableOpacity } from 'react-native';
 import { appData } from '@/assets/data/appData';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedView } from '@/components/ThemedView';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ThemedText } from '@/components/ThemedText';
 import { AntDesign, Foundation, Ionicons } from '@expo/vector-icons';
-import { black, tintColorLight, white } from '@/constants/Colors';
+import { black, darkBrown, tintColorLight, white } from '@/constants/Colors';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import ThemedBottomSheet, { ThemedBottomSheetRef } from '@/components/ThemedBottomSheet';
 import ThemedDivider from '@/components/ThemedDivider';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { useCartStore, useFavoritesStore } from '@/store/appStore';
+import { useCartStore, useFavoritesStore, useUserStore } from '@/store/appStore';
 import { ratingStars } from '@/utils/ratings';
 import ThemedModal from '@/components/ThemedModal';
-import { HelloWave } from '@/components/Header';
-import auth from '@react-native-firebase/auth';
-import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
 
-
-  const { width, height } = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 
   export default function ProductDetails() {
     const { id } = useLocalSearchParams();
-    const theme = useColorSchemeTheme(); 
-    // Safely access the categories and rings
-    const rings = appData.categories.find((category) => category.rings)?.rings || [];
-    const product = appData.categories
-    .flatMap(category => category.rings ? category.rings : category.bangles || [])
-    .find(item => item.id.toString() === id);
-
-    if (!product) {
-      return (
-        <View style={styles.container}>
-          <Text>Product not found!</Text>
-          <Button title="Go back" onPress={() => router.back()} />
-        </View>
-      );
-    }
-    const [image, setImage] = useState(product.img[0])
+    const { userId } = useUserStore();
+    const theme = useColorSchemeTheme();
     const [favorite, setFavorite] = useState(false)
     const bottomSheetRef = useRef<ThemedBottomSheetRef>(null);
     const [quantity, setQuantity] = useState(0);
@@ -51,17 +33,25 @@ import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
     const [textHeight, setTextHeight] = useState(0);
     const maxHeight = 28;
     const [arAlertModal, setArAlertModal] = useState(false);
-    const [docId, setDocId] = useState('');
-    
-
+    // Safely access the categories and rings
+    const product = appData.categories
+    .flatMap(category => category.rings || category.bangles || [])
+    .find((item): item is { id: number; img: any[]; name: string; sizes: number[]; description: string; rating: number; sold: number; price: string; stock: number; AR: boolean } => item?.id?.toString() === id) || {
+      id: 0,
+      img: [],
+      name: '',
+      sizes: [],
+      description: '',
+      rating: 0,
+      sold: 0,
+      price: '',
+      stock: 0,
+      AR: false,
+    };  
+    const [image, setImage] = useState(product?.img[0])
+  
     useEffect(() => {
       setFavorite(isFavorite(product.id))
-
-      const getDocId = async () => {
-        const docId = await fetchUserDocIdByAuthId();
-        setDocId(docId);
-      }
-      getDocId();
     },[])
 
     const handleTextLayout = (event: any) => {
@@ -84,17 +74,10 @@ import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
     }
 
     const handleFavoriteToggle = async () => {
-      const data = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      img: product.img[0]
-    }
-      
       if (favorite) {
-        removeFavorite(docId, product.id); // Remove from favorites
+        removeFavorite(userId, product.id); // Remove from favorites
       } else {
-        addFavorite(docId, product.id); // Add to favorites
+        addFavorite(userId, product.id); // Add to favorites
       }
       setFavorite(!favorite); // Toggle favorite state
     
@@ -108,7 +91,7 @@ import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
           size: sizes,
           price: product.price,
         }
-        addToCart(docId, cartItem)
+        addToCart(userId, cartItem)
         closeBottomSheet();
         setQuantity(0);
         setSize(0);
@@ -179,7 +162,7 @@ import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
         //roundedHeader
         scrollable={false}
         headerHeight={height * 0.45}
-        headerBackgroundColor={{ light: '#301713', dark: '#1D3D47' }}
+        headerBackgroundColor={{ light: darkBrown, dark: '#1D3D47' }}
         headerImage={
           <Image
             style={styles.headerImg}
@@ -209,7 +192,7 @@ import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
             />
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={() => router.push('/cart')}>
+            onPress={() => router.push('/(extras)/cart')}>
             <Ionicons
               name="cart-outline"
               size={40}

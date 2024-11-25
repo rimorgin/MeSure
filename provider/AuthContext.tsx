@@ -4,7 +4,7 @@ import { Alert } from "react-native";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import auth from '@react-native-firebase/auth'
-import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useUserIdStore, useUserMeasurementStorage } from "@/store/appStore";
+import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useUserStore, useUserMeasurementStorage } from "@/store/appStore";
 import { createUserDoc } from "@/utils/createUserDoc";
 
 const AuthContext = React.createContext<{
@@ -59,8 +59,8 @@ export function useSession() {
 
 export function SessionProvider(props: React.PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState("session");
-  const userId = useUserIdStore((state) => state.userId);
-  const { setUserId, resetUserId, setFirstTimeUser } = useUserIdStore();
+  const userId = useUserStore((state) => state.userId);
+  const { setUserId, resetUserId, setFirstTimeUser } = useUserStore();
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
   const { setEmailAndFirstLaunch, resetApp } = useIsAppFirstLaunchStore();
   const { resetMeasurements } = useUserMeasurementStorage();

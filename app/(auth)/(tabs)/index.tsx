@@ -1,5 +1,4 @@
-import { Image, StyleSheet, Dimensions, TouchableOpacity, View, SafeAreaView, Platform, StatusBar, ScrollView } from 'react-native';
-import ParallaxScrollView from '@/components/ParallaxScrollView'; // A scroll view with parallax effect
+import { StyleSheet, Dimensions, TouchableOpacity, View, SafeAreaView, Platform, StatusBar, ScrollView } from 'react-native';
 import { ThemedText } from '@/components/ThemedText'; // Text component with theming support
 import { ThemedView } from '@/components/ThemedView'; // View component with theming support
 import SearchInput from '@/components/SearchBar'; // Custom search input component
@@ -8,17 +7,13 @@ import { router } from 'expo-router'; // Router for navigation
 import { black, Colors, tintColorLight, white } from '@/constants/Colors'; // Color constants
 import { FlashList } from "@shopify/flash-list"; // High-performance list component
 import { appData } from '@/assets/data/appData'; // Data source for categories and items
-import { ThemedTouchableFilled } from '@/components/ThemedButton'; // Themed button component
 import { Drawer } from 'react-native-drawer-layout'; // Drawer layout for side menus
 import useColorSchemeTheme from '@/hooks/useColorScheme'; // Hook for getting theme
-import { useEffect, useState } from 'react'; // React hook for managing state
+import { useState } from 'react'; // React hook for managing state
 import { CategoryCard, ItemCard } from '@/components/ThemedCard'; // Component for rendering individual items
 import { useCartStore } from '@/store/appStore';
-import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import { HelloWave } from '@/components/Header';
-import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
-import auth from '@react-native-firebase/auth'
 
 // Get screen dimensions
 const { width } = Dimensions.get('screen');
@@ -122,7 +117,7 @@ export default function HomeScreen() {
               <HelloWave/>
              
               <TouchableOpacity 
-                onPress={() => router.push('/cart')}>
+                onPress={() => router.push('/(extras)/cart')}>
                 <Ionicons
                   style={styles.cartButton}
                   name="cart-sharp"

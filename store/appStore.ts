@@ -4,24 +4,40 @@ import { persist, createJSONStorage, devtools } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 
+interface shippingDetails {
+  firstNname: string;
+  lastName: string,
+  contact: string;
+  street: string;
+  streetNo: string;
+  aptSuiteEtc: string;
+  city: string;
+  state: string;
+  country: string;
+  zip: string;
+}
 interface userId {
   userId: string;
   userFullName?: string; 
   firstTimeUser: boolean;
+  shippingDetails: shippingDetails[];
   setUserId: (userId: string) => void;
   setUserFullName: (userFullName: string) => void;
   setFirstTimeUser: (firstTimeUser: boolean) => void;
   getUserFullName: (userId: string) => void;
   resetUserId: () => void;
+  setShippingDetails: (shippingDetails: shippingDetails[]) => void;
+  removeShippingDetails: () => void;
 }
 
-export const useUserIdStore = create<userId>()(
+export const useUserStore = create<userId>()(
   devtools(
     persist(
       (set) => ({
         userId: '',
         userFullName: '',
         firstTimeUser: false,
+        shippingDetails: [],
         setUserId: (userId: string) => set({ userId }),
         setUserFullName: (userFullName: string) => set({ userFullName }),
         setFirstTimeUser(firstTimeUser) {
@@ -35,7 +51,11 @@ export const useUserIdStore = create<userId>()(
           const userFullName = snapshot.data()?.name
           set({userFullName: userFullName})
         },
-        resetUserId:() =>  set({ userId: '' })
+        resetUserId:() =>  set({ userId: '' }),
+        setShippingDetails: (shippingDetails: shippingDetails[]) => {
+          set({ shippingDetails: shippingDetails })
+        },
+        removeShippingDetails: () => set({ shippingDetails: [] }),
       }),
       {
         name: 'USER_ID', // Unique name for the storage
@@ -279,7 +299,7 @@ export const useFavoritesStore = create<FavoritesStorage>()(
             const userFavorites = snapshot.data()?.favorites; 
           
             
-            console.log('favs', userFavorites)
+            //console.log('favs', userFavorites)
 
             // Set the favorites to include full product data
             set({ favorites: userFavorites });
@@ -338,8 +358,10 @@ export const useFavoritesStore = create<FavoritesStorage>()(
 
 
 // Cart Store
-interface CartItem {
+export interface CartItem {
   id:number;
+  img?: string;
+  name?: string;
   size: number;
   quantity: number;
   price: string;
@@ -347,11 +369,14 @@ interface CartItem {
 // Update CartStorage interface if necessary
 interface CartStorage {
   cart: CartItem[];
+  checkOutCartItems: CartItem[];
   fetchCart: (userId: string) => void;
   addToCart: (userId: string, cartItem: CartItem) => void;
   removeFromCart: (userId: string, cartItemId: number, cartItemSize: number, cartItemQty: number, cartItemPrice: string) => void;
   updateQuantity: (userId: string, cartItemId: number, cartItemQty: number, cartItemSize: number, cartItemPrice: string) => void;
+  addCheckOutCartItems: (cartItem: CartItem[]) => void;
   resetCart: () => void;
+  resetCheckOutCartItems: () => void;
   totalItems: () => number;
   totalPrice: () => number;
 }
@@ -362,7 +387,7 @@ export const useCartStore = create<CartStorage>()(
     persist(
       (set, get) => ({
         cart: [],
-
+        checkOutCartItems: [],
         fetchCart: async (userId: string) => {
           try {
             const snapshot = await firestore()
@@ -375,14 +400,14 @@ export const useCartStore = create<CartStorage>()(
               set({ cart: [] }); // Set cart to an empty array if the user does not exist     
               return;
             }
-            const rawCart = snapshot.data()?.cart || [];
-            const rawCartIds = rawCart.map((item: CartItem ) => item.id);
-            console.log('Extracted Cart IDs:', rawCartIds); 
-            const cartItems = await Promise.all(rawCartIds.map((id: number) => {
+            //const rawCart = snapshot.data()?.cart || [];
+            //const rawCartIds = rawCart.map((item: CartItem ) => item.id);
+            //console.log('Extracted Cart IDs:', rawCartIds); 
+            //const cartItems = await Promise.all(rawCartIds.map((id: number) => {
 
-            }));
+            //}));
             const userCartItems = snapshot.data()?.cart
-            console.log('full cart:', userCartItems)
+            //console.log('full cart:', userCartItems)
             set({ cart: userCartItems });
           } catch (error) {
             console.error('Error fetching cart:', error);
@@ -474,26 +499,9 @@ export const useCartStore = create<CartStorage>()(
             console.error('Error updating quantity:', error);
           }
         },
-
-        /*
-        resetCart: async (userId: string) => {
-          try {
-            const cartSnapshot = await firestore()
-              .collection(`user/${userId}/cart`)
-              .get();
-
-            const batch = firestore().batch();
-            cartSnapshot.docs.forEach((doc) => {
-              batch.delete(doc.ref);
-            });
-            await batch.commit();
-
-            set({ cart: [] });
-          } catch (error) {
-            console.error('Error clearing cart:', error);
-          }
+        addCheckOutCartItems: (cartItems: CartItem[]) => {
+            set({ checkOutCartItems: cartItems }); // Directly set the array
         },
-        */
         resetCart: async () => {
           try {
             set({ cart: [] });
@@ -501,6 +509,9 @@ export const useCartStore = create<CartStorage>()(
             console.error('Error clearing cart:', error);
           }
         },  
+        resetCheckOutCartItems:() => {
+            set({ checkOutCartItems: [] });
+        },
         totalItems: () =>
           get().cart.reduce((total, item) => total + item.quantity, 0),
 

@@ -9,7 +9,7 @@ import {
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from './ThemedView';
-import { useIsAppFirstLaunchStore, useUserIdStore } from '@/store/appStore';
+import { useIsAppFirstLaunchStore, useUserStore } from '@/store/appStore';
 
 interface HelloWaveProps {
   showIntro?: boolean;
@@ -17,7 +17,7 @@ interface HelloWaveProps {
 
 export function HelloWave({} : HelloWaveProps) {
   const rotationAnimation = useSharedValue(0);
-  const userFullName = useUserIdStore((state) => state.userFullName);
+  const userFullName = useUserStore((state) => state.userFullName);
   const nameParts = userFullName?.split(' ') || [];
 
   // Set the first word as the first name

@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import { Drawer } from 'react-native-drawer-layout';
 import { appData } from '@/assets/data/appData';
-import { useCartStore, useFavoritesStore, useUserIdStore } from '@/store/appStore';
+import { useCartStore, useFavoritesStore, useUserStore } from '@/store/appStore';
 import { Swipeable } from 'react-native-gesture-handler';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import { router } from 'expo-router';
@@ -20,7 +20,7 @@ const { width, height } = Dimensions.get('screen')
 export default function Favorites() {
   const theme = useColorSchemeTheme();
   const [openFilter, setOpenFilter] = useState(false);
-  const userId = useUserIdStore((state) => state.userId);
+  const userId = useUserStore((state) => state.userId);
   // Fetch favorites and actions from the Zustand store
   const { favorites, addFavorite, removeFavorite, isFavorite, fetchFavorites } = useFavoritesStore((state) => state);
   const { cart, addToCart } = useCartStore();
@@ -309,9 +309,13 @@ export default function Favorites() {
                   <ThemedText
                     font='glacialIndifferenceBold'
                   >{`(${item.sold}) `}
+                    <ThemedText font='glacialIndifferenceRegular'>sold</ThemedText>
                   </ThemedText>
                   <ThemedText
-                  >{ratingStars(item.rating)}
+                    font='glacialIndifferenceBold'
+
+                  >{`(${item.rating}) `}
+                    <ThemedText font='glacialIndifferenceRegular'>rating</ThemedText>
                   </ThemedText>
                 </ThemedView>
                 <TouchableOpacity
@@ -349,7 +353,7 @@ export default function Favorites() {
             />
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={() => router.push('/cart')}>
+            onPress={() => router.push('/(extras)/cart')}>
             <Ionicons
               style={styles.cartButton}
               name="cart-sharp"
@@ -417,6 +421,7 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
+    paddingTop: 14,
     padding: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',

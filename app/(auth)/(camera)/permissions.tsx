@@ -1,27 +1,24 @@
-import * as React from "react";
-import { Stack, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import {
-  Alert,
   StyleSheet,
   Switch,
-  TouchableHighlight,
   View,
 } from "react-native";
 
 import { useMediaLibraryPermissions } from "expo-image-picker";
-
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Camera, CameraPermissionStatus } from "react-native-vision-camera";
 import { Ionicons } from "@expo/vector-icons";
 import FocusAwareStatusBar from "@/components/navigation/FocusAwareStatusBarTabConf";
+import { useEffect, useState } from "react";
 
 const ICON_SIZE = 26;
 
 export default function PermissionsScreen() {
   const router = useRouter();
   const [cameraPermissionStatus, setCameraPermissionStatus] =
-    React.useState<CameraPermissionStatus>("not-determined");
+   useState<CameraPermissionStatus>("not-determined");
 
   const [mediaLibraryPermission, requestMediaLibraryPermission] =
     useMediaLibraryPermissions();
@@ -32,12 +29,12 @@ export default function PermissionsScreen() {
     setCameraPermissionStatus(permission);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
     cameraPermissionStatus === "granted" &&
     mediaLibraryPermission?.granted
     ) {
-    router.replace("/camera");
+    router.replace("/(camera)/visioncamera");
     }
   })
 

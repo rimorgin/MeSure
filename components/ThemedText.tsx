@@ -46,10 +46,6 @@ export function ThemedText({
 }: ThemedTextProps) {
   const { fontsLoaded, fontStyles } = useFont();
 
-  if (!fontsLoaded) {
-    return null;
-  }
-
   // Use custom color if provided, otherwise determine color based on theme
   const color = customColor || useThemeColor({ light: lightColor, dark: darkColor }, 'text');
 
@@ -57,6 +53,9 @@ export function ThemedText({
   const fontFamily = font === 'none' ? 'system' : fontStyles[font];
 
   //console.log(width / 30)
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <Text
