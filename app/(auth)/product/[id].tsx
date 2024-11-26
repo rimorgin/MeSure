@@ -52,7 +52,7 @@ const { width, height } = Dimensions.get('screen');
   
     useEffect(() => {
       setFavorite(isFavorite(product.id))
-    },[])
+    },[isFavorite, product.id])
 
     const handleTextLayout = (event: any) => {
       const { height } = event.nativeEvent.layout;

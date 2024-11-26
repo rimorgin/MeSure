@@ -9,7 +9,7 @@ import {
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from './ThemedView';
-import { useIsAppFirstLaunchStore, useUserStore } from '@/store/appStore';
+import { useUserStore } from '@/store/appStore';
 
 interface HelloWaveProps {
   showIntro?: boolean;

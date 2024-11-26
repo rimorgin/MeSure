@@ -12,7 +12,6 @@ import { useCartStore, useFavoritesStore, useUserStore } from '@/store/appStore'
 import { Swipeable } from 'react-native-gesture-handler';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import { router } from 'expo-router';
-import { ratingStars } from '@/utils/ratings';
 import ThemedDivider from '@/components/ThemedDivider';
 
 const { width, height } = Dimensions.get('screen')

@@ -59,15 +59,12 @@ export function useSession() {
 
 export function SessionProvider(props: React.PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState("session");
-  const userId = useUserStore((state) => state.userId);
   const { setUserId, resetUserId, setFirstTimeUser } = useUserStore();
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
-  const { setEmailAndFirstLaunch, resetApp } = useIsAppFirstLaunchStore();
+  const { setEmailAndFirstLaunch } = useIsAppFirstLaunchStore();
   const { resetMeasurements } = useUserMeasurementStorage();
   const { resetFavorites } = useFavoritesStore();
   const { resetCart } = useCartStore();
-
-  let errorMsg;
 
   return (
     <AuthContext.Provider

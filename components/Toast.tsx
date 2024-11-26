@@ -5,8 +5,7 @@
 //text1 is the title
 //text2 is the desc
 
-import Toast, { BaseToast, ErrorToast,  ToastConfigParams } from 'react-native-toast-message';
-import { ThemedText } from './ThemedText';
+import { BaseToast, ErrorToast,  ToastConfigParams } from 'react-native-toast-message';
 import { ThemedView } from './ThemedView';
 import { Text } from 'react-native';
 import { HelloWave } from './Header';

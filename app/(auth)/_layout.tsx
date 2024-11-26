@@ -1,7 +1,5 @@
-import { Redirect, router, Stack } from 'expo-router';
-
+import { Redirect, Stack } from 'expo-router';
 import { useSession } from '@/provider/AuthContext';
-import { ThemedText } from '@/components/ThemedText';
 import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useUserStore } from '@/store/appStore';
 import { useEffect, useState } from 'react';
 import { ThemedView } from '@/components/ThemedView';
@@ -81,7 +79,7 @@ export default function AppLayout() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="(camera)" />
       <Stack.Screen name="(extras)" />
-      <Stack.Screen name="(product)/[id]" />
+      <Stack.Screen name="product/[id]" />
     </Stack>
   );
 }

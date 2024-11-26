@@ -1,18 +1,15 @@
 import { ThemedText } from '@/components/ThemedText'
 import { ThemedView } from '@/components/ThemedView'
 import React from 'react'
-import { Dimensions, FlatList, Image, ListRenderItemInfo, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlatList, Image, ListRenderItemInfo, StyleSheet, useWindowDimensions } from 'react-native'
 import { router } from 'expo-router'
 import { useIsAppFirstLaunchStore } from '@/store/appStore'
-import { useAssets } from 'expo-asset'
-import { white, black, darkBrown } from '@/constants/Colors'
-import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/ThemedButton'
+import { darkBrown } from '@/constants/Colors'
+import {  ThemedTouchablePlain } from '@/components/ThemedButton'
 import ParallaxScrollView from '@/components/ParallaxScrollView'
-import Slider from '@/components/Slider'
 import { appData } from '@/assets/data/appData'
 
-const { width, height } = Dimensions.get('screen');
+//const { width, height } = Dimensions.get('screen');
 
 interface ItemType {
   img: any;
@@ -37,8 +34,7 @@ return (
 };
 
 function Landing() {
-  const { width, height } = useWindowDimensions(); 
-  const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
+  const { height } = useWindowDimensions(); 
   const { setFirstLaunch } = useIsAppFirstLaunchStore();
   
   const handlePress = () => {

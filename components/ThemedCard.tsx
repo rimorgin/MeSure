@@ -2,7 +2,7 @@ import { Image, StyleSheet, Dimensions, TouchableHighlight, View, TouchableOpaci
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
 import { FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { ThemedTouchableFilled, ThemedTouchablePlain } from './ThemedButton';
+import { ThemedTouchableFilled } from './ThemedButton';
 import { darkBrown } from '@/constants/Colors';
 import { router } from 'expo-router';
 
@@ -25,7 +25,7 @@ export function ItemCard({ item }: ItemCardProps) {
 
   return (
     <TouchableHighlight 
-      onPress={()=> router.push(`/(product)/${item.id}`)}
+      onPress={()=> router.push(`/product/${item.id}`)}
       style={styles.button}
       underlayColor={'#EBE0C6'}
     > 

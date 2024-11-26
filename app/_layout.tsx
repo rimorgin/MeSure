@@ -2,16 +2,14 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Slot } from 'expo-router';
 import { SessionProvider } from "@/provider/AuthContext";
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 import Toast from 'react-native-toast-message';
-import useColorSchemeTheme, { useColorScheme } from '@/hooks/useColorScheme';
+import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { toastConfig } from '@/components/Toast';
 import { FontProvider } from '@/provider/FontContext';
 import { useNetInfo } from "@react-native-community/netinfo";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { useCartStore, useFavoritesStore } from '@/store/appStore';
-import { fetchUserDocIdByAuthId } from '@/utils/firebaseQuery';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -19,9 +17,6 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorSchemeTheme();
   const { isConnected } = useNetInfo();
-  const { fetchFavorites } = useFavoritesStore();
-  const { fetchCart } = useCartStore();
-  const [docId, setDocId] = useState('');
 
  /*
       <Stack>

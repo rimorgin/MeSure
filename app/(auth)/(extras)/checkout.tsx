@@ -1,4 +1,4 @@
-import { Platform, SafeAreaView, StatusBar, StyleSheet, Text, Touchable, TouchableOpacity, View } from 'react-native'
+import { Platform, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { ThemedView } from '@/components/ThemedView'
 import useColorSchemeTheme from '@/hooks/useColorScheme';
