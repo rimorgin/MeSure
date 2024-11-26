@@ -3,6 +3,8 @@ import RNFS from 'react-native-fs';
 import { persist, createJSONStorage, devtools } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
+import Toast from 'react-native-toast-message';
+import { ThemedToast } from '@/components/Toast';
 
 interface shippingDetails {
   firstNname: string;
@@ -318,9 +320,19 @@ export const useFavoritesStore = create<FavoritesStorage>()(
                 const { favorites } = get();
                 // Update local state to include the full favorite item
                 set({ favorites: [...favorites, favoriteId] });
+                Toast.show({
+                  type: 'success',
+                  text1: 'Success',
+                  text2: 'Item added to favorites successfully!',
+                })
               });
           } catch (error) {
             console.error('Error adding favorite:', error);
+            Toast.show({
+              type: 'error',
+              text1: 'Error',
+              text2: 'Adding item to favorites unsuccessful!',
+            })
           }
         },
 
@@ -335,8 +347,18 @@ export const useFavoritesStore = create<FavoritesStorage>()(
                 // Remove the favorite item based on the id
                 set({ favorites: favorites.filter((favIds) => favIds !== favoriteId) });
               });
+              Toast.show({
+                type: 'success',
+                text1: 'Success',
+                text2: 'Item removed to favorites successfully!',
+              })
           } catch (error) {
             console.error('Error removing favorite:', error);
+            Toast.show({
+              type: 'error',
+              text1: 'Error',
+              text2: 'Removing item to favorites unsuccessful!',
+            })
           }
         },
 
@@ -445,8 +467,18 @@ export const useCartStore = create<CartStorage>()(
 
             // Update the local state
             set({ cart: updatedCart });
+            Toast.show({
+              type: 'success',
+              text1: 'Success',
+              text2: 'Item added to cart successfully!',
+            })
           } catch (error) {
             console.error('Error adding to cart:', error);
+            Toast.show({
+              type: 'error',
+              text1: 'Error',
+              text2: 'Adding item to cart unsuccessful!',
+            })
           }
         },
         removeFromCart: async (userId: string, id: number, size: number, quantity: number, price: string) => {
@@ -468,8 +500,18 @@ export const useCartStore = create<CartStorage>()(
             set({
               cart: get().cart.filter((item) => !(item.id === id && item.size === size && item.quantity === quantity && item.price === price))
             });
+            Toast.show({
+              type: 'success',
+              text1: 'Success',
+              text2: 'Item removed to cart successfully!',
+            })
           } catch (error) {
             console.error('Error removing from cart:', error);
+            Toast.show({
+              type: 'error',
+              text1: 'Error',
+              text2: 'Removing item to cart unsuccessful!',
+            })
           }
         },
         updateQuantity: async (userId: string, cartItemId: number, cartItemQty: number, cartItemSize: number, cartItemPrice: string) => {
@@ -494,9 +536,19 @@ export const useCartStore = create<CartStorage>()(
 
               // Update the local state with the updated cart
               set({ cart: updatedCart });
+              Toast.show({
+                type: 'success',
+                text1: 'Success',
+                text2: 'Item quantity updated successfully!',
+              })
             }
           } catch (error) {
             console.error('Error updating quantity:', error);
+            Toast.show({
+              type: 'error',
+              text1: 'Error',
+              text2: 'Updating item quantity unsuccessful!',
+            })
           }
         },
         addCheckOutCartItems: (cartItems: CartItem[]) => {

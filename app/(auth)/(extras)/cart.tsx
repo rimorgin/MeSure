@@ -74,7 +74,7 @@ export default function Cart() {
 
   const handleScroll = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
-    console.log('offset y', offsetY)
+    //console.log('offset y', offsetY)
     if (offsetY > 150 && sheetIndex !== 0) {
       newSheetIndex(0);
     } else if (offsetY <= 100 && sheetIndex !== 1) {

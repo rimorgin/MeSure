@@ -22,7 +22,8 @@ export const Colors = {
     tabIconSelected: tintColorLight,
     divider: darkBrown,
     nav: white,
-    checkbox: darkBrown
+    checkbox: darkBrown,
+    toast: '#F8F4EC'
   },
   dark: {
     text: '#ECEDEE',
@@ -34,6 +35,7 @@ export const Colors = {
     tabIconSelected: tintColorDark,
     divider: '#fff',
     nav: '#1c1c1d',
-    checkbox: mustard
+    checkbox: mustard,
+    toast: '#F8F4EC'
   },
 };

@@ -5,10 +5,13 @@
 //text1 is the title
 //text2 is the desc
 
-import { BaseToast, ErrorToast,  ToastConfigParams } from 'react-native-toast-message';
+import { BaseToast, ErrorToast, ToastConfigParams } from 'react-native-toast-message';
 import { ThemedView } from './ThemedView';
 import { Text } from 'react-native';
 import { HelloWave } from './Header';
+import { darkBrown } from '@/constants/Colors';
+import { ThemedText } from './ThemedText';
+import { Feather } from '@expo/vector-icons';
 
 // Define the structure of your custom toast props
 interface CustomToastProps {
@@ -21,11 +24,16 @@ export const toastConfig = {
   success: (props: any) => (
     <BaseToast
       {...props}
-      style={{ borderLeftColor: 'black' }}
-      contentContainerStyle={{ paddingHorizontal: 15 }}
+      style={{ borderLeftColor: darkBrown }}
+      contentContainerStyle={{ paddingHorizontal: 20 }}
       text1Style={{
-        fontSize: 15,
+        fontSize: 17,
         fontWeight: '400',
+        color: darkBrown
+      }}
+      text2Style={{
+        fontSize: 13,
+        color: 'gray',
       }}
     />
   ),
@@ -34,18 +42,53 @@ export const toastConfig = {
       {...props}
       text1Style={{
         fontSize: 17,
+        fontWeight: '400',
+        color: darkBrown
       }}
       text2Style={{
-        fontSize: 15,
+        fontSize: 13,
+        color: 'gray',
       }}
     />
   ),
-  customToast: ({ text1, text2 }: ToastConfigParams<CustomToastProps>) => (
-    <ThemedView style={{ height: 80, width: '100%', backgroundColor: 'tomato' }}>
-      <Text>{text1}</Text>
-      <HelloWave/>
+  customToast: ({ type, text1, text2 }: ToastConfigParams<CustomToastProps>) => (
+    <ThemedView style={{ 
+      height: 80, 
+      width: '92%', 
+      //borderTopLeftRadius: 0,
+      //borderBottomLeftRadius: 0,
+      borderRadius:15, 
+      marginHorizontal: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 5 },
+      shadowOpacity: 0.8,
+      shadowRadius: 25,
+      elevation: 15, // Adds shadow for Android
+      padding: 15,
+    }}>
+      <Feather name="message-circle" size={60} color="black" />
+      {/*<ThemedView style={{height:'160%', width: 5, backgroundColor:darkBrown, position:'absolute'}}/>*/}
+  
+        <ThemedText
+          font='cocoGothicBold'
+          style={{
+            fontSize: 17,
+            color: darkBrown
+          }}
+        >{text1}
+        </ThemedText>
+        <ThemedText
+          font='montserratMedium'
+          style={{
+            fontSize: 13,
+            color: darkBrown
+          }}
+        >{text2}
+        </ThemedText>
+
     </ThemedView>
   ),
+
 };
 
 /*

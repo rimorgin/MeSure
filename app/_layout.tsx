@@ -60,9 +60,6 @@ export default function RootLayout() {
         });
     }
   }, [isConnected]);
-
-
-
   
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -74,6 +71,7 @@ export default function RootLayout() {
                 config={toastConfig} 
                 position='top' 
                 topOffset={50}
+                autoHide
               />
             </ThemeProvider>
           </FontProvider>
