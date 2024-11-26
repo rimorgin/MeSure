@@ -29,7 +29,7 @@ export const Colors = {
     text: '#ECEDEE',
     background: '#1c1c1d',
     tint: tintColorDark,
-    icon: '#9BA1A6',
+    icon: mustard,
     button: tintColorDark,
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,

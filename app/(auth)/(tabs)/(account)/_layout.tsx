@@ -10,7 +10,7 @@ export default function AccountLayout() {
       }}
     >
       <Stack.Screen name='editprofile' />
-      <Stack.Screen name='addresses' />
+      <Stack.Screen name='(addresses)' />
     </Stack>
   )
 }

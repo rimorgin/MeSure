@@ -243,7 +243,7 @@ export default function Register() {
             
           <ThemedTouchablePlain
             variant='opacity'
-            onPress={() => router.push('/login')}
+            onPress={() => router.navigate('/login')}
           >
             <ThemedText type='link'> 
               Already have an account? 

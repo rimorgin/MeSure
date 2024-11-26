@@ -85,7 +85,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
                   text2: `Welcome back, ${user}!`
                 });
               }
-              router.push('/');
+              router.navigate('/');
             })
             .catch((error) => {
               const errorMsg = getErrorMessage(error.code);
@@ -111,7 +111,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
                 text1: "Registration Successful",
                 text2: `Welcome to MeSure, ${user}!`
               });
-              router.push('/(auth)/landing');
+              router.navigate('/(auth)/landing');
             })
             .catch((error) => {
               const errorMsg = getErrorMessage(error.code);

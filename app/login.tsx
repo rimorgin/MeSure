@@ -281,7 +281,7 @@ export default function Login() {
             Don’t have an account yet?
           </ThemedText>
           <ThemedTouchablePlain 
-            onPress={() => router.push('/register')}
+            onPress={() => router.navigate('/register')}
             variant='opacity'
           >
             <ThemedText type="link">

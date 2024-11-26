@@ -7,8 +7,6 @@
 
 import { BaseToast, ErrorToast, ToastConfigParams } from 'react-native-toast-message';
 import { ThemedView } from './ThemedView';
-import { Text } from 'react-native';
-import { HelloWave } from './Header';
 import { darkBrown } from '@/constants/Colors';
 import { ThemedText } from './ThemedText';
 import { Feather } from '@expo/vector-icons';

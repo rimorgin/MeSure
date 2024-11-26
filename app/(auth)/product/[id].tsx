@@ -100,7 +100,7 @@ const { width, height } = Dimensions.get('screen');
 
     const handleArClick = () => {
       if (product.AR) {
-        //router.push('/(auth)/(tabs)/arcamera')
+        //router.navigate('/(auth)/(tabs)/arcamera')
       } else {
         setArAlertModal(true);
       }
@@ -192,7 +192,7 @@ const { width, height } = Dimensions.get('screen');
             />
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={() => router.push('/(extras)/cart')}>
+            onPress={() => router.navigate('/(extras)/cart')}>
             <Ionicons
               name="cart-outline"
               size={40}

@@ -10,6 +10,8 @@ export default function ExtrasLayout() {
       }}
     >
       <Stack.Screen name='cart' />
+      <Stack.Screen name='checkout' />
+      <Stack.Screen name='ordersummary' />
     </Stack>
   )
 }

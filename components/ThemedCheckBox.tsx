@@ -35,6 +35,7 @@ export function ThemedCheckBox({ checked, setChecked, lightColor, darkColor, ...
                     borderWidth: touched ? 3 : 1,
                 }}
                 onTouchStart={handleTouched}
+                hitSlop={{bottom: 40, top: 40, left: 40, right: 40}}
                 {...props} // Spread optional props last
             />
         </ThemedView>

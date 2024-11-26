@@ -9,6 +9,8 @@ interface userDoc {
   username: string;
   cart?: [];
   favorites?: [];
+  shippingDetails?: [];
+  orders:[];
   measurements?: Record<string, any>; // Generic object type for measurements
 }
 
@@ -23,7 +25,9 @@ export async function createUserDoc({
   email,
   username,
   cart = [],
+  shippingDetails = [],
   favorites = [],
+  orders = [],
   measurements = {},
 }: userDoc): Promise<void> {
   try {
@@ -47,6 +51,8 @@ export async function createUserDoc({
       username,
       cart,
       favorites,
+      shippingDetails,
+      orders,
       measurements,
     };
 

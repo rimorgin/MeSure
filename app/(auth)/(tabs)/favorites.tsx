@@ -352,7 +352,7 @@ export default function Favorites() {
             />
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={() => router.push('/(extras)/cart')}>
+            onPress={() => router.navigate('/(extras)/cart')}>
             <Ionicons
               style={styles.cartButton}
               name="cart-sharp"

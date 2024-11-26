@@ -49,10 +49,10 @@ export const getBodyPartSpecificURL = (bodyPart: string) => {
       break;
   }
   //backend live deployment 
-  //return `http://34.81.21.169:8080/${urlScheme}`;
+  return `http://34.81.21.169:8080/${urlScheme}`;
 
   //backend local deployment 
-  return `http://10.15.20.39:8080/${urlScheme}`;
+  //return `http://10.15.20.39:8080/${urlScheme}`;
   //return `http://localhost:5000/${urlScheme}`;
 };
 
@@ -60,6 +60,8 @@ export const getBodyPartSpecificURL = (bodyPart: string) => {
 export const processImageHelper = async (photo: any, coin: number, bodyPart: string) => {
   const width = getCoinWidth(coin);
   const url = getBodyPartSpecificURL(bodyPart)
+
+  //console.log('url-used ',url)
 
   try {
     if (!photo) {
@@ -90,11 +92,12 @@ export const processImageHelper = async (photo: any, coin: number, bodyPart: str
       const json = await response.json();
 
       // Extract the measurements and image from the response
-      const { finger_measurement, hand_label, processed_image } = json;
+      const { finger_measurement, wrist_measurement, hand_label, processed_image } = json;
 
       // Return the measurements and processed image (Base64 string)
       return {
         finger_measurement,
+        wrist_measurement,
         hand_label,
         processed_image, // This is already in Base64 format
       };
@@ -144,43 +147,6 @@ export const saveImageToGallery = async (base64String: any, user: string, label:
   } catch (error) {
     console.error('Error saving image:', error);
   }
-};
-
-// Helper function to reduce the ratio
-export const reduceRatio = (numerator: number, denominator: number) => {
-  let temp;
-  let left;
-  let right;
-
-  const gcd = (a: any, b: any) => {
-    if (b === 0) return a;
-    return gcd(b, a % b);
-  };
-
-  if (numerator === denominator) return '1:1';
-
-  if (+numerator < +denominator) {
-    temp = numerator;
-    numerator = denominator;
-    denominator = temp;
-  }
-
-  const divisor = gcd(+numerator, +denominator);
-
-  if (typeof temp === 'undefined') {
-    left = numerator / divisor;
-    right = denominator / divisor;
-  } else {
-    left = denominator / divisor;
-    right = numerator / divisor;
-  }
-
-  if (left === 8 && right === 5) {
-    left = 16;
-    right = 10;
-  }
-
-  return `${left}:${right}`;
 };
 
 // Define the sortFormats function

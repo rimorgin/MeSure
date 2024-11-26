@@ -128,7 +128,7 @@ export default function Cart() {
       // Use itemsToCheckout directly for further operations
       //addCheckOutCartItems(itemsToCheckout); // Pass items directly to the function
       setSelectedItems([]); // Clear selections after adding to checkout
-      router.push('/(extras)/checkout'); // Navigate to checkout
+      router.navigate('/(extras)/checkout'); // Navigate to checkout
     }
   };
 
@@ -366,7 +366,7 @@ export default function Cart() {
                     Your cart is empty
                   </ThemedText>
                   <ThemedTouchableFilled
-                    onPress={() => router.push('/(auth)/(tabs)/')}
+                    onPress={() => router.navigate('/(auth)/(tabs)/')}
                   >
                     <ThemedText>Browse items</ThemedText>
                   </ThemedTouchableFilled>

@@ -39,7 +39,7 @@ function Landing() {
   
   const handlePress = () => {
     setFirstLaunch();
-    router.push('/(auth)/(tabs)/')
+    router.navigate('/(auth)/(tabs)/')
   }
 
   

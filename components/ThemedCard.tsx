@@ -25,7 +25,7 @@ export function ItemCard({ item }: ItemCardProps) {
 
   return (
     <TouchableHighlight 
-      onPress={()=> router.push(`/product/${item.id}`)}
+      onPress={()=> router.navigate(`/product/${item.id}`)}
       style={styles.button}
       underlayColor={'#EBE0C6'}
     > 
@@ -180,7 +180,7 @@ export function PurchasesCard({ item, handleNavigate }: CategoryCardProps) {
 
   const handleNav = () => {
     handleNavigate?.(item.link || ''); // Optional chaining, shorthand for checking
-    router.push(item.link);
+    router.navigate(item.link);
   };
 
   return (

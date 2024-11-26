@@ -1,10 +1,8 @@
 import { create } from 'zustand';
-import RNFS from 'react-native-fs';
 import { persist, createJSONStorage, devtools } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import Toast from 'react-native-toast-message';
-import { ThemedToast } from '@/components/Toast';
 
 interface shippingDetails {
   firstNname: string;
@@ -78,8 +76,18 @@ interface FingerMeasurements {
 interface UserMeasurementStorage {
   fingerMeasurements: FingerMeasurements;
   wristMeasurement: string;
-  setFingerMeasurements: (measurements: FingerMeasurements) => void;
-  setWristMeasurement: (size: string) => void;
+  setFingerMeasurements: (userId: string, measurements: FingerMeasurements) => Promise<void>;
+  setWristMeasurement: (userId: string, size: string) => Promise<void>;
+  resetMeasurements: () => void;
+}
+
+// Create the Zustand store
+interface UserMeasurementStorage {
+  fingerMeasurements: FingerMeasurements;
+  wristMeasurement: string;
+  fetchMeasurements: (userId: string) => Promise<void>;
+  setFingerMeasurements: (userId: string, measurements: FingerMeasurements) => Promise<void>;
+  setWristMeasurement: (userId: string, size: string) => Promise<void>;
   resetMeasurements: () => void;
 }
 
@@ -96,17 +104,69 @@ export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
           pinky: '',
         },
         wristMeasurement: '',
-        
+
+        // Fetch measurements from Firestore and update Zustand state
+        fetchMeasurements: async (userId: string) => {
+          try {
+            const userDoc = await firestore().collection('user').doc(userId).get();
+            const measurements = userDoc.data()?.measurements;
+
+            if (measurements) {
+              set({
+                fingerMeasurements: measurements.fingerMeasurements || {
+                  thumb: '',
+                  index: '',
+                  middle: '',
+                  ring: '',
+                  pinky: '',
+                },
+                wristMeasurement: measurements.wristMeasurement || '',
+              });
+            }
+          } catch (error) {
+            console.error('Error fetching measurements:', error);
+          }
+        },
         // Action to set finger measurements
-        setFingerMeasurements: (measurements) =>
-          set({ fingerMeasurements: measurements }),
-        
-        // Action to set wrist size
-        setWristMeasurement: (size) =>
-          set({ wristMeasurement: size }),
+        setFingerMeasurements: async (userId, measurements) => {
+          try {
+            // Update Firestore
+            await firestore()
+              .collection('user')
+              .doc(userId)
+              .set(
+                { measurements: { fingerMeasurements: measurements } },
+                { merge: true }
+              );
+
+            // Update Zustand state
+            set({ fingerMeasurements: measurements });
+          } catch (error) {
+            console.error('Error updating finger measurements:', error);
+          }
+        },
+
+        // Action to set wrist measurement
+        setWristMeasurement: async (userId, size) => {
+          try {
+            // Update Firestore
+            await firestore()
+              .collection('user')
+              .doc(userId)
+              .set(
+                { measurements: { wristMeasurement: size } },
+                { merge: true } 
+              );
+
+            // Update Zustand state
+            set({ wristMeasurement: size });
+          } catch (error) {
+            console.error('Error updating wrist measurement:', error);
+          }
+        },
 
         // Action to reset all measurements
-        resetMeasurements: () =>
+        resetMeasurements: () => {
           set({
             fingerMeasurements: {
               thumb: '',
@@ -116,7 +176,8 @@ export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
               pinky: '',
             },
             wristMeasurement: '',
-          }),
+          });
+        },
       }),
       {
         name: 'USER_MEASUREMENTS', // Unique name for the storage
@@ -177,68 +238,6 @@ export const useIsAppFirstLaunchStore = create<AppFirstLaunch>()(
   )
 );
 
-interface ImageStorage {
-  images: string[] | null;
-  fetchImages: () => Promise<void>;
-  addImage: (id: string, uri: string) => Promise<void>;
-  removeImage: (id: string) => Promise<void>;
-}
-
-const imagesDirectoryPath = `${RNFS.DocumentDirectoryPath}/images`;
-
-// Ensure the images directory exists
-const ensureImagesDirectoryExists = async () => {
-  const exists = await RNFS.exists(imagesDirectoryPath);
-  if (!exists) {
-    await RNFS.mkdir(imagesDirectoryPath);
-  }
-};
-
-// Helper function to fetch all images
-const getAllImages = async (): Promise<string[]> => {
-  await ensureImagesDirectoryExists();
-  const files = await RNFS.readDir(imagesDirectoryPath);
-  return files.map((file) => file.path);
-};
-
-// Zustand store for image storage
-export const useImageStorage = create<ImageStorage>()(
-  devtools(
-    persist(
-      (set,get) => ({
-      images: null,
-
-      fetchImages: async () => {
-        const imagePaths = await getAllImages();
-        set({ images: imagePaths });
-      },
-
-      addImage: async (id, uri) => {
-        await ensureImagesDirectoryExists();
-        const targetPath = `${imagesDirectoryPath}/${id}.jpg`;
-        await RNFS.copyFile(uri, targetPath);
-        const updatedImages = await getAllImages();
-        set({ images: updatedImages });
-      },
-
-      removeImage: async (id) => {
-        const imagePath = `${imagesDirectoryPath}/${id}.jpg`;
-        const exists = await RNFS.exists(imagePath);
-        if (exists) {
-          await RNFS.unlink(imagePath);
-        }
-        const updatedImages = await getAllImages();
-        set({ images: updatedImages });
-      },
-      }),
-      {
-        name: 'APP_IMAGES',
-        storage: createJSONStorage(() => AsyncStorage),
-      }
-    ) 
-  )
-)
-
 // Zustand store definition for theme
 interface ColorSchemeStorage {
   theme: 'light' | 'dark' | null;
@@ -278,9 +277,9 @@ interface FavoritesItem {
 // Favorites Store
 interface FavoritesStorage {
   favorites: number[]; // Array of FavoritesItem objects
-  fetchFavorites: (userId: string) => void;
-  addFavorite: (userId: string, favoriteId: number) => void;
-  removeFavorite: (userId: string, favoriteId: number) => void;
+  fetchFavorites: (userId: string) => Promise<void>;
+  addFavorite: (userId: string, favoriteId: number) => Promise<void>;
+  removeFavorite: (userId: string, favoriteId: number) => Promise<void>;
   isFavorite: (id: number) => boolean;
   resetFavorites: () => void;
 }
@@ -392,15 +391,17 @@ export interface CartItem {
 interface CartStorage {
   cart: CartItem[];
   checkOutCartItems: CartItem[];
-  fetchCart: (userId: string) => void;
-  addToCart: (userId: string, cartItem: CartItem) => void;
-  removeFromCart: (userId: string, cartItemId: number, cartItemSize: number, cartItemQty: number, cartItemPrice: string) => void;
-  updateQuantity: (userId: string, cartItemId: number, cartItemQty: number, cartItemSize: number, cartItemPrice: string) => void;
+  fetchCart: (userId: string) => Promise<void>;
+  addToCart: (userId: string, cartItem: CartItem) => Promise<void>;
+  removeFromCart: (userId: string, cartItemId: number, cartItemSize: number, cartItemQty: number, cartItemPrice: string, noToastNotif?: boolean) => Promise<void>;
+  updateQuantity: (userId: string, cartItemId: number, cartItemQty: number, cartItemSize: number, cartItemPrice: string) => Promise<void>;
   addCheckOutCartItems: (cartItem: CartItem[]) => void;
   resetCart: () => void;
   resetCheckOutCartItems: () => void;
   totalItems: () => number;
   totalPrice: () => number;
+  checkOutTotalPrice: () => number;
+  checkOutTotalItems: () => number;
 }
 
 // Your Zustand store implementation
@@ -481,7 +482,7 @@ export const useCartStore = create<CartStorage>()(
             })
           }
         },
-        removeFromCart: async (userId: string, id: number, size: number, quantity: number, price: string) => {
+        removeFromCart: async (userId: string, id: number, size: number, quantity: number, price: string, noToastNotif?: boolean) => {
           try {
             // Remove the item from Firestore using arrayRemove with id, size, quantity, and price
             await firestore()
@@ -500,18 +501,22 @@ export const useCartStore = create<CartStorage>()(
             set({
               cart: get().cart.filter((item) => !(item.id === id && item.size === size && item.quantity === quantity && item.price === price))
             });
-            Toast.show({
-              type: 'success',
-              text1: 'Success',
-              text2: 'Item removed to cart successfully!',
-            })
+            if (!noToastNotif) {
+              Toast.show({
+                type: 'success',
+                text1: 'Success',
+                text2: 'Item removed to cart successfully!',
+              })
+            }
           } catch (error) {
             console.error('Error removing from cart:', error);
-            Toast.show({
-              type: 'error',
-              text1: 'Error',
-              text2: 'Removing item to cart unsuccessful!',
-            })
+            if (!noToastNotif) {
+              Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Removing item to cart unsuccessful!',
+              })
+            }
           }
         },
         updateQuantity: async (userId: string, cartItemId: number, cartItemQty: number, cartItemSize: number, cartItemPrice: string) => {
@@ -572,6 +577,13 @@ export const useCartStore = create<CartStorage>()(
             (total, item) => total + parseFloat(item.price) * item.quantity,
             0
           ),
+        checkOutTotalPrice: () => {
+          return get().checkOutCartItems.reduce(
+            (total, item) => total + parseFloat(item.price) * item.quantity, 0
+            )
+          },
+        checkOutTotalItems: () =>
+          get().checkOutCartItems.reduce((total, item) => total + item.quantity, 0),
       }),
       {
         name: 'USER_CART',
@@ -580,3 +592,122 @@ export const useCartStore = create<CartStorage>()(
     )
   )
 );
+
+
+export interface OrderItem {
+  orderId: string; // Order ID
+  userId: string; // ID of the user who placed the order
+  items: CartItem[]; // Items in the order
+  totalAmount: number; // Total price of the order
+  status: "pending" | "completed" | "cancelled"; // Order status
+  createdAt: string; // Timestamp of order creation
+}
+
+interface OrderStorage {
+  orders: OrderItem[];
+  fetchOrders: (userId: string) => Promise<void>;
+  addOrder: (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number) => Promise<void>;
+  updateOrderStatus: (userId: string, orderId: string, status: "pending" | "completed" | "cancelled") => Promise<void>;
+  resetOrders: () => void;
+}
+
+export const useOrderStore = create<OrderStorage>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        orders: [],
+
+        // Fetch orders for a specific user
+        fetchOrders: async (userId: string) => {
+          try {
+            const snapshot = await firestore()
+              .collection("user")
+              .doc(userId)
+              .get();
+
+            if (!snapshot.exists) {
+              console.log("No user found");
+              set({ orders: [] });
+              return;
+            }
+
+            const userOrders: OrderItem[] = snapshot.data()?.orders || [];
+            set({ orders: userOrders });
+          } catch (error) {
+            console.error("Error fetching orders:", error);
+          }
+        },
+
+        // Add a new order for the user
+        addOrder: async (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number) => {
+          try {
+            const newOrder: OrderItem = {
+              orderId, 
+              userId,
+              items: cartItems,
+              totalAmount,
+              status: "pending",
+              createdAt: new Date().toISOString(),
+            };
+
+            // Fetch user document and update orders
+            const userDocRef = firestore().collection("user").doc(userId);
+            
+
+            // Add the new order to the existing orders array
+            await userDocRef.update({
+              orders: firestore.FieldValue.arrayUnion(newOrder),
+            });
+
+            // Update local state
+            set((state) => ({
+              orders: [...state.orders, newOrder],
+            }));
+
+            console.log("Order placed successfully!");
+          } catch (error) {
+            console.error("Error adding order:", error);
+          }
+        },
+
+        // Update order status for a user
+        updateOrderStatus: async (userId: string, orderId: string, status: "pending" | "completed" | "cancelled") => {
+          try {
+            const userDocRef = firestore().collection("user").doc(userId);
+
+            // Fetch user document and update the status of the specific order
+            const userDoc = await userDocRef.get();
+            const orders = userDoc.data()?.orders || [];
+
+            const updatedOrders = orders.map((order: OrderItem) =>
+              order.orderId === orderId ? { ...order, status } : order
+            );
+
+            // Update Firestore with the modified orders array
+            await userDocRef.update({ orders: updatedOrders });
+
+            // Update local state
+            set((state) => ({
+              orders: updatedOrders,
+            }));
+
+            console.log(`Order ${orderId} status updated to ${status}`);
+          } catch (error) {
+            console.error("Error updating order status:", error);
+          }
+        },
+
+        // Reset all orders (local state only)
+        resetOrders: () => {
+          set({ orders: [] });
+        },
+      }),
+      {
+        name: "USER_ORDERS",
+        storage: createJSONStorage(() => AsyncStorage),
+      }
+    )
+  )
+);
+
+

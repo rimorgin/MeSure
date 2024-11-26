@@ -18,37 +18,6 @@ import * as WebBrowser from 'expo-web-browser';
 import { PurchasesCard } from '@/components/ThemedCard';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const data = [
-  {
-    id: 0,
-    name: 'to pay',
-    iconProvider: 'MaterialIcons',
-    iconName: 'payments',
-    link: 'payments'
-  },
-  {
-    id: 1,
-    name: 'to ship',
-    iconProvider: 'MaterialCommunityIcons',
-    iconName: 'shipping-pallet',
-    link: 'ship',
-  },
-  {
-    id: 2,
-    name: 'to receive',
-    iconProvider: 'MaterialIcons',
-    iconName: 'local-shipping',
-    link: 'receive'
-  },
-  {
-    id: 3,
-    name: 'to rate',
-    iconProvider: 'MaterialIcons',
-    iconName: 'star-rate',
-    link: 'rate'
-  }
-]
-
 const { width } = Dimensions.get('screen');
 
 export default function ProfileScreen() {
@@ -138,16 +107,7 @@ export default function ProfileScreen() {
       }
       >
         <ThemedView style={styles.mainContainer}>
-          <ThemedText type="default" style={{marginVertical:10}}>Purchases</ThemedText>  
-          <ThemedView style={styles.inventories}>
-            <FlatList
-              data={data}
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{justifyContent:'space-between'}}
-              renderItem={({item}) => <PurchasesCard item={item} isOdd={false}/>}
-            />
-          </ThemedView>
+         
           <ThemedText type="default" style={{marginVertical:10}}>Inventories</ThemedText>
           <ThemedView style={styles.inventories}>
             <Collapsible 
@@ -219,13 +179,13 @@ export default function ProfileScreen() {
                   style={{flexDirection:'row', gap: 10}}>
                 <ThemedTouchableFilled
                     variant='opacity'
-                    onPress={() => router.push('/(camera)')}
+                    onPress={() => router.navigate('/(camera)')}
                 >
                   <ThemedText type="default">Find size</ThemedText>
                 </ThemedTouchableFilled>
                 <ThemedTouchableFilled
                     variant='opacity'
-                    onPress={() => router.push('/(camera)')}
+                    onPress={() => router.navigate('/(camera)')}
                 >
                   <ThemedText type="default">Add Manually</ThemedText>
                 </ThemedTouchableFilled>
@@ -251,7 +211,7 @@ export default function ProfileScreen() {
                 </ThemedText>
                 <ThemedTouchableFilled
                     variant='opacity'
-                    onPress={() => router.push('/(auth)/(tabs)/')}
+                    onPress={() => router.navigate('/(auth)/(tabs)/')}
                 >
                   <ThemedText type="default">Browse now</ThemedText>
                 </ThemedTouchableFilled>
@@ -283,7 +243,7 @@ export default function ProfileScreen() {
             <ThemedDivider width={1.2}  opacity={0.1} marginY={3}/>
             <TouchableOpacity
               style={styles.button}
-              onPress={() => router.push('/(account)/')}
+              onPress={() => router.navigate('/(account)/')}
             >
               <MaterialCommunityIcons 
                 name="account-cog" 

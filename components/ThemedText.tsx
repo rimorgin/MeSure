@@ -15,11 +15,13 @@ export type ThemedTextProps = TextProps & {
   textAligned?: "auto" | "left" | "right" | "center" | "justify";
   font?: 
     | 'none' 
+    | 'borelRegular'
     | 'spaceMonoRegular' 
     | 'cocoGothicLight'
     | 'cocoGothicUltraLight'
     | 'cocoGothicRegular' 
     | 'cocoGothicBold' 
+    | 'emilysCandyRegular'
     | 'glacialIndifferenceRegular' 
     | 'glacialIndifferenceBold' 
     | 'glacialIndifferenceItalic'
@@ -30,7 +32,8 @@ export type ThemedTextProps = TextProps & {
     | 'montserratThin'
     | 'montserratMedium'
     | 'montserratBold'
-    | 'montserratSemiBold'; // Font type // Completed font list with all
+    | 'montserratSemiBold' 
+    | 'twinkleStarRegular'; // Font type // Completed font list with all
 };
 
 export function ThemedText({

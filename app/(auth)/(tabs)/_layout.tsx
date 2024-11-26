@@ -1,7 +1,7 @@
 import { Tabs, router } from 'expo-router';
 import { useEffect } from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
+import { Colors, darkBrown } from '@/constants/Colors';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { useCartStore, useIsAppFirstLaunchStore } from '@/store/appStore';
 import { Modal, StyleSheet } from 'react-native';
@@ -73,7 +73,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="favorites"
           options={{
-            title: 'Favorites',
+            title: 'Wishlist',
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon
                 name={focused ? 'heart' : 'heart-outline'}
@@ -98,6 +98,7 @@ export default function TabLayout() {
           name="(account)"
           options={{
             tabBarButton:() => null,
+            tabBarStyle: { display: 'none' },
           }}
         />
         {/* 
@@ -171,7 +172,7 @@ const styles = StyleSheet.create({
     height: 60, // Adjust height as needed
     borderRadius: 30, // Makes it fully rounded
     paddingBottom: 6,
-    backgroundColor: 'white', // Customize the background
+    backgroundColor: darkBrown, // Customize the background
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.1,

@@ -33,6 +33,7 @@ export default function CameraApp() {
   const [showBodyPartDialog, setShowBodyPartDialog] = useState(false);
   const [showCoinDialog, setShowCoinDialog] = useState(false);
   const [inputFocus, setInputFocus] = useState(false);
+  const { userId } = useUserStore();
   const { setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
   const userFullName = useUserStore((state) => state.userFullName);
 
@@ -94,8 +95,8 @@ export default function CameraApp() {
       setPhoto(`data:image/jpeg;base64,${data.processed_image}`);
       //console.log(data.hand_label)
     }
-    if (data?.finger_measurement) {
-      const measurements = data.finger_measurement;
+    if (bodyPart === 'fingers') {
+      const measurements = data?.finger_measurement;
       
       // Assuming finger_measurement array order is: pinky, ring, middle, index, thumb
       if (data?.hand_label === 'Left') {
@@ -115,10 +116,15 @@ export default function CameraApp() {
           thumb: parseFloat(measurements[0]).toFixed(2).toString(),
         });
       }
+    } else if (bodyPart === 'wrist') {
+      const measurement = data?.wrist_measurement;
+      //console.log(data)
+      setWristSize(parseFloat(measurement).toFixed(2).toString());
     }
     setLoading(false);
     setMeasured(true)
-    console.log(fingerSizes)
+    //console.log(fingerSizes)
+    //console.log(wristSize)
   };
 
 
@@ -130,13 +136,15 @@ export default function CameraApp() {
     }));
   };
   
-  const handleFinishedMeasurement = () => {
+  const handleFinishedMeasurement = async () => {
+    setLoading(true);
     if (bodyPart === 'fingers') {
-      setFingerMeasurements(fingerSizes)
+      await setFingerMeasurements(userId, fingerSizes)
     } else {
-      setWristMeasurement(wristSize)
+      await setWristMeasurement(userId, wristSize)
     }
-    router.push('/(auth)/(tabs)/profile')
+    setLoading(false);
+    router.navigate('/(auth)/(tabs)/profile')
   }
   const handleSaveImage = async () => {
     await saveImageToGallery(photo, userFullName || 'image', bodyPart)
@@ -199,7 +207,7 @@ export default function CameraApp() {
         <>
           <TouchableOpacity 
             style={{top:50, left:0, position:'absolute', zIndex:1}}
-            onPress={() => router.push('/profile')}
+            onPress={() => router.navigate('/profile')}
           >
             <Ionicons 
               name='chevron-back' 
@@ -355,7 +363,7 @@ export default function CameraApp() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={{top:50, left:0, position:'absolute', zIndex:2}}
-            onPress={() => router.push('/profile')}
+            onPress={() => router.navigate('/profile')}
           >
             <Ionicons 
               name='chevron-back' 
