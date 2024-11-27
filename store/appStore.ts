@@ -4,40 +4,25 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
 import Toast from 'react-native-toast-message';
 
-interface shippingDetails {
-  firstNname: string;
-  lastName: string,
-  contact: string;
-  street: string;
-  streetNo: string;
-  aptSuiteEtc: string;
-  city: string;
-  state: string;
-  country: string;
-  zip: string;
-}
-interface userId {
+
+interface user {
   userId: string;
   userFullName?: string; 
   firstTimeUser: boolean;
-  shippingDetails: shippingDetails[];
   setUserId: (userId: string) => void;
   setUserFullName: (userFullName: string) => void;
   setFirstTimeUser: (firstTimeUser: boolean) => void;
   getUserFullName: (userId: string) => void;
   resetUserId: () => void;
-  setShippingDetails: (shippingDetails: shippingDetails[]) => void;
-  removeShippingDetails: () => void;
 }
 
-export const useUserStore = create<userId>()(
+export const useUserStore = create<user>()(
   devtools(
     persist(
-      (set) => ({
+      (set, get) => ({
         userId: '',
         userFullName: '',
         firstTimeUser: false,
-        shippingDetails: [],
         setUserId: (userId: string) => set({ userId }),
         setUserFullName: (userFullName: string) => set({ userFullName }),
         setFirstTimeUser(firstTimeUser) {
@@ -52,10 +37,6 @@ export const useUserStore = create<userId>()(
           set({userFullName: userFullName})
         },
         resetUserId:() =>  set({ userId: '' }),
-        setShippingDetails: (shippingDetails: shippingDetails[]) => {
-          set({ shippingDetails: shippingDetails })
-        },
-        removeShippingDetails: () => set({ shippingDetails: [] }),
       }),
       {
         name: 'USER_ID', // Unique name for the storage
@@ -712,4 +693,118 @@ export const useOrderStore = create<OrderStorage>()(
   )
 );
 
+interface shippingAddress {
+  fullName: string;
+  contactNo: string;
+  addressType: string;
+  defaultAddress: boolean;
+  streetBldgHouseNo: string;
+  postalCode: string;
+  rpcb: string; // Region, province, city, barangay
+}
 
+interface shippingDetailsStore {
+  shippingDetails: shippingAddress[]; 
+  fetchShippingDetails: (userId: string) => Promise<void>;
+  addShippingDetails: (userId: string, newShippingAddress: shippingAddress[]) => Promise<void>;
+  removeShippingDetails: (userId: string, shippingAddressToRemove: shippingAddress) => Promise<void>;
+  updateShippingDetails: (userId: string, updatedShippingAddress: shippingAddress) => Promise<void>;
+}
+
+export const useShippingDetailsStore = create<shippingDetailsStore>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        shippingDetails: [], // Initialize as an empty array of shippingAddress
+        fetchShippingDetails: async (userId: string) => {
+          try {
+            const snapshot = await firestore()
+              .collection("user")
+              .doc(userId)
+              .get();
+
+            if (!snapshot.exists) {
+              console.log("No user found");
+              set({ shippingDetails: [] });
+              return;
+            }
+
+            const userShippingDetails: shippingAddress[] = snapshot.data()?.shippingDetails || [];
+            set({ shippingDetails: userShippingDetails });
+          } catch (error) {
+            console.error("Error fetching orders:", error);
+          }
+        },
+        // Add new shipping details
+        addShippingDetails: async (userId: string, newShippingDetails: shippingAddress[]) => {
+          await firestore()
+            .collection('user')
+            .doc(userId)
+            .update({
+              shippingDetails: firestore.FieldValue.arrayUnion(...newShippingDetails)
+            })
+            .then(() => {
+              const { shippingDetails } = get();
+              set({
+                shippingDetails: [...shippingDetails, ...newShippingDetails]
+              });
+            });
+        },
+
+        // Remove shipping details
+        removeShippingDetails: async (userId: string, shippingDetailsToRemove: shippingAddress) => {
+          await firestore()
+            .collection('user')
+            .doc(userId)
+            .update({
+              shippingDetails: firestore.FieldValue.arrayRemove(shippingDetailsToRemove)
+            })
+            .then(() => {
+              const { shippingDetails } = get();
+              set({
+                shippingDetails: shippingDetails.filter(
+                  (item) => item.postalCode !== shippingDetailsToRemove.postalCode
+                )
+              });
+            });
+        },
+
+        // Update existing shipping details
+        updateShippingDetails: async (userId: string, updatedShippingDetail: shippingAddress) => {
+          const { shippingDetails } = get();
+          
+          // Remove the old shipping address from Firestore
+          await firestore()
+            .collection('user')
+            .doc(userId)
+            .update({
+              shippingDetails: firestore.FieldValue.arrayRemove(
+                shippingDetails.find((item) => item.postalCode === updatedShippingDetail.postalCode)
+              )
+            });
+
+          // Add the updated shipping address to Firestore
+          await firestore()
+            .collection('user')
+            .doc(userId)
+            .update({
+              shippingDetails: firestore.FieldValue.arrayUnion(updatedShippingDetail)
+            })
+            .then(() => {
+              set({
+                shippingDetails: shippingDetails.map((item) =>
+                  item.postalCode === updatedShippingDetail.postalCode
+                    ? updatedShippingDetail
+                    : item
+                )
+              });
+            });
+        }
+      }),
+      {
+        name: 'SHIPPING_DETAILS', // Unique name for the storage
+        storage: createJSONStorage(() => AsyncStorage), // Use AsyncStorage for persistence
+      }
+    )
+  )
+);

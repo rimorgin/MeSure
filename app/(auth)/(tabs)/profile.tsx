@@ -16,7 +16,7 @@ import { router } from 'expo-router';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import * as WebBrowser from 'expo-web-browser';
 import { PurchasesCard } from '@/components/ThemedCard';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('screen');
 
@@ -107,9 +107,54 @@ export default function ProfileScreen() {
       }
       >
         <ThemedView style={styles.mainContainer}>
-         
+          <ThemedText type="default" style={{marginVertical:10}}>Purchases</ThemedText>
+          <ThemedView style={styles.buttonContainers}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => router.navigate('/(account)/(purchases)/(orders)')}
+            >
+              <ThemedView
+                transparent
+                style={{flexDirection: 'row', gap: 10}}
+              >
+                <Ionicons
+                  name='receipt'
+                  size={22}
+                  color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+                />
+                <ThemedText>Your orders</ThemedText>
+              </ThemedView>
+              <Ionicons
+                name='chevron-forward'
+                size={18}
+                color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+              />
+            </TouchableOpacity>
+            <ThemedDivider width={1.2} opacity={0.1} marginY={5}/>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => router.navigate('/(account)/(purchases)/reviews')}
+            >
+              <ThemedView
+                transparent
+                style={{flexDirection: 'row', gap: 10}}
+              >
+                <MaterialIcons 
+                  name="reviews" 
+                  size={22} 
+                  color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+                />
+                <ThemedText>Your reviews</ThemedText>
+              </ThemedView>
+              <Ionicons
+                name='chevron-forward'
+                size={18}
+                color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+              />
+            </TouchableOpacity>
+          </ThemedView>
           <ThemedText type="default" style={{marginVertical:10}}>Inventories</ThemedText>
-          <ThemedView style={styles.inventories}>
+          <ThemedView style={styles.buttonContainers}>
             <Collapsible 
               transparent
               icon='resize'
@@ -220,17 +265,22 @@ export default function ProfileScreen() {
             
           </ThemedView>
           <ThemedText type="default" style={{marginVertical:10}}>Preferences</ThemedText>
-          <ThemedView style={styles.inventories}>
+          <ThemedView style={styles.buttonContainers}>
             <TouchableOpacity
               style={styles.button}
               onPress={handleToggleScheme}
             >
-              <Ionicons
-                name={theme === 'light' ? 'sunny' : 'moon'}
-                size={25}
-                color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
-              />
-              <ThemedText type="default">Theme</ThemedText>
+              <ThemedView
+                transparent
+                style={{flexDirection: 'row', gap: 10}}
+              >
+                <Ionicons
+                  name={theme === 'light' ? 'sunny' : 'moon'}
+                  size={25}
+                  color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+                />
+                <ThemedText type="default">Theme</ThemedText>
+              </ThemedView>
               <Switch
                 trackColor={{ false: '#767577', true: '#563126' }}
                 thumbColor={isEnabled ? '#f5dd4b' : '#f4f3f4'}
@@ -245,12 +295,22 @@ export default function ProfileScreen() {
               style={styles.button}
               onPress={() => router.navigate('/(account)/')}
             >
-              <MaterialCommunityIcons 
-                name="account-cog" 
-                size={25} 
-                color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
-              />
-              <ThemedText type="default">Account Settings</ThemedText>
+              <ThemedView
+                transparent
+                style={{flexDirection: 'row', gap: 10}}
+              >
+                <MaterialCommunityIcons 
+                  name="account-cog" 
+                  size={25} 
+                  color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+                />
+                <ThemedText type="default">Account Settings</ThemedText>
+              </ThemedView>
+               <Ionicons
+                  name='chevron-forward'
+                  size={18}
+                  color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+                />
             </TouchableOpacity>
            
             <ThemedDivider width={1.2}  opacity={0.1} marginY={3}/>
@@ -258,15 +318,24 @@ export default function ProfileScreen() {
               style={styles.button}
               onPress={handleSignOut}
             >
+              <ThemedView transparent style={{flexDirection:'row', gap: 10}}>
+                <Ionicons
+                  name='log-out'
+                  size={25}
+                  color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+                />
+                <ThemedText type="default">Logout</ThemedText>
+               </ThemedView>
               <Ionicons
-                name='log-out'
-                size={25}
+                name='chevron-forward'
+                size={18}
                 color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
               />
-              <ThemedText type="default">Logout</ThemedText>
             </TouchableOpacity>
-
-            <TouchableOpacity
+            {/* 
+            <ThemedDivider />
+            
+             <TouchableOpacity
               style={styles.button}
               onPress={resetApp}
             >
@@ -277,7 +346,8 @@ export default function ProfileScreen() {
               />
               <ThemedText type="default">RESET // debugging only</ThemedText>
             </TouchableOpacity>
-            <ThemedView transparent> 
+
+             <ThemedView transparent> 
               <ThemedText
                 style={{ marginBottom: 10 }}
               >
@@ -289,16 +359,6 @@ export default function ProfileScreen() {
                 <ThemedText type='link'>sample external in-app web</ThemedText>
               </TouchableOpacity>
             </ThemedView>
-            {/* 
-            <ThemedDivider />
-            
-            <TouchableOpacity
-              style={styles.button}
-              onPress={resetApp}
-            >
-            
-              <ThemedText type="default">Reset First Launch</ThemedText>
-            </TouchableOpacity>
             */}
           </ThemedView>
         </ThemedView>
@@ -313,7 +373,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingBottom: 65
   },
-  inventories: {
+  buttonContainers: {
     alignItems:'flex-start',
     gap: 8,
     backgroundColor: '#F1F0F0',
@@ -358,10 +418,18 @@ const styles = StyleSheet.create({
   },
   button: {
     padding: 5,
-    marginLeft: 5,
+    paddingHorizontal: 8,
     gap: 8,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%'
+  },
+  row: {
+    flexDirection:'row', 
+    justifyContent: 
+    'space-between', 
+    alignItems:'center',
     width: '100%'
   }
 });

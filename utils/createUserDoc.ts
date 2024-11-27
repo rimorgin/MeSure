@@ -10,7 +10,7 @@ interface userDoc {
   cart?: [];
   favorites?: [];
   shippingDetails?: [];
-  orders:[];
+  orders?:[];
   measurements?: Record<string, any>; // Generic object type for measurements
 }
 
@@ -62,7 +62,7 @@ export async function createUserDoc({
       .doc(authId)
       .set(userDocData);
 
-    console.log('User document created successfully:', authId);
+    //console.log('User document created successfully:', authId);
   } catch (error) {
     console.error('Error creating user document:', error);
     throw error; // Optionally rethrow the error for upstream handling

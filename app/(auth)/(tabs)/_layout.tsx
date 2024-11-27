@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors, darkBrown } from '@/constants/Colors';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
-import { useCartStore, useIsAppFirstLaunchStore } from '@/store/appStore';
+import { useIsAppFirstLaunchStore } from '@/store/appStore';
 import { Modal, StyleSheet } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
@@ -94,14 +94,15 @@ export default function TabLayout() {
             ),
           }}
         />
+        {/*
         <Tabs.Screen
           name="(account)"
           options={{
             tabBarButton:() => null,
-            tabBarStyle: { display: 'none' },
+            tabBarStyle: { display: 'none' },``
           }}
         />
-        {/* 
+         
         <Tabs.Screen
           name="cart"
           options={{

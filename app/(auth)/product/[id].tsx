@@ -192,7 +192,7 @@ const { width, height } = Dimensions.get('screen');
             />
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={() => router.navigate('/(extras)/cart')}>
+            onPress={() => router.navigate('/(account)/(cart)/')}>
             <Ionicons
               name="cart-outline"
               size={40}

@@ -72,8 +72,10 @@ export default function PermissionsScreen() {
         <ThemedText>Used for saving, viewing and more.</ThemedText>
         </View>
         <Switch
-        trackColor={{ true: "orange" }}
+        trackColor={{ false: '#767577', true: '#563126' }}
+        thumbColor={mediaLibraryPermission?.granted ? '#f5dd4b' : '#f4f3f4'}
         value={mediaLibraryPermission?.granted}
+        ios_backgroundColor="#3e3e3e"
         // @ts-ignore
         onChange={async () => await requestMediaLibraryPermission()}
         />
@@ -89,7 +91,9 @@ export default function PermissionsScreen() {
         <ThemedText>Used for taking photos, measuring finger sizes, and try ons.</ThemedText>
         </View>
         <Switch
-        trackColor={{ true: "orange" }}
+        trackColor={{ false: '#767577', true: '#563126' }}
+        thumbColor={cameraPermissionStatus === "granted" ? '#f5dd4b' : '#f4f3f4'}
+        ios_backgroundColor="#3e3e3e"
         value={cameraPermissionStatus === "granted"}
         onChange={requestCameraPermission}
         />

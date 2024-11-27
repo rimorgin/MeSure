@@ -4,7 +4,7 @@ import { Alert } from "react-native";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import auth from '@react-native-firebase/auth'
-import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useUserStore, useUserMeasurementStorage } from "@/store/appStore";
+import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useUserStore, useUserMeasurementStorage, useOrderStore } from "@/store/appStore";
 import { createUserDoc } from "@/utils/createUserDoc";
 
 const AuthContext = React.createContext<{
@@ -64,7 +64,8 @@ export function SessionProvider(props: React.PropsWithChildren) {
   const { setEmailAndFirstLaunch } = useIsAppFirstLaunchStore();
   const { resetMeasurements } = useUserMeasurementStorage();
   const { resetFavorites } = useFavoritesStore();
-  const { resetCart } = useCartStore();
+  const { resetCart, resetCheckOutCartItems } = useCartStore();
+  const { resetOrders } = useOrderStore();
 
   return (
     <AuthContext.Provider
@@ -85,7 +86,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
                   text2: `Welcome back, ${user}!`
                 });
               }
-              router.navigate('/');
+              router.replace('/(auth)/(tabs)');
             })
             .catch((error) => {
               const errorMsg = getErrorMessage(error.code);
@@ -104,7 +105,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
               setUserId(uid);
               //set this to true to prevent fetching data to first time users
               setFirstTimeUser(true); 
-              await createUserDoc({authId: uid, email, username, name: userFullName });
+              await createUserDoc({authId: uid, email: email, username: username, name: userFullName, });
               if (userSessionToken) setSession(userSessionToken);
               Toast.show({
                 type: 'success',
@@ -124,6 +125,8 @@ export function SessionProvider(props: React.PropsWithChildren) {
           resetMeasurements();
           resetFavorites();
           resetCart();
+          resetCheckOutCartItems();
+          resetOrders();
           resetUserId();
           setFirstTimeUser(false); //ensure this correctly sets
           setSession(null);

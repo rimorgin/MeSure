@@ -1,6 +1,6 @@
 import { Redirect, Stack } from 'expo-router';
 import { useSession } from '@/provider/AuthContext';
-import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useUserStore } from '@/store/appStore';
+import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useOrderStore, useShippingDetailsStore, useUserMeasurementStorage, useUserStore } from '@/store/appStore';
 import { useEffect, useState } from 'react';
 import { ThemedView } from '@/components/ThemedView';
 import { Image } from 'react-native';
@@ -11,23 +11,43 @@ export default function AppLayout() {
   const firstTimeUser = useUserStore((state) => state.firstTimeUser);
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
   const { getUserFullName } = useUserStore();
+  const { fetchMeasurements } = useUserMeasurementStorage();
   const { fetchFavorites } = useFavoritesStore();
   const { fetchCart } = useCartStore();
+  const { fetchOrders } = useOrderStore();
+  const { fetchShippingDetails } = useShippingDetailsStore();
   const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
-    if (userId && !firstTimeUser) {
-      fetchFavorites(userId);
-      fetchCart(userId);
-      setFetching(true)
-    } 
-    if (userId){
-      //load the defaults
-      getUserFullName(userId);
-      setFetching(true)
+    const fetchAsync = async () => {
+      await fetchMeasurements(userId);
+      await fetchFavorites(userId);
+      await fetchCart(userId);
+      await fetchOrders(userId);
+      await fetchShippingDetails(userId);
+      //fetchShippingDeets if needed
     }
-    setFetching(false)
-  },[userId, firstTimeUser])
+
+    if (userId && !firstTimeUser) {
+      setFetching(true);
+      fetchAsync();
+    }
+
+    if (userId) {
+      // Load the defaults
+      getUserFullName(userId);
+      setFetching(true);
+    }
+
+    // Set a timeout to set fetching to false after 3 seconds
+    const timer = setTimeout(() => {
+      setFetching(false);
+    }, 3000); // 3000 milliseconds (3 seconds)
+
+    // Cleanup timeout when effect reruns or when the component unmounts
+    return () => clearTimeout(timer);
+
+  }, [userId, firstTimeUser]);
 
   // You can keep the splash screen open, or render a loading screen like we do here.
   if (isLoading) {
@@ -69,6 +89,7 @@ export default function AppLayout() {
         animation: 'fade_from_bottom'
       }}
     >
+      <Stack.Screen name="(tabs)" />
       <Stack.Screen
         name="landing"
         options={{
@@ -76,9 +97,8 @@ export default function AppLayout() {
           headerShown: false,
         }}
       />
-      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="(account)" />
       <Stack.Screen name="(camera)" />
-      <Stack.Screen name="(extras)" />
       <Stack.Screen name="product/[id]" />
     </Stack>
   );

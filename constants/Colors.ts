@@ -10,6 +10,7 @@ export const white = '#fff'
 export const black = '#1c1c1d'
 export const darkBrown = '#301713'
 export const mustard = '#D4AF37';
+export const bg = '#F8F4EC'
 
 export const Colors = {
   light: {
