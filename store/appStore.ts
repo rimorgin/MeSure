@@ -601,12 +601,13 @@ export interface OrderItem {
   totalAmount: number; // Total price of the order
   status: "pending" | "completed" | "cancelled"; // Order status
   createdAt: string; // Timestamp of order creation
+  ETA: string;
 }
 
 interface OrderStorage {
   orders: OrderItem[];
   fetchOrders: (userId: string) => Promise<void>;
-  addOrder: (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number) => Promise<void>;
+  addOrder: (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number, ETA: string) => Promise<void>;
   updateOrderStatus: (userId: string, orderId: string, status: "pending" | "completed" | "cancelled") => Promise<void>;
   resetOrders: () => void;
 }
@@ -639,7 +640,7 @@ export const useOrderStore = create<OrderStorage>()(
         },
 
         // Add a new order for the user
-        addOrder: async (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number) => {
+        addOrder: async (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number, ETA: string) => {
           try {
             const newOrder: OrderItem = {
               orderId, 
@@ -648,6 +649,7 @@ export const useOrderStore = create<OrderStorage>()(
               totalAmount,
               status: "pending",
               createdAt: new Date().toISOString(),
+              ETA: ETA
             };
 
             // Fetch user document and update orders

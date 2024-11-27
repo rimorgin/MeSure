@@ -105,7 +105,7 @@ export default function OrderSummaryDetails() {
               >Adam Smith
               </ThemedText>
               <ThemedText 
-                font='itcNewBaskerville' 
+                font='glacialIndifferenceRegular' 
                 customColor='white'
               >B2 L16 Matsui St.
               </ThemedText>
@@ -117,7 +117,7 @@ export default function OrderSummaryDetails() {
               >+63 976 039 2028
               </ThemedText>
               <ThemedText 
-                font='itcNewBaskerville' 
+                font='glacialIndifferenceRegular' 
                 customColor='white'
               >Brgy. Dolores
               </ThemedText>
@@ -129,7 +129,7 @@ export default function OrderSummaryDetails() {
               >calvscalderonx@gmail.com
               </ThemedText>
               <ThemedText 
-                font='itcNewBaskerville' 
+                font='glacialIndifferenceRegular' 
                 customColor='white'
               >Taytay, Rizal
               </ThemedText>
@@ -141,7 +141,7 @@ export default function OrderSummaryDetails() {
               >
               </ThemedText>
               <ThemedText 
-                font='itcNewBaskerville' 
+                font='glacialIndifferenceRegular' 
                 customColor='white'
               >(1920)
               </ThemedText>

@@ -45,10 +45,10 @@ export default function Checkout() {
     const orderId = makeid(10);
     console.log(orderId)
     if (selectedOption!==null) {
-      await addOrder(userId, orderId, checkOutCartItems, jatot)
+      await addOrder(userId, orderId, checkOutCartItems, jatot, ETA)
       checkOutCartItems.map(async (item) => {
         console.log(item)
-        await removeFromCart(userId, item.id, item.size, item.quantity, item.price)
+        await removeFromCart(userId, item.id, item.size, item.quantity, item.price, true)
       })
       router.push(`/(auth)/(extras)/ordersummary?orderId=${orderId}&paymentMethod=${selectedOption}&totalPrice=${jatot}&ETA=${ETA}&totalItems=${totalItems}`)
     } else {
