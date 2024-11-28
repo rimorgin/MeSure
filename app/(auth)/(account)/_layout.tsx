@@ -26,7 +26,7 @@ export default function AccountLayout() {
             return (
               <TouchableOpacity 
                 style={{left:20}}
-                onPress={() => router.back()}
+                onPress={() => router.replace('/(auth)/(tabs)/profile')}
               >
                 <Ionicons
                   name="chevron-back"

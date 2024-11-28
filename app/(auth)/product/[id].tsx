@@ -14,8 +14,8 @@ import ThemedDivider from '@/components/ThemedDivider';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { useCartStore, useFavoritesStore, useUserStore } from '@/store/appStore';
-import { ratingStars } from '@/utils/ratings';
 import ThemedModal from '@/components/ThemedModal';
+import RatingStars from '@/components/ratingsStars';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -302,14 +302,21 @@ const { width, height } = Dimensions.get('screen');
                   font='montserratRegular' 
                   type='default'
                   lightColor='#301713'
-                  style={{letterSpacing:1, marginTop:5}}
+                  style={{letterSpacing:1, marginVertical:5}}
                   >PRODUCT RATING
                 </ThemedText>
+                {/* 
                 <ThemedText 
                   type='semititle'
                   lightColor='#5B3A14'
                   >{ratingStars(product.rating)}
                 </ThemedText>
+                */}
+                <RatingStars 
+                  size={24}
+                  rating={product.rating}
+
+                />
               </ThemedView>
               <TouchableOpacity
                 activeOpacity={0.9}
