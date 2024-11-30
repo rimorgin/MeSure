@@ -1,25 +1,22 @@
+import React, { PropsWithChildren, useState, useEffect, useRef } from 'react';
+import { Animated, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { PropsWithChildren, useState, useEffect, useRef } from 'react'; 
-import { Animated, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 
-
 type IoniconName = 
   | 'search' | 'repeat' | 'link' | 'at' | 'push' | 'map' | 'filter' | 'key' | 'scale' | 'image' 
   | 'text' | 'alert' | 'checkbox' | 'menu' | 'radio' | 'timer' | 'close' | 'book' | 'pause' | 'resize' | 'hand-right'
-  | 'chevron-forward-outline' // You can add more icon names as needed from Ionicons
-  // Add other icon names that you plan to use...
-;
+  | 'chevron-forward-outline';
 
 interface CollapsibleProps {
   title: string;
   transparent?: boolean;
   icon?: IoniconName;
-  height?: number;
+  height?: number | 'auto';
   dropdownIconPlacement?: 'left' | 'right';
 }
 
@@ -32,25 +29,35 @@ export function Collapsible({
   dropdownIconPlacement = 'right',
 }: PropsWithChildren<CollapsibleProps>) {
   const [isOpen, setIsOpen] = useState(false);
+  const [contentHeight, setContentHeight] = useState(0); // To store measured height
   const theme = useColorSchemeTheme() ?? 'light';
 
-  // Animated value for rotation
+  // Animated value for rotation and height
   const rotationAnim = useRef(new Animated.Value(0)).current;
-  const heightAnim = useRef(new Animated.Value(0)).current; // Animated height
+  const heightAnim = useRef(new Animated.Value(0)).current;
 
-  // Effect to run animation when isOpen changes
+  // Measure the height of the content once when it is rendered
+  const handleContentLayout = (event: any) => {
+    const measuredHeight = event.nativeEvent.layout.height;
+    if (measuredHeight !== contentHeight) {
+      setContentHeight(measuredHeight); // Save measured height
+    }
+  };
+
+  // Effect to handle animations
   useEffect(() => {
-    // Rotate icon when toggling open/close
+    const animationDuration = 150; // Adjust duration for faster animations
+
+    // Run animations based on `isOpen`
     Animated.timing(rotationAnim, {
       toValue: isOpen ? 1 : 0,
-      duration: 200,
+      duration: animationDuration,
       useNativeDriver: true,
     }).start();
 
-    // Animate height of content when toggling open/close
     Animated.timing(heightAnim, {
       toValue: isOpen ? 1 : 0,
-      duration: 300,
+      duration: animationDuration,
       useNativeDriver: false, // height cannot be animated with native driver
     }).start();
   }, [isOpen]);
@@ -65,7 +72,7 @@ export function Collapsible({
   const animatedContentStyle = {
     height: heightAnim.interpolate({
       inputRange: [0, 1],
-      outputRange: [0, height], // Adjust 100 to the maximum height for content
+      outputRange: [0, height === 'auto' ? contentHeight : height], // Use dynamic height if 'auto'
     }),
     opacity: heightAnim, // Fading effect while expanding/collapsing
   };
@@ -81,27 +88,24 @@ export function Collapsible({
           },
         ]}
         onPress={() => setIsOpen((value) => !value)}
-        activeOpacity={0.8}
       >
-        {/* PLACE THE ICON HERE iF PRESENT */
-          icon ? (
-          <ThemedView 
+        {/* Title and Icon */}
+        {icon ? (
+          <ThemedView
             transparent
-            style={{gap:5, flexDirection:'row', alignItems:'center'}}
+            style={{ gap: 5, flexDirection: 'row', alignItems: 'center' }}
           >
-            <Ionicons 
+            <Ionicons
               name={icon}
               size={25}
               color={theme === 'light' ? '#301713' : '#9BA1A6'}
               style={styles.icon}
-            
             />
             <ThemedText type="defaultSemiBold">{title}</ThemedText>
           </ThemedView>
-          ) : (
+        ) : (
           <ThemedText type="defaultSemiBold">{title}</ThemedText>
-          )
-        }
+        )}
         {dropdownIconPlacement === 'right' && (
           <Animated.View style={{ transform: [{ rotate: rotateChevron }] }}>
             <Ionicons
@@ -116,7 +120,10 @@ export function Collapsible({
 
       {/* Animated content container */}
       <Animated.View style={[styles.content, animatedContentStyle]}>
-        {isOpen && children}
+        {/* Measure content only once */}
+        <View onLayout={handleContentLayout}>
+          {children}
+        </View>
       </Animated.View>
     </ThemedView>
   );

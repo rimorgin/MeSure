@@ -10,39 +10,74 @@ import ThemedDivider from '@/components/ThemedDivider'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { ThemedTouchableFilled } from '@/components/ThemedButton'
+import { useAddressFormStore, useShippingDetailsStore, useUserStore } from '@/store/appStore'
+import { makeid } from '@/utils/makeId'
+import Loader from '@/components/Loader'
 
 const { width, height } = Dimensions.get('screen')
 
 export default function AddNewAddress() {
   const { newRpcb } = useLocalSearchParams<{newRpcb: string}>()
   const theme = useColorSchemeTheme();
+  const { userId } = useUserStore();
+  const { addShippingDetails } = useShippingDetailsStore();
+  /*
   const [fullName, setFullName] = useState('');
   const [contactNo, setContactNo] = useState('');
   //region, province, city, barangay (RPCB)
   const [rpcb, setRpcb] = useState(newRpcb);
   const [postalCode, setPostalCode] = useState('');
   const [streetBldgHouseNo, setStreetBldgHouseNo] = useState('');
-  const [addressType, setAddressType] = useState<'home' | 'work'>();
+  const [addressType, setAddressType] = useState<'home' | 'work' | undefined>();
   const [defaultAddress, setDefaultAddress] = useState(false);
+  */
+  const [loading, setLoading] = useState(false);
+  const { fullName, contactNo, rpcb, postalCode, streetBldgHouseNo, addressType, defaultAddress, setField, resetShippingAddressForm } = useAddressFormStore();
 
-  const toggleSwitch = () => setDefaultAddress(previousState => !previousState);
+  useEffect(() => {
+    if (newRpcb) {
+      setField('rpcb', newRpcb)
+    } else {
+      resetShippingAddressForm();
+    }
+  },[newRpcb, setField])
 
-  const submit = async() => {
+  const toggleSwitch = () => setField('defaultAddress', !defaultAddress);
+
+  const handleAddressTypeChange = (type: 'home' | 'work') => {
+    setField('addressType', type);
+  };
+
+  const submit = async () => {
+    if (!fullName || !contactNo || !rpcb || !postalCode || !streetBldgHouseNo) {
+      console.error("Please fill all required fields.");
+      return;
+    }
+    setLoading(true);
+    const id = await makeid(5);
     const data = {
+      id,
       fullName,
       contactNo,
       rpcb,
       postalCode,
       streetBldgHouseNo,
-      addressType,
-      defaultAddress
-    }
-    console.log(data)
-  }
+      addressType: addressType ? addressType : 'home',
+      defaultAddress,
+    };
+    //console.log(data);
+    await addShippingDetails(userId, data);
+    setLoading(false);
+    resetShippingAddressForm();
+    router.back();
+
+  };
 
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: theme === 'light' ? Colors.light.background : Colors.dark.background,}]}>
-      <FocusAwareStatusBar barStyle="dark-content" animated />
+    <>
+    {loading && <Loader/>}
+    <ThemedView style={styles.container}>
+      <FocusAwareStatusBar barStyle={theme === 'light' ? 'dark-content' : 'light-content'} animated />
       <KeyboardAvoidingView style={{flex:1}}>
       <TouchableWithoutFeedback  
         onPress={() => Keyboard.dismiss()} 
@@ -58,7 +93,7 @@ export default function AddNewAddress() {
       <ThemedView style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          onChangeText={setFullName}
+          onChangeText={(text) => setField('fullName', text)}
           value={fullName}
           placeholder="Full name"
           placeholderTextColor={darkBrown}
@@ -67,7 +102,7 @@ export default function AddNewAddress() {
         <TextInput
           keyboardType='number-pad'
           style={styles.input}
-          onChangeText={setContactNo}
+          onChangeText={(text) => setField('contactNo', text)}
           value={contactNo}
           placeholder="Phone number"
           placeholderTextColor={darkBrown}
@@ -85,28 +120,29 @@ export default function AddNewAddress() {
         <TouchableOpacity
           style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}
           onPress={() => {
-            router.push('/(account)/(addresses)/selectregion?routeBack=addnewaddress')
+            router.replace('/(account)/(addresses)/selectregion?routeBack=addnewaddress')
           }}
         >
           <TextInput
             style={[styles.input, {width:'auto'}]}
-            onChangeText={setRpcb}
+            onChangeText={(text) => setField('rpcb', text)}
             value={rpcb}
             placeholder="Region, Province, City, Barangay"
             placeholderTextColor={darkBrown}
+            readOnly={!rpcb ? true : false}
             
           />
-          <Ionicons 
+          <Ionicons
             name='chevron-forward'
             size={20}
-            color={darkBrown}
+            color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
           />
         </TouchableOpacity>
         <ThemedDivider width={0.2} opacity={0.2} marginY={2}/>
         <TextInput
           keyboardType='number-pad'
           style={styles.input}
-          onChangeText={setPostalCode}
+          onChangeText={(text) => setField('postalCode', text)}
           value={postalCode}
           placeholder="Postal code"
           placeholderTextColor={darkBrown}
@@ -114,9 +150,9 @@ export default function AddNewAddress() {
         <ThemedDivider width={0.5} opacity={0.2} marginY={2}/>
         <TextInput
           style={styles.input}
-          onChangeText={setStreetBldgHouseNo}
+          onChangeText={(text) => setField('streetBldgHouseNo', text)}
           value={streetBldgHouseNo}
-          placeholder="Street Name, Building, House No."
+          placeholder="Street Name, Building, House No., Village"
           placeholderTextColor={darkBrown}
         />    
       </ThemedView>
@@ -144,7 +180,7 @@ export default function AddNewAddress() {
                 borderWidth: 1,
                 borderColor: darkBrown
               }}
-              onPress={() => setAddressType('home')}>
+              onPress={() => handleAddressTypeChange('home')}>
                 <ThemedText 
                   customColor={addressType === 'home' ? mustard : darkBrown}
                   font='cocoGothicRegular'
@@ -159,7 +195,7 @@ export default function AddNewAddress() {
                 borderWidth: 1,
                 borderColor: darkBrown
               }}
-              onPress={() => setAddressType('work')}>
+              onPress={() => handleAddressTypeChange('work')}>
                 <ThemedText 
                   customColor={addressType === 'work' ? mustard : darkBrown}
                   font='cocoGothicRegular'
@@ -209,7 +245,8 @@ export default function AddNewAddress() {
       </ThemedView>
       </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ThemedView>
+    </>
   )
 }
 

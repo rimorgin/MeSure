@@ -2,17 +2,26 @@ import { create } from 'zustand';
 import { persist, createJSONStorage, devtools } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
 
 
 interface user {
   userId: string;
-  userFullName?: string; 
+  userFullName?: string;
+  userEmail?: string;
+  userEmailVerified?: boolean;
+  userDisplayName?: string; 
+  userContactNo?: string;
   firstTimeUser: boolean;
   setUserId: (userId: string) => void;
-  setUserFullName: (userFullName: string) => void;
+  setUserFullName: (userId: string, userFullName: string) => Promise<void>;
   setFirstTimeUser: (firstTimeUser: boolean) => void;
-  getUserFullName: (userId: string) => void;
+  getUserDetails: (userId: string) => Promise<void>;
+  setUserDisplayName: (userId: string, userDisplayName: string) => Promise<void>;
+  setUserEmail: (userId: string, userEmail: string) => Promise<void>;
+  setUserEmailVerified: (isEmailVerified: boolean) => void;
+  setUserContactNo: (userId: string, userContactNo: string) => Promise<void>;
   resetUserId: () => void;
 }
 
@@ -22,21 +31,79 @@ export const useUserStore = create<user>()(
       (set, get) => ({
         userId: '',
         userFullName: '',
+        userDisplayName: '',
+        userEmail: '',
+        userEmailVerified: false,
+        userContactNo: '',
         firstTimeUser: false,
         setUserId: (userId: string) => set({ userId }),
-        setUserFullName: (userFullName: string) => set({ userFullName }),
+        setUserFullName: async (userId: string, userFullName: string) => {
+          await firestore()
+            .collection('user')
+            .doc(userId)
+            .update({name: userFullName})
+          set({ userFullName: userFullName })},
         setFirstTimeUser(firstTimeUser) {
             set({ firstTimeUser: firstTimeUser });
         },
-        getUserFullName: async (userId: string) => {
+        getUserDetails: async (userId: string) => {
           const snapshot = await firestore()
               .collection(`user`)
               .doc(userId)
               .get();
           const userFullName = snapshot.data()?.name
-          set({userFullName: userFullName})
+          const userContactNo = snapshot.data()?.contactNo
+          const userDisplayName = snapshot.data()?.displayName
+          const userEmail = snapshot.data()?.email
+          set({
+            userFullName: userFullName,
+            userContactNo: userContactNo,
+            userDisplayName: userDisplayName,
+            userEmail: userEmail
+          })
         },
-        resetUserId:() =>  set({ userId: '' }),
+        setUserDisplayName: async (userId: string, userDisplayName: string) => {
+          await auth()
+            .currentUser?.updateProfile({
+            displayName: userDisplayName,  
+          })
+          await firestore()
+            .collection('user')
+            .doc(userId)
+            .update({
+              username: userDisplayName,
+            })
+          set({ userDisplayName: userDisplayName})
+        },
+        setUserEmail: async (userId: string, userEmail: string) => {
+          
+          await auth().currentUser?.verifyBeforeUpdateEmail(userEmail);
+          await firestore().collection('user').doc(userId).update({email: userEmail})
+          set({ 
+            userEmail: userEmail,
+            userEmailVerified: false
+          });
+        },
+        setUserContactNo: async (userId: string, userContactNo: string) => {
+          await firestore()
+            .collection('user')
+            .doc(userId)
+            .update({
+              contactNo: userContactNo,
+            })
+          set({ userContactNo: userContactNo });
+        },
+        setUserEmailVerified:(isEmailVerified) => {
+            set({ userEmailVerified: isEmailVerified });
+        },
+        resetUserId:() =>  set({ 
+          userId: '',
+          userFullName: '',
+          userDisplayName: '',
+          userEmail: '',
+          userEmailVerified: false,
+          userContactNo: '',
+         }),
       }),
       {
         name: 'USER_ID', // Unique name for the storage
@@ -580,15 +647,17 @@ export interface OrderItem {
   userId: string; // ID of the user who placed the order
   items: CartItem[]; // Items in the order
   totalAmount: number; // Total price of the order
-  status: "pending" | "completed" | "cancelled"; // Order status
+  totalItems: number;
+  status: "pending" | "shipped" |"delivered" | "cancelled" | "returned"; // Order status
   createdAt: string; // Timestamp of order creation
   ETA: string;
+  shippingAddress: shippingAddress
 }
 
 interface OrderStorage {
   orders: OrderItem[];
   fetchOrders: (userId: string) => Promise<void>;
-  addOrder: (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number, ETA: string) => Promise<void>;
+  addOrder: (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number, totalItems: number, ETA: string, shippingAddress: shippingAddress) => Promise<void>;
   updateOrderStatus: (userId: string, orderId: string, status: "pending" | "completed" | "cancelled") => Promise<void>;
   resetOrders: () => void;
 }
@@ -621,16 +690,18 @@ export const useOrderStore = create<OrderStorage>()(
         },
 
         // Add a new order for the user
-        addOrder: async (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number, ETA: string) => {
+        addOrder: async (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number, totalItems: number, ETA: string, shippingAddress: shippingAddress) => {
           try {
             const newOrder: OrderItem = {
               orderId, 
               userId,
               items: cartItems,
               totalAmount,
+              totalItems,
               status: "pending",
               createdAt: new Date().toISOString(),
-              ETA: ETA
+              ETA: ETA,
+              shippingAddress: shippingAddress
             };
 
             // Fetch user document and update orders
@@ -693,7 +764,8 @@ export const useOrderStore = create<OrderStorage>()(
   )
 );
 
-interface shippingAddress {
+export interface shippingAddress {
+  id: string;
   fullName: string;
   contactNo: string;
   addressType: string;
@@ -706,7 +778,7 @@ interface shippingAddress {
 interface shippingDetailsStore {
   shippingDetails: shippingAddress[]; 
   fetchShippingDetails: (userId: string) => Promise<void>;
-  addShippingDetails: (userId: string, newShippingAddress: shippingAddress[]) => Promise<void>;
+  addShippingDetails: (userId: string, newShippingAddress: shippingAddress) => Promise<void>;
   removeShippingDetails: (userId: string, shippingAddressToRemove: shippingAddress) => Promise<void>;
   updateShippingDetails: (userId: string, updatedShippingAddress: shippingAddress) => Promise<void>;
 }
@@ -736,17 +808,17 @@ export const useShippingDetailsStore = create<shippingDetailsStore>()(
           }
         },
         // Add new shipping details
-        addShippingDetails: async (userId: string, newShippingDetails: shippingAddress[]) => {
+        addShippingDetails: async (userId: string, newShippingDetails: shippingAddress) => {
           await firestore()
             .collection('user')
             .doc(userId)
             .update({
-              shippingDetails: firestore.FieldValue.arrayUnion(...newShippingDetails)
+              shippingDetails: firestore.FieldValue.arrayUnion(newShippingDetails)
             })
             .then(() => {
               const { shippingDetails } = get();
               set({
-                shippingDetails: [...shippingDetails, ...newShippingDetails]
+                shippingDetails: [...shippingDetails, newShippingDetails]
               });
             });
         },
@@ -779,7 +851,7 @@ export const useShippingDetailsStore = create<shippingDetailsStore>()(
             .doc(userId)
             .update({
               shippingDetails: firestore.FieldValue.arrayRemove(
-                shippingDetails.find((item) => item.postalCode === updatedShippingDetail.postalCode)
+                shippingDetails.find((item) => item.id === updatedShippingDetail.id)
               )
             });
 
@@ -808,3 +880,43 @@ export const useShippingDetailsStore = create<shippingDetailsStore>()(
     )
   )
 );
+
+interface ShippingAddressForm {
+  fullName: string;
+  contactNo: string;
+  rpcb: string; // Region, Province, City, Barangay
+  postalCode: string;
+  streetBldgHouseNo: string;
+  addressType: 'home' | 'work';
+  defaultAddress: boolean;
+  setField: <K extends keyof ShippingAddressForm>(
+    field: K,
+    value: ShippingAddressForm[K]
+  ) => void;
+  resetShippingAddressForm: () => void;
+}
+
+export const useAddressFormStore = create<ShippingAddressForm>((set) => ({
+  fullName: '',
+  contactNo: '',
+  rpcb: '',
+  postalCode: '',
+  streetBldgHouseNo: '',
+  addressType: 'home',
+  defaultAddress: false,
+  setField: (field, value) =>
+    set((state) => ({
+      ...state,
+      [field]: value,
+    })),
+  resetShippingAddressForm: () =>
+    set({
+      fullName: '',
+      contactNo: '',
+      rpcb: '',
+      postalCode: '',
+      streetBldgHouseNo: '',
+      addressType: 'home',
+      defaultAddress: false,
+    }),
+}));

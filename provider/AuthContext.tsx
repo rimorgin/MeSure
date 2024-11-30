@@ -9,7 +9,7 @@ import { createUserDoc } from "@/utils/createUserDoc";
 
 const AuthContext = React.createContext<{
   signIn: (email: string, password: string) => void;
-  signUp: (email: string, password: string, username: string, userFullName: string) => void;
+  signUp: (email: string, password: string, username: string, userFullName: string, userContactNo: string) => void;
   signOut: () => void;
   session?: string | null;
   isLoading: boolean;
@@ -94,7 +94,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
             });
         },
 
-        signUp: async (email, password, username, userFullName) => {
+        signUp: async (email, password, username, userFullName, userContactNo) => {
           await auth().createUserWithEmailAndPassword(email, password)
             .then(async () => {
               const userSessionToken = await auth().currentUser?.getIdToken();
@@ -105,7 +105,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
               setUserId(uid);
               //set this to true to prevent fetching data to first time users
               setFirstTimeUser(true); 
-              await createUserDoc({authId: uid, email: email, username: username, name: userFullName, });
+              await createUserDoc({authId: uid, email: email, username: username, name: userFullName, contactNo: userContactNo });
               if (userSessionToken) setSession(userSessionToken);
               Toast.show({
                 type: 'success',

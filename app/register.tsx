@@ -34,6 +34,11 @@ const schema = yup.object().shape({
     .string()
     .required('Username is required')
     .min(5, 'Username must be at least 5 characters'),
+
+  contactNo: yup
+    .string()
+    .min(11, 'Password must contain 11 or more characters')
+    .required('Contact number is required'),
   
   password: yup
     .string()
@@ -54,6 +59,7 @@ const defaultValues = {
   userFullName: "",
   Email: "",
   Username: "",
+  contactNo: "",
   password: "",
   confirmPassword: "",
 };
@@ -67,13 +73,12 @@ export default function Register() {
   const { control, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: yupResolver(schema),
   });
-  const onSubmit = async (data: { Email: string; password: string; Username: string; confirmPassword: string, userFullName: string }) => {
+  const onSubmit = async (data: { Email: string; password: string; Username: string; confirmPassword: string, userFullName: string, contactNo: string }) => {
     //console.log('Form Data: ', data);
     setLoading(true);
-    const { Email, password, Username, userFullName } = data;
-    
+    const { Email, password, Username, userFullName, contactNo } = data;
     // signup function
-    await signUp(Email, password, Username, userFullName);
+    await signUp(Email, password, Username, userFullName, contactNo);
     setLoading(false);
   };
 
@@ -126,27 +131,55 @@ export default function Register() {
             </ThemedText>
           )}
 
+          <ThemedView style={{flexDirection: 'row', width: 'auto', gap: 10}}>
           {/* Username Input */}
-          <Controller
-            control={control}
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextInput
-                style={styles.input}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                value={value}
-                placeholder="Username"
-              />
+          <ThemedView style={{width:'37%'}}>
+            <Controller
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[styles.input, {width: '100%'}]}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder="Username"
+                />
+              )}
+              name="Username"
+              rules={{ required: true }}
+              defaultValue={defaultValues.Username}
+            />
+            {errors?.Username?.message && (
+              <ThemedText type="defaultSemiBold" style={[styles.error, {width: '100%'}]}>
+                {errors.Username.message}
+              </ThemedText>
             )}
-            name="Username"
-            rules={{ required: true }}
-            defaultValue={defaultValues.Username}
-          />
-          {errors?.Username?.message && (
-            <ThemedText type="defaultSemiBold" style={styles.error}>
-              {errors.Username.message}
-            </ThemedText>
-          )}
+          </ThemedView>
+          
+          <ThemedView style={{width: '46%'}}>
+            {/* Contact Number Input */}
+            <Controller
+              control={control}
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  style={[styles.input, {width: '100%'}]}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  value={value}
+                  placeholder="Contact No."
+                />
+              )}
+              name="contactNo"
+              rules={{ required: true }}
+              defaultValue={defaultValues.contactNo}
+            />
+            {errors?.contactNo?.message && (
+              <ThemedText type="defaultSemiBold" style={[styles.error, {width: '100%'}]}>
+                {errors.contactNo.message}
+              </ThemedText>
+            )}
+            </ThemedView>
+          </ThemedView>
 
           {/* Email Input */}
           <Controller

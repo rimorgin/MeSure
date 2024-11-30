@@ -7,6 +7,7 @@ interface userDoc {
   profile?: string;
   email: string;
   username: string;
+  contactNo: string;
   cart?: [];
   favorites?: [];
   shippingDetails?: [];
@@ -24,6 +25,7 @@ export async function createUserDoc({
   profile = '',
   email,
   username,
+  contactNo,
   cart = [],
   shippingDetails = [],
   favorites = [],
@@ -49,6 +51,7 @@ export async function createUserDoc({
       profile,
       email,
       username,
+      contactNo,
       cart,
       favorites,
       shippingDetails,

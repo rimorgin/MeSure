@@ -94,9 +94,9 @@ export default function SelectRegion() {
         const newRpcb = `${selectedRegion.region_name} ${selectedProvince.province_name} ${selectedCity.city_name} ${selectedBarangay.brgy_name}`;
 
         if (routeBack === 'addnewaddress') {
-            router.push(`/(account)/(addresses)/addnewaddress?newRpcb=${newRpcb}`)
+            router.replace(`/(account)/(addresses)/addnewaddress?newRpcb=${newRpcb}`)
         } else {
-            router.push(`/(account)/(addresses)/editaddress?newRpcb=${newRpcb}`)
+            router.replace(`/(account)/(addresses)/editaddress?newRpcb=${newRpcb}`)
         }
         
     }

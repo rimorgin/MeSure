@@ -10,7 +10,7 @@ export default function AppLayout() {
   const userId = useUserStore((state) => state.userId);
   const firstTimeUser = useUserStore((state) => state.firstTimeUser);
   const firstLaunch = useIsAppFirstLaunchStore((state) => state.firstLaunch);
-  const { getUserFullName } = useUserStore();
+  const { getUserDetails } = useUserStore();
   const { fetchMeasurements } = useUserMeasurementStorage();
   const { fetchFavorites } = useFavoritesStore();
   const { fetchCart } = useCartStore();
@@ -20,11 +20,11 @@ export default function AppLayout() {
 
   useEffect(() => {
     const fetchAsync = async () => {
-      await fetchMeasurements(userId);
-      await fetchFavorites(userId);
-      await fetchCart(userId);
-      await fetchOrders(userId);
-      await fetchShippingDetails(userId);
+      //await fetchMeasurements(userId);
+      //await fetchFavorites(userId);
+      //await fetchCart(userId);
+      //await fetchOrders(userId);
+      //await fetchShippingDetails(userId);
       //fetchShippingDeets if needed
     }
 
@@ -35,7 +35,7 @@ export default function AppLayout() {
 
     if (userId) {
       // Load the defaults
-      getUserFullName(userId);
+      getUserDetails(userId);
       setFetching(true);
     }
 

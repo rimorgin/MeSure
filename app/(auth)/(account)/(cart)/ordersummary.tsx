@@ -10,14 +10,18 @@ import { darkBrown, white } from '@/constants/Colors'
 import { ThemedView } from '@/components/ThemedView'
 import { AntDesign, Ionicons } from '@expo/vector-icons'
 import { ThemedTouchableFilled } from '@/components/ThemedButton'
+import { useOrderStore } from '@/store/appStore'
+import ThemedDivider from '@/components/ThemedDivider'
 
 const { width, height } = Dimensions.get('screen')
 
 export default function OrderSummaryDetails() {
   const theme = useColorSchemeTheme();
+  const { orders } = useOrderStore();
   const params = useLocalSearchParams<{ orderId?: string, paymentMethod?: string, totalPrice?: string, totalItems?: string, ETA?: string }>();
   
-  console.log(params);
+  const order = orders.find(order => order.orderId === params.orderId);
+  console.log(order);
 
 
   return (
@@ -47,7 +51,7 @@ export default function OrderSummaryDetails() {
                     darkColor='white'
                     style={{textTransform: 'capitalize'}}
                   >{params.ETA}
-                  </ThemedText>
+            </ThemedText>
           </ThemedText>
         </ThemedView>
         <ThemedView style={styles.secondContainer}>
@@ -89,32 +93,67 @@ export default function OrderSummaryDetails() {
               height: '55%',
               borderBottomLeftRadius: 15,
               borderBottomRightRadius: 15,
-              padding: 15
+              padding: 15,
+              alignItems: 'flex-end'
             }}
           >
+            <Image 
+              source={require('@/assets/images/orderSummary/pin-pointer.png')} 
+              style={{
+                height: 160, width: 130,
+                position: 'absolute',
+                left: 20,
+                bottom: 0
+              }}
+
+            />
             <ThemedText
               font='montserratBold'
               customColor='white'
-              style={{marginBottom: 15}}
+              style={{marginBottom: 25, alignSelf: 'flex-end'}}
             >SHIPPING DETAILS
             </ThemedText>
+            
+            <ThemedView transparent style={{ alignItems: 'flex-end', marginTop: -8}}>
+              <ThemedView transparent style={{flexDirection: 'row'}}>
+                <ThemedText  style={{textAlign: 'right'}} font="cocoGothicBold" customColor='white'>{order?.shippingAddress.fullName}</ThemedText>
+                <ThemedText style={{color:'#AAA'}}> | </ThemedText>
+                <ThemedText customColor='white' font="spaceMonoRegular">
+                  {order?.shippingAddress.contactNo}
+                </ThemedText>
+              </ThemedView>
+              <ThemedText 
+                font="montserratLight" 
+                customColor='white'
+                style={{fontSize: 15, textAlign: 'right', width: 250}}
+              >{order?.shippingAddress.streetBldgHouseNo},
+              </ThemedText>
+              <ThemedText 
+                font="montserratLight" 
+                customColor='white'
+                style={{fontSize: 15, textAlign: 'right', width: 200}}
+              >
+                {order?.shippingAddress.rpcb}
+              </ThemedText>
+            </ThemedView>
+            {/* 
             <ThemedView transparent style={{justifyContent: 'space-between', width: '100%', flexDirection: 'row', marginVertical: 2}}>
               <ThemedText 
                 font='glacialIndifferenceRegular' 
                 customColor='white'
-              >Adam Smith
+              >{order?.shippingAddress.fullName}
               </ThemedText>
               <ThemedText 
                 font='glacialIndifferenceRegular' 
                 customColor='white'
-              >B2 L16 Matsui St.
+              >{order?.shippingAddress.streetBldgHouseNo}
               </ThemedText>
             </ThemedView>
             <ThemedView transparent style={{justifyContent: 'space-between', width: '100%', flexDirection: 'row', marginVertical: 2}}>
               <ThemedText 
                 font='glacialIndifferenceRegular' 
                 customColor='white'
-              >+63 976 039 2028
+              >{order?.shippingAddress.contactNo}
               </ThemedText>
               <ThemedText 
                 font='glacialIndifferenceRegular' 
@@ -126,12 +165,12 @@ export default function OrderSummaryDetails() {
               <ThemedText 
                 font='glacialIndifferenceRegular' 
                 customColor='white'
-              >calvscalderonx@gmail.com
+              >{}
               </ThemedText>
               <ThemedText 
                 font='glacialIndifferenceRegular' 
                 customColor='white'
-              >Taytay, Rizal
+              >{order?.shippingAddress.rpcb}
               </ThemedText>
             </ThemedView>
             <ThemedView transparent style={{justifyContent: 'space-between', width: '100%', flexDirection: 'row', marginVertical: 2}}>
@@ -146,6 +185,7 @@ export default function OrderSummaryDetails() {
               >(1920)
               </ThemedText>
             </ThemedView>
+            */}
           </ThemedView>
           
           
@@ -160,7 +200,7 @@ export default function OrderSummaryDetails() {
               backgroundColor: 'white',
               borderRadius: 15,
             }}
-            onPress={() => router.push('/(auth)/(tabs)/')}
+            onPress={() => router.replace('/(auth)/(tabs)/')}
           >
             <ThemedView transparent style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
               <ThemedText 
@@ -183,7 +223,7 @@ export default function OrderSummaryDetails() {
               justifyContent: 'center',
               borderRadius: 15,
             }}
-            onPress={() => router.push('/(auth)/(account)/')}
+            onPress={() => router.replace('/(auth)/(account)/(orders)/')}
           >
             <ThemedText 
               font='cocoGothicBold'

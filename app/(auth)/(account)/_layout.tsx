@@ -61,6 +61,7 @@ export default function AccountLayout() {
           },
         }}
       />
+      <Stack.Screen name='(edit)'/>
       <Stack.Screen name='(cart)'/>
       <Stack.Screen name='(purchases)' />
       <Stack.Screen name='(addresses)' />

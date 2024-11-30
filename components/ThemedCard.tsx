@@ -1,10 +1,12 @@
-import { Image, StyleSheet, Dimensions, TouchableHighlight, View, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, Dimensions, TouchableHighlight, View, TouchableOpacity, FlatList } from 'react-native';
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
 import { FontAwesome5, Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { ThemedTouchableFilled } from './ThemedButton';
 import { darkBrown } from '@/constants/Colors';
 import { router } from 'expo-router';
+import ThemedDivider from './ThemedDivider';
+import { Collapsible } from './Collapsible';
 
 const { width } = Dimensions.get('screen')
 
@@ -204,3 +206,118 @@ export function PurchasesCard({ item, handleNavigate }: CategoryCardProps) {
     </TouchableOpacity>
   );
 }
+
+
+
+const windowWidth = Dimensions.get('window').width;
+
+export function OrderCard({ item, onPress }: { item: any; index?: number; onPress: () => void }) {
+  return (
+    <TouchableOpacity
+      activeOpacity={0.6}
+      onPress={onPress}
+    >
+      <ThemedView style={orderStyles.itemContainer}>
+      <ThemedView transparent style={{ flexDirection: 'row', width: '100%',justifyContent: 'space-between' }}>
+        <ThemedText lightColor='#AAA' font="montserratSemiBold">{`#${item.orderId}`}</ThemedText>
+        <ThemedText font="montserratSemiBold" style={{ color: getStatusColor(item.status) }}>
+          {item.status}
+        </ThemedText>
+      </ThemedView>
+      <ThemedDivider width={0.4} opacity={0.2} marginY={5}/>
+        {item.items.length >= 2 ? (
+          <FlatList
+            data={item.items}
+            keyExtractor={(item) => `${item.id}-${item.size}`}
+            scrollEnabled={false}
+            renderItem={({ item }) => {
+              return (
+              <ThemedView transparent style={orderStyles.orderItem}>
+                <Image source={item.img} style={orderStyles.image}/>  
+                <ThemedView transparent>
+                  <ThemedText font='montserratBold'>{item.name}</ThemedText>
+                  <ThemedText font='montserratSemiBold' lightColor='#AAA'>Size {item.size}</ThemedText>
+        
+                <ThemedView transparent style={{flexDirection:'row', justifyContent:'space-between', marginTop: 10, width: '79%'}}>
+                  <ThemedText font='spaceMonoRegular'>Php {item.price}</ThemedText>
+                  <ThemedText font='montserratMedium' lightColor='#AAA'>QTY: {item.quantity}</ThemedText>
+                </ThemedView>
+                </ThemedView>
+              </ThemedView>
+              )
+            }}
+          />
+        ) : (
+          <ThemedView transparent style={orderStyles.orderItem}>
+            <Image source={item.items[0].img} style={orderStyles.image}/>
+            <ThemedView transparent>
+              <ThemedText font='montserratBold'>{item.items[0].name}</ThemedText>
+              <ThemedText font='montserratSemiBold' lightColor='#AAA'>Size {item.items[0].size}</ThemedText>
+    
+            <ThemedView transparent style={{flexDirection:'row', justifyContent:'space-between', marginTop: 10, width: '79%'}}>
+              <ThemedText font='spaceMonoRegular'>Php {item.items[0].price}</ThemedText>
+              <ThemedText font='montserratMedium' lightColor='#AAA'>QTY: {item.items[0].quantity}</ThemedText>
+            </ThemedView>
+            </ThemedView>
+          </ThemedView>
+        )}
+      </ThemedView>
+    </TouchableOpacity>
+  );
+}
+
+const getStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'pending':
+      return 'orange';
+    case 'shipped':
+      return 'green';
+    case 'completed':
+      return 'blue';
+    case 'cancelled':
+      return 'red';
+    default:
+      return 'gray';
+  }
+};
+
+const orderStyles = StyleSheet.create({
+  itemContainer: {
+    marginHorizontal: 5, 
+    backgroundColor: '#FFFDFA', 
+    marginVertical: 5,
+    shadowColor: '#AAA',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+    borderRadius: 10,
+    padding: 10,
+    height: 'auto',
+  },
+  dropdownContent: {
+    width: '100%',
+    height: 'auto',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    gap: 10,
+    flexGrow: 1
+  },
+  orderItem: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    marginTop: -5,
+    paddingTop: 5
+  },
+  image: {
+    width: windowWidth * 0.2,
+    height: windowWidth * 0.2,
+    borderRadius: 8,
+  },
+  details: {
+    flex: 1,
+    justifyContent: 'center',
+    marginLeft: 10,
+  },
+});

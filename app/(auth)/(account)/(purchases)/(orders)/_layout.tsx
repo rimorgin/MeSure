@@ -4,12 +4,16 @@ import { ThemedView } from '@/components/ThemedView';
 import { bg, darkBrown, mustard } from '@/constants/Colors';
 import { useFont } from '@/provider/FontContext';
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Dimensions } from 'react-native';
 
 export default function Layout() {
   const { fontStyles } = useFont();
 
   return (
     <MaterialTopTabs
+      initialLayout={{
+        width: Dimensions.get('window').width
+      }}
       screenOptions={{
         tabBarIndicatorStyle: { backgroundColor: darkBrown },
         tabBarLabelStyle: {
@@ -19,6 +23,8 @@ export default function Layout() {
         },
         tabBarActiveTintColor: mustard, // Active tab color
         swipeEnabled: true,
+        tabBarScrollEnabled: true
+        
       }}
     >
       <MaterialTopTabs.Screen 
@@ -84,7 +90,7 @@ export default function Layout() {
             <>
               <ThemedView transparent style={{alignItems: 'center', justifyContent:'center'}}>
                 <MaterialCommunityIcons
-                    name="truck-fast"
+                    name={focused ? "truck-fast" : "truck-fast-outline"}
                     size={24}
                     color={focused ? mustard : darkBrown}
                 />
@@ -111,7 +117,7 @@ export default function Layout() {
             <>
               <ThemedView transparent style={{alignItems: 'center', justifyContent:'center'}}>
                 <MaterialCommunityIcons
-                    name="check-circle"
+                    name={focused ? "check-circle" : "check-circle-outline"}
                     size={24}
                     color={focused ? mustard : darkBrown}
                 />
@@ -151,6 +157,33 @@ export default function Layout() {
                     }}
                 >
                     Returns
+                </ThemedText>
+              </ThemedView>
+            </>
+          ),
+        }}
+      />
+      <MaterialTopTabs.Screen 
+        name="cancel" 
+        options={{ 
+          title: "Cancelled",
+          tabBarLabel: ({ focused, color }) => (
+            <>
+              <ThemedView transparent style={{alignItems: 'center', justifyContent:'center'}}>
+                <MaterialCommunityIcons
+                    name={focused ? "inbox-remove" : "inbox-remove-outline"}
+                    size={24}
+                    color={focused ? mustard : darkBrown}
+                />
+                <ThemedText
+                    style={{
+                    fontSize: 12,
+                    color: focused ? mustard : darkBrown,
+                    fontFamily: fontStyles.cocoGothicBold,
+                    marginLeft: 8,
+                    }}
+                >
+                    Cancelled
                 </ThemedText>
               </ThemedView>
             </>

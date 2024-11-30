@@ -13,7 +13,29 @@ export default function AccountLayout() {
         animation: 'simple_push'
       }}
     >
-      <Stack.Screen name='myaddresses' />
+      <Stack.Screen name='index' 
+        options={{
+          headerTitle: 'My Addresses',
+          headerTitleAlign: 'center',
+          headerTitleStyle: {
+            fontSize: 20,
+            fontFamily: fontStyles.montserratBold
+          },
+          headerLeft: () => {
+            return (
+              <TouchableOpacity 
+                style={{left:20}}
+                onPress={() => router.back()}
+              >
+                <Ionicons
+                  name="chevron-back"
+                  size={32}
+                />
+              </TouchableOpacity>
+            )
+          },
+        }} 
+      />
       <Stack.Screen name='editaddress'
         options={{
           headerTitle: 'Edit address',
@@ -60,8 +82,33 @@ export default function AccountLayout() {
           },
         }}
       />
+      <Stack.Screen name='pickaddress' 
+        options={{
+          presentation: 'modal',
+          headerTitle: 'Change Address',
+          headerTitleAlign: 'center',
+          headerTitleStyle: {
+            fontSize: 20,
+            fontFamily: fontStyles.montserratBold
+          },
+          headerLeft: () => {
+            return (
+              <TouchableOpacity 
+                style={{left:20}}
+                onPress={() => router.back()}
+              >
+                <Ionicons
+                  name="chevron-back"
+                  size={32}
+                />
+              </TouchableOpacity>
+            )
+          },
+        }}
+      />
       <Stack.Screen name='selectregion' 
         options={{
+          presentation: 'modal',
           headerTitle: 'Select Region',
           headerTitleAlign: 'center',
           headerTitleStyle: {

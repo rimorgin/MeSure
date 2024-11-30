@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Image, StyleSheet, TouchableOpacity, Dimensions, Switch, FlatList } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, Dimensions, Switch, FlatList, View, Text, TextInput } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/provider/AuthContext';
 import { useColorSchemeStore, useIsAppFirstLaunchStore, useUserStore, useUserMeasurementStorage } from '@/store/appStore';
 import { appData } from '@/assets/data/appData';
-import { Colors, darkBrown, white } from '@/constants/Colors';
+import { Colors, darkBrown, mustard, white } from '@/constants/Colors';
 import ThemedDivider from '@/components/ThemedDivider';
 import auth from '@react-native-firebase/auth';
 import { Collapsible } from '@/components/Collapsible';
@@ -15,20 +15,35 @@ import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import { router } from 'expo-router';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import * as WebBrowser from 'expo-web-browser';
-import { PurchasesCard } from '@/components/ThemedCard';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import ThemedModal from '@/components/ThemedModal';
+import RatingStars from '@/components/ratingsStars';
+import Loader from '@/components/Loader';
 
 const { width } = Dimensions.get('screen');
 
 export default function ProfileScreen() {
-    const { signOut } = useSession();
     const theme = useColorSchemeTheme() ?? 'light';
     const { toggleTheme } = useColorSchemeStore();
+    const { userId, userEmail } = useUserStore();
     const isEnabled = theme === 'dark';
-    const { resetApp } = useIsAppFirstLaunchStore();
     const userFullName = useUserStore((state) => state.userFullName);
-    const { fingerMeasurements, wristMeasurement } = useUserMeasurementStorage();
+    const { fingerMeasurements, wristMeasurement, setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
     const [result, setResult] = useState(null);
+    const [rating, setRating] = useState(0);
+    const [showRating, setShowRating] = useState(false);
+    const [showModalAddManually, setShowModalAddManually] = useState(false);
+    const [fingerSizes, addFingerSizesManually] = useState({
+      thumb: '',
+      index: '',
+      middle: '',
+      ring: '',
+      pinky: '',
+      });
+    const [wristSize, addWristSizesManually] = useState('');
+    const [showBodyPartInput, setShowBodyPartInput] = useState<'fingers' | 'wrist' | null>(null);
+    const [inputFocus, setInputFocus] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const nameParts = userFullName?.split(' ') || [];
 
@@ -37,34 +52,54 @@ export default function ProfileScreen() {
 
     // Set the last word as the last name
     const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
-
     
-    const handleSignOut = () => {
-      signOut();
-    }
-
     const handleToggleScheme = () => {
       toggleTheme(theme === 'light' ? 'dark' : 'light');
     };
 
-    // Function to open an external link
-  const handleOpenInAppBrowser = async (url: any) => {
-    try {
-      const result = await WebBrowser.openBrowserAsync(url, {
-        enableBarCollapsing: true, // Allows the toolbar to collapse
-        dismissButtonStyle: 'close', // Adds a close button
-        showTitle: true
+    const handleFingerChange = (name: string, value: string) => {
+      addFingerSizesManually((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    };
 
-      });
-
-      if (result.type === 'dismiss') {
-        console.log('Browser dismissed by the user');
-      }
-    } catch (error: any) {
-      console.error('Error opening in-app browser:', error.message);
+    const handleCancelAddSizesManually = () => {
+      setShowModalAddManually(false) 
+      setShowBodyPartInput(null)
     }
-  };
+
+    const handleSubmitAddMeasurement = async (type: string) => {
+      setLoading(true);
+      setShowModalAddManually(false);
+      if (type === 'fingers') {
+        await setFingerMeasurements(userId, fingerSizes);
+      } else if (type === 'wrist') {
+        await setWristMeasurement(userId, wristSize)
+      }
+      setLoading(false)
+    }
+
+    // Function to open an external link
+    const handleOpenInAppBrowser = async (url: any) => {
+      try {
+        const result = await WebBrowser.openBrowserAsync(url, {
+          enableBarCollapsing: true, // Allows the toolbar to collapse
+          dismissButtonStyle: 'close', // Adds a close button
+          showTitle: true
+
+        });
+
+        if (result.type === 'dismiss') {
+          console.log('Browser dismissed by the user');
+        }
+      } catch (error: any) {
+        console.error('Error opening in-app browser:', error.message);
+      }
+    };
   return (
+    <>
+    {loading && <Loader/>}
     <ParallaxScrollView
       headerHeight={width * 0.5}
       roundedHeader
@@ -96,7 +131,7 @@ export default function ProfileScreen() {
               font='montserratLight' 
               type="default"
               customColor={white}
-            >{auth().currentUser?.email}
+            >{userEmail}
             </ThemedText>
           </ThemedView>
           <Image 
@@ -106,6 +141,271 @@ export default function ProfileScreen() {
         </ThemedView>
       }
       >
+        <>
+        {
+          /* STARS RATING */
+          <ThemedModal
+            showModal={showRating}
+            onClose={() => setShowRating(false)}
+          >
+            <ThemedView 
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: 20,
+                gap:30
+              }}
+            >
+              <Image 
+                source={require('@/assets/images/wink.png')}
+                style={{height:120, width:120}}
+              />
+              <ThemedView style={{gap:10}}>
+                <ThemedText
+                  font='cocoGothicBold'
+                  type='subtitle'
+                  style={{textAlign: 'center'}}
+                >
+                  how was your experience with our app?
+                </ThemedText>
+                <ThemedText
+                  font='montserratRegular'
+                  style={{textAlign: 'center'}}
+                >
+                  tap a star to give your rating
+                </ThemedText>
+              </ThemedView>
+              <RatingStars
+                interactive
+                rating={rating}
+                size={40}
+                onChange={(newRating) => setRating(newRating)}
+              />
+
+              <ThemedView style={{flexDirection: 'row', width: '100%', gap:20}}>
+                <TouchableOpacity
+                  onPress={() => setShowRating(false)}
+                  style={{alignItems: 'center', justifyContent: 'center', borderColor: darkBrown, borderWidth: 1, borderRadius: 10, width: 80}}
+                >
+                  <ThemedText>CANCEL</ThemedText>
+                </TouchableOpacity>
+                <ThemedTouchableFilled
+                  onPress={() => {}}
+                > 
+                  <ThemedText>SUBMIT</ThemedText>
+                </ThemedTouchableFilled>
+              </ThemedView>
+            </ThemedView>
+          </ThemedModal>
+        }
+        {
+          /* SIZES ADD MANUALLY */
+          <ThemedModal
+            showModal={showModalAddManually}
+            onClose={handleCancelAddSizesManually}
+          >
+            <ThemedView 
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: 20,
+                gap:30
+              }}
+            >
+              <Image 
+                source={require('@/assets/images/hand.png')}
+                style={{height:120, width:120}}
+              />
+              <ThemedView style={{gap:10}}>
+                <ThemedText
+                  font='cocoGothicBold'
+                  type='subtitle'
+                  style={{textAlign: 'center'}}
+                >
+                  {showBodyPartInput ? 'enter your sizes here' : 'what body part you want to add manually?'}
+                </ThemedText>
+                {!showBodyPartInput && (
+                <ThemedText
+                  font='montserratRegular'
+                  style={{textAlign: 'center'}}
+                >
+                  pick here...
+                </ThemedText>
+                )}
+              </ThemedView>
+
+              {!showBodyPartInput ? (
+                <ThemedView style={{flexDirection: 'row', width: '100%', gap:20}}>
+                  <TouchableOpacity
+                    onPress={() => setShowBodyPartInput('fingers')}
+                    style={{alignItems: 'center', justifyContent: 'center', borderColor: darkBrown, borderWidth: 1, borderRadius: 10, width: 80}}
+                  >
+                    <ThemedText>FINGERS</ThemedText>
+                  </TouchableOpacity>
+                  <ThemedTouchableFilled
+                    onPress={() => setShowBodyPartInput('wrist')}
+                  > 
+                    <ThemedText>WRIST</ThemedText>
+                  </ThemedTouchableFilled>
+                </ThemedView>
+              ) : (
+                <>
+                  {showBodyPartInput === 'fingers'? (
+                    <>
+                      <View style={styles.row}>
+                        <View>
+                          <Text style={[
+                            styles.text,
+                            {color: theme === 'light' ? darkBrown : mustard,}
+                          ]}>Thumb</Text>
+                          <TextInput 
+                            keyboardType='numeric'
+                            onFocus={()=> setInputFocus(true)}
+                            onEndEditing={() => setInputFocus(false)}
+                            style={[styles.textInput, 
+                              {
+                                color: theme === 'light' ? darkBrown : mustard,
+                                borderColor: theme === 'light' ? darkBrown : mustard,
+                              }
+                            ]}
+                            value={fingerSizes.thumb}
+                            defaultValue={fingerSizes.thumb}
+                            onChangeText={(value) => handleFingerChange('thumb', value)}
+                          />
+                        </View>
+                        <View>
+                          <Text style={[
+                            styles.text,
+                            {color: theme === 'light' ? darkBrown : mustard,}
+                          ]}>Index</Text>
+                          <TextInput 
+                          keyboardType='numeric'
+                          onFocus={()=> setInputFocus(true)}
+                          onEndEditing={() => setInputFocus(false)}
+                          style={[styles.textInput, 
+                            {
+                              color: theme === 'light' ? darkBrown : mustard,
+                              borderColor: theme === 'light' ? darkBrown : mustard,
+                            }
+                          ]}
+                          value={fingerSizes.index}
+                          defaultValue={fingerSizes.index}
+                          onChangeText={(value) => handleFingerChange('index', value)}
+                        />
+                        </View>
+                        <View>
+                          <Text style={[
+                            styles.text,
+                            {color: theme === 'light' ? darkBrown : mustard,}
+                          ]}>Middle</Text>
+                          <TextInput 
+                          keyboardType='numeric'
+                          onFocus={()=> setInputFocus(true)}
+                          onEndEditing={() => setInputFocus(false)}
+                          style={[styles.textInput, 
+                              {
+                                color: theme === 'light' ? darkBrown : mustard,
+                                borderColor: theme === 'light' ? darkBrown : mustard,
+                              }
+                            ]}
+                          value={fingerSizes.middle}
+                          defaultValue={fingerSizes.middle}
+                          onChangeText={(value) => handleFingerChange('middle', value)}
+                        />
+                        </View>
+                        <View>
+                          <Text style={[
+                            styles.text,
+                            {color: theme === 'light' ? darkBrown : mustard,}
+                          ]}>Ring</Text>
+                          <TextInput 
+                          keyboardType='numeric'
+                          onFocus={()=> setInputFocus(true)}
+                          onEndEditing={() => setInputFocus(false)}
+                          style={[styles.textInput, 
+                              {
+                                color: theme === 'light' ? darkBrown : mustard,
+                                borderColor: theme === 'light' ? darkBrown : mustard,
+                              }
+                            ]}
+                          value={fingerSizes.ring}
+                          defaultValue={fingerSizes.ring}
+                          onChangeText={(value) => handleFingerChange('ring', value)}
+                        />
+                        </View>
+                        <View>
+                          <Text style={[
+                            styles.text,
+                            {color: theme === 'light' ? darkBrown : mustard,}
+                          ]}>Pinky</Text>
+                          <TextInput 
+                          keyboardType='numeric'
+                          onFocus={()=> setInputFocus(true)}
+                          onEndEditing={() => setInputFocus(false)}
+                          style={[styles.textInput, 
+                              {
+                                color: theme === 'light' ? darkBrown : mustard,
+                                borderColor: theme === 'light' ? darkBrown : mustard,
+                              }
+                            ]}
+                          value={fingerSizes.pinky}
+                          defaultValue={fingerSizes.pinky}
+                          onChangeText={(value) => handleFingerChange('pinky', value)}
+                        />
+                        </View>
+                      </View>
+                      <ThemedView style={{flexDirection: 'row', width: '100%', gap:20}}>
+                        <TouchableOpacity
+                          onPress={handleCancelAddSizesManually}
+                          style={{alignItems: 'center', justifyContent: 'center', borderColor: darkBrown, borderWidth: 1, borderRadius: 10, width: 80}}
+                        >
+                          <ThemedText>CANCEL</ThemedText>
+                        </TouchableOpacity>
+                        <ThemedTouchableFilled
+                          onPress={() => handleSubmitAddMeasurement('fingers')}
+                        > 
+                          <ThemedText>SUBMIT</ThemedText>
+                        </ThemedTouchableFilled>
+                      </ThemedView>
+                      </>
+                  ) : (
+                    <>
+                    <View style={styles.row}>
+                      <View>
+                      <Text style={styles.text}>Wrist Size</Text>
+                      <TextInput 
+                        keyboardType='numeric'
+                        onFocus={()=> setInputFocus(true)}
+                        onEndEditing={() => setInputFocus(false)}
+                        style={styles.textInput}
+                        value={wristSize}
+                        onChangeText={(value) => addWristSizesManually(value)}
+                      />
+                      </View>
+                    </View>
+                     <ThemedView style={{flexDirection: 'row', width: '100%', gap:20}}>
+                        <TouchableOpacity
+                          onPress={handleCancelAddSizesManually}
+                          style={{alignItems: 'center', justifyContent: 'center', borderColor: darkBrown, borderWidth: 1, borderRadius: 10, width: 80}}
+                        >
+                          <ThemedText>CANCEL</ThemedText>
+                        </TouchableOpacity>
+                        <ThemedTouchableFilled
+                          onPress={() => handleSubmitAddMeasurement('wrist')}
+                        > 
+                          <ThemedText>SUBMIT</ThemedText>
+                        </ThemedTouchableFilled>
+                      </ThemedView>
+                    </>
+                  )}
+                </>
+              )}
+            </ThemedView>
+            
+          </ThemedModal>
+        }
         <ThemedView style={styles.mainContainer}>
           <ThemedText type="default" style={{marginVertical:10}}>Purchases</ThemedText>
           <ThemedView style={styles.buttonContainers}>
@@ -230,7 +530,7 @@ export default function ProfileScreen() {
                 </ThemedTouchableFilled>
                 <ThemedTouchableFilled
                     variant='opacity'
-                    onPress={() => router.navigate('/(camera)')}
+                    onPress={() => setShowModalAddManually(true)}
                 >
                   <ThemedText type="default">Add Manually</ThemedText>
                 </ThemedTouchableFilled>
@@ -316,6 +616,26 @@ export default function ProfileScreen() {
             <ThemedDivider width={1.2}  opacity={0.1} marginY={3}/>
             <TouchableOpacity
               style={styles.button}
+              onPress={() => setShowRating(true)}
+            >
+              <ThemedView transparent style={{flexDirection:'row', gap: 10}}>
+                <Ionicons
+                  name='star'
+                  size={25}
+                  color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+                />
+                <ThemedText type="default">Rate us</ThemedText>
+               </ThemedView>
+              <Ionicons
+                name='chevron-forward'
+                size={18}
+                color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+              />
+            </TouchableOpacity>
+            {/*
+            <ThemedDivider width={1.2}  opacity={0.1} marginY={3}/>
+            <TouchableOpacity
+              style={styles.button}
               onPress={handleSignOut}
             >
               <ThemedView transparent style={{flexDirection:'row', gap: 10}}>
@@ -332,7 +652,7 @@ export default function ProfileScreen() {
                 color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
               />
             </TouchableOpacity>
-            {/* 
+             
             <ThemedDivider />
             
              <TouchableOpacity
@@ -362,8 +682,9 @@ export default function ProfileScreen() {
             */}
           </ThemedView>
         </ThemedView>
-      
+        </>   
     </ParallaxScrollView>
+    </>
   );
 }
 
@@ -427,9 +748,20 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection:'row', 
-    justifyContent: 
-    'space-between', 
+    justifyContent: 'space-between', 
     alignItems:'center',
     width: '100%'
+  },
+  textInput: {
+    borderWidth:3,
+    padding: 3,
+    paddingHorizontal: 8,
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom:3
+  },
+  text: {
+    marginBottom:3,
+    textAlign: 'center'
   }
 });

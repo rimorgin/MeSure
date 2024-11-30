@@ -1,12 +1,12 @@
 import { FlatList, Image, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, TouchableOpacity } from 'react-native'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { ThemedView } from '@/components/ThemedView'
 import useColorSchemeTheme from '@/hooks/useColorScheme';
-import { Colors, darkBrown } from '@/constants/Colors';
+import { Colors, darkBrown, mustard } from '@/constants/Colors';
 import { ThemedText } from '@/components/ThemedText';
-import { useCartStore, useOrderStore, useShippingDetailsStore, useUserStore } from '@/store/appStore';
-import { router } from 'expo-router';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { shippingAddress, useCartStore, useOrderStore, useShippingDetailsStore, useUserStore } from '@/store/appStore';
+import { router, useLocalSearchParams } from 'expo-router';
+import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import ThemedBottomSheet, { ThemedBottomSheetRef } from '@/components/ThemedBottomSheet';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
@@ -14,6 +14,7 @@ import ThemedDivider from '@/components/ThemedDivider';
 import { makeid } from '@/utils/makeId';
 
 export default function Checkout() {
+  const { shippingAddressId } = useLocalSearchParams<{shippingAddressId: string}>()
   const theme = useColorSchemeTheme();
   const { userId } = useUserStore();
   const { shippingDetails } = useShippingDetailsStore();
@@ -21,14 +22,31 @@ export default function Checkout() {
   const { addOrder } = useOrderStore();
   const bottomSheetRef = useRef<ThemedBottomSheetRef>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>('Cash on Delivery');
+  const [shippingAddress, setShippingAddress] = useState<shippingAddress>();
   const snapPoints = ['20%', '40%']
   const [sheetIndex, newSheetIndex] = useState(0);
   const shippingFee = 40;
+  
+  useEffect(() => {
+    //from the change address picker
+    if (shippingAddressId) {
+      setShippingAddress(shippingDetails.find((address) => address.id === shippingAddressId))
+      //else, load the default
+    } else if (shippingDetails) {
+      const defaultShippingAddress = shippingDetails.find((address) => address.defaultAddress === true);
+      if (defaultShippingAddress) {
+        setShippingAddress(defaultShippingAddress);
+      }
+    }
+  }, [shippingDetails]);
+  
 
   const ETA = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toDateString()
 
   const jatot = checkOutTotalPrice() + shippingFee
   const totalItems = checkOutTotalItems();
+
+  console.log(totalItems)
 
   const options = [
     {
@@ -44,18 +62,26 @@ export default function Checkout() {
 
   const handleConfirmOrder = async () => {
     const orderId = makeid(10);
-    console.log(orderId)
-    if (selectedOption!==null) {
-      await addOrder(userId, orderId, checkOutCartItems, jatot, ETA)
-      checkOutCartItems.map(async (item) => {
-        console.log(item)
-        await removeFromCart(userId, item.id, item.size, item.quantity, item.price, true)
-      })
-      router.push(`/ordersummary?orderId=${orderId}&paymentMethod=${selectedOption}&totalPrice=${jatot}&ETA=${ETA}&totalItems=${totalItems}`)
-    } else {
-      alert('Please select a payment option'); 
+    console.log(orderId);
+
+    if (!shippingAddress) {
+      alert('Please select a shipping address');
+      return;
     }
-  }
+
+    if (selectedOption !== null) {
+      await addOrder(userId, orderId, checkOutCartItems, jatot, totalItems, ETA, shippingAddress);
+      checkOutCartItems.map(async (item) => {
+        console.log(item);
+        await removeFromCart(userId, item.id, item.size, item.quantity, item.price, true);
+      });
+      //make this dynamic route
+      router.push(`/ordersummary?orderId=${orderId}&paymentMethod=${selectedOption}&totalPrice=${jatot}&ETA=${ETA}&totalItems=${totalItems}`);
+    } else {
+      alert('Please select a payment option');
+    }
+  };
+
 
   const handleScroll = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
@@ -88,48 +114,96 @@ export default function Checkout() {
         <TouchableOpacity style={{paddingHorizontal: 20}}/>
       </ThemedView>
      <ScrollView 
+        nestedScrollEnabled
         showsVerticalScrollIndicator={false}
         onScroll={handleScroll}
-        contentContainerStyle={[
-          styles.scrollContent,
-          { backgroundColor: theme === 'light' ? Colors.light.background : Colors.dark.background },
-        ]}
+        contentContainerStyle={styles.scrollContent}
       >
         <ThemedView style={styles.shippingDetailsContainer}>
           <ThemedView style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <ThemedText font="cocoGothicBold" style={{color:'#BBB'}}>
               SHIPPING DETAILS
             </ThemedText>
-            <TouchableOpacity
-              style={{ flexDirection: 'row', alignItems: 'center' }}
-              onPress={() => router.navigate('/(account)/(addresses)/editaddress')}
-            >
-              <ThemedText font="cocoGothicBold" lightColor={darkBrown}>
-                EDIT
-              </ThemedText>
-              <Ionicons name="pencil" size={18} />
-            </TouchableOpacity>
+            <ThemedView>
+            {!shippingAddress ? (
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center' }}
+                onPress={() => router.navigate(`/(account)/(addresses)/editaddress?shippingAddressId=${shippingAddress?.id}`)}
+              >
+                <ThemedText font="cocoGothicBold" lightColor={darkBrown}>
+                  EDIT
+                </ThemedText>
+                <Ionicons name="pencil" size={18} color={darkBrown} />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+                onPress={() => router.navigate(`/(account)/(addresses)/pickaddress`)}
+              >
+                <ThemedText font="cocoGothicBold" lightColor={darkBrown}>
+                  CHANGE
+                </ThemedText>
+                <FontAwesome name="exchange" size={18} color={darkBrown} />
+              </TouchableOpacity>
+             )}
+            </ThemedView>
           </ThemedView>
-          <TouchableOpacity
-            onPress={() => {
-              if (!shippingDetails.length) {
-                router.navigate('/(account)/(addresses)/addnewaddress');
-              }
-            }}
-          >
-            <ThemedView style={styles.shippingDetails}>
-              {shippingDetails.length ? (
-                <ThemedText>Shipping details here</ThemedText>
-              ) : (
+          {!shippingAddress ? (
+            <TouchableOpacity
+              onPress={() => {
+                if (!shippingDetails.length) {
+                  router.navigate('/(account)/(addresses)/addnewaddress');
+                }
+              }}
+            >
+              <ThemedView style={styles.shippingDetailsEmpty}>
                 <ThemedView>
                   <ThemedText font="montserratLight">No shipping details yet</ThemedText>
                   <ThemedText style={{ alignSelf: 'center', fontSize: 16, color: '#AAA' }} font="montserratLight">
                     Click to add new
                   </ThemedText>
                 </ThemedView>
-              )}
+              </ThemedView>
+            </TouchableOpacity>
+          ) : (
+          <TouchableOpacity
+            onPress={() => router.navigate(`/(account)/(addresses)/editaddress?shippingAddressId=${shippingAddress?.id}`)}
+          >
+            <ThemedView style={styles.shippingDetails}>
+              <ThemedView style={{flexDirection: 'row', gap: 10}}>
+                <ThemedText font="montserratSemiBold">{shippingAddress?.fullName}</ThemedText>
+                <ThemedText font="montserratMedium" customColor='#CCC'>|</ThemedText>
+                <ThemedText customColor='#AAA' font="montserratSemiBold">
+                  {shippingAddress?.contactNo}
+                </ThemedText>
+              </ThemedView>
+              <ThemedText 
+                font="montserratLight" 
+                customColor='#AAA'
+                style={{fontSize: 14}}
+              >
+                {shippingAddress?.streetBldgHouseNo}
+              </ThemedText>
+              <ThemedText 
+                font="montserratLight" 
+                customColor='#AAA'
+                style={{fontSize: 14}}
+              >
+                {shippingAddress?.rpcb}
+              </ThemedText>
+              <ThemedView style={{flexDirection: 'row', gap: 10}}>
+                {shippingAddress?.defaultAddress && 
+                <ThemedView style={styles.boxes}>
+                  <ThemedText>Default</ThemedText>
+                </ThemedView>
+                }
+                <ThemedView style={styles.boxes}>
+                  <ThemedText>{shippingAddress?.addressType}</ThemedText>
+                </ThemedView>
+              </ThemedView>
             </ThemedView>
           </TouchableOpacity>
+          )}
         </ThemedView>
         <ThemedView style={styles.eta}>
           <ThemedText 
@@ -153,6 +227,7 @@ export default function Checkout() {
             </ThemedText>
           </ThemedView>
           <FlatList
+            scrollEnabled={false}
             data={options}
             keyExtractor={(item) => item.name} // Ensure each item has a unique key
             renderItem={({ item }) => (
@@ -188,6 +263,7 @@ export default function Checkout() {
           >ORDER SUMMARY
           </ThemedText>
           <FlatList
+            scrollEnabled={false}
             data={checkOutCartItems}
             keyExtractor={(item) => `${item.id.toString()}-${item.size}`}// Ensure each item has a unique key
             renderItem={({item,index}) => {
@@ -279,23 +355,42 @@ const styles = StyleSheet.create({
     padding: 30
   },
   scrollContent: {
+    height: 'auto',
     padding: 30, // Padding for content inside ScrollView
-    flexGrow: 1, // Ensures it adapts to the content
-    paddingBottom: 300 
+    paddingBottom: 300
+  },
+  list: {
+    flex: 1,
   },
   shippingDetailsContainer: {
-    marginBottom: 20, // Add spacing below this container
-    height: '20%'
+    height: 'auto',
+    marginVertical: 5
   },
   shippingDetails: {
     borderWidth: 1,
     borderRadius: 15,
-    height: '100%',
+    height: 130,
+    borderColor: '#CCC',
+    borderStyle: 'dashed',
+    padding: 10
+  },
+  shippingDetailsEmpty: {
+    borderWidth: 1,
+    borderRadius: 15,
+    height: 130,
     width: '100%',
     borderColor: '#CCC',
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  boxes: {
+    borderWidth: 1,
+    marginTop: 10,
+    borderColor: mustard,
+    borderRadius: 5,
+    padding: 5,
+    alignSelf: 'flex-start',
   },
   eta: {
     marginTop: 35,
