@@ -4,8 +4,10 @@ import { Alert } from "react-native";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import auth from '@react-native-firebase/auth'
-import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useUserStore, useUserMeasurementStorage, useOrderStore } from "@/store/appStore";
+import { useCartStore, useFavoritesStore, useIsAppFirstLaunchStore, useUserStore, useUserMeasurementStorage, useOrderStore, useShippingDetailsStore, usePaymentMethodsStore } from "@/store/appStore";
 import { createUserDoc } from "@/utils/createUserDoc";
+import * as SecureStore from 'expo-secure-store';
+
 
 const AuthContext = React.createContext<{
   signIn: (email: string, password: string) => void;
@@ -66,6 +68,8 @@ export function SessionProvider(props: React.PropsWithChildren) {
   const { resetFavorites } = useFavoritesStore();
   const { resetCart, resetCheckOutCartItems } = useCartStore();
   const { resetOrders } = useOrderStore();
+  const { resetShippingDetails } = useShippingDetailsStore();
+  const { resetPaymentMethod } = usePaymentMethodsStore();
 
   return (
     <AuthContext.Provider
@@ -77,6 +81,8 @@ export function SessionProvider(props: React.PropsWithChildren) {
               const user = auth().currentUser?.displayName || email;
               const uid = auth().currentUser?.uid || 'invalid'; //invalid 
               setUserId(uid);
+              await SecureStore.setItemAsync('email', email);
+              await SecureStore.setItemAsync('password', password);
               if (userSessionToken) setSession(userSessionToken);
               setEmailAndFirstLaunch(email);
               if (!firstLaunch) {
@@ -103,6 +109,8 @@ export function SessionProvider(props: React.PropsWithChildren) {
               setEmailAndFirstLaunch(email);
               const uid = auth().currentUser?.uid || 'invalid';
               setUserId(uid);
+              await SecureStore.setItemAsync('email', email);
+              await SecureStore.setItemAsync('password', password);
               //set this to true to prevent fetching data to first time users
               setFirstTimeUser(true); 
               await createUserDoc({authId: uid, email: email, username: username, name: userFullName, contactNo: userContactNo });
@@ -121,6 +129,7 @@ export function SessionProvider(props: React.PropsWithChildren) {
         },
 
         signOut: () => {
+          //clear all stored state and sessions
           auth().signOut();
           resetMeasurements();
           resetFavorites();
@@ -128,6 +137,8 @@ export function SessionProvider(props: React.PropsWithChildren) {
           resetCheckOutCartItems();
           resetOrders();
           resetUserId();
+          resetShippingDetails();
+          resetPaymentMethod();
           setFirstTimeUser(false); //ensure this correctly sets
           setSession(null);
         },

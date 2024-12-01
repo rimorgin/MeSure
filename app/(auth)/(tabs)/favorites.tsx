@@ -26,6 +26,8 @@ export default function Favorites() {
   const [sizes, setSize] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(0);
 
+  console.log('from favorites',favorites)
+
   const ringsCategory = appData.categories.find((category) => category.name === 'rings');
   const banglesCategory = appData.categories.find((category) => category.name === 'bangles');
 

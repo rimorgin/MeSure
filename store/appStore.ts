@@ -1,29 +1,20 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, devtools } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import firestore from '@react-native-firebase/firestore';
+import firestore, { firebase } from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-toast-message';
-
-
-interface user {
-  userId: string;
-  userFullName?: string;
-  userEmail?: string;
-  userEmailVerified?: boolean;
-  userDisplayName?: string; 
-  userContactNo?: string;
-  firstTimeUser: boolean;
-  setUserId: (userId: string) => void;
-  setUserFullName: (userId: string, userFullName: string) => Promise<void>;
-  setFirstTimeUser: (firstTimeUser: boolean) => void;
-  getUserDetails: (userId: string) => Promise<void>;
-  setUserDisplayName: (userId: string, userDisplayName: string) => Promise<void>;
-  setUserEmail: (userId: string, userEmail: string) => Promise<void>;
-  setUserEmailVerified: (isEmailVerified: boolean) => void;
-  setUserContactNo: (userId: string, userContactNo: string) => Promise<void>;
-  resetUserId: () => void;
-}
+import { user, UserData } from '@/types/userStoreTypes';
+import { UserMeasurementStorage } from '@/types/userMeasurementStoreTypes';
+import { AppFirstLaunch } from '@/types/useIsAppFirstLaunchStoreTypes';
+import { isEmailNew } from '@/utils/isEmailNew';
+import { ColorSchemeStorage } from '@/types/useColorSchemeStoreTypes';
+import { FavoritesStorage } from '@/types/useFavoritesStoreTypes';
+import { CartItem, CartStorage } from '@/types/useCartStoreTypes';
+import { OrderItem, OrderStorage } from '@/types/useOrderStoreTypes';
+import { shippingAddress, ShippingAddressForm, shippingDetailsStore } from '@/types/useShippingDetailsStoreTypes';
+import { PaymentMethods, PaymentMethodsStore } from '@/types/usePaymentMethodsStoreTypes';
+import { identifyCardType } from '@/utils/identifyCardType';
 
 export const useUserStore = create<user>()(
   devtools(
@@ -36,6 +27,29 @@ export const useUserStore = create<user>()(
         userEmailVerified: false,
         userContactNo: '',
         firstTimeUser: false,
+        fetchUserData: async (): Promise<UserData | null> => {
+          const { userId } = get(); // Replace `get()` with your actual state access logic
+          if (!userId) {
+            console.warn('No userId found in state.');
+            return null; // Early exit if userId is not set
+          }
+          try {
+            const snapshot = await firestore().collection('user').doc(userId).get();
+
+            if (snapshot.exists) {
+              const data = snapshot.data();
+              if (data) {
+                return data as UserData; // Type assertion to UserData
+              }
+            }
+            console.warn('No document found for the provided userId or data is undefined.');
+            return null; // Handle cases where document exists but data is undefined
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+            throw error; // Properly propagate the error
+          }
+        },
+
         setUserId: (userId: string) => set({ userId }),
         setUserFullName: async (userId: string, userFullName: string) => {
           await firestore()
@@ -51,6 +65,7 @@ export const useUserStore = create<user>()(
               .collection(`user`)
               .doc(userId)
               .get();
+          
           const userFullName = snapshot.data()?.name
           const userContactNo = snapshot.data()?.contactNo
           const userDisplayName = snapshot.data()?.displayName
@@ -113,32 +128,6 @@ export const useUserStore = create<user>()(
   )
 )
 
-interface FingerMeasurements {
-  thumb: string;
-  index: string;
-  middle: string;
-  ring: string;
-  pinky: string;
-}
-
-interface UserMeasurementStorage {
-  fingerMeasurements: FingerMeasurements;
-  wristMeasurement: string;
-  setFingerMeasurements: (userId: string, measurements: FingerMeasurements) => Promise<void>;
-  setWristMeasurement: (userId: string, size: string) => Promise<void>;
-  resetMeasurements: () => void;
-}
-
-// Create the Zustand store
-interface UserMeasurementStorage {
-  fingerMeasurements: FingerMeasurements;
-  wristMeasurement: string;
-  fetchMeasurements: (userId: string) => Promise<void>;
-  setFingerMeasurements: (userId: string, measurements: FingerMeasurements) => Promise<void>;
-  setWristMeasurement: (userId: string, size: string) => Promise<void>;
-  resetMeasurements: () => void;
-}
-
 // Create the Zustand store
 export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
   devtools(
@@ -154,11 +143,8 @@ export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
         wristMeasurement: '',
 
         // Fetch measurements from Firestore and update Zustand state
-        fetchMeasurements: async (userId: string) => {
+        fetchMeasurements: async (measurements: any) => {
           try {
-            const userDoc = await firestore().collection('user').doc(userId).get();
-            const measurements = userDoc.data()?.measurements;
-
             if (measurements) {
               set({
                 fingerMeasurements: measurements.fingerMeasurements || {
@@ -235,31 +221,6 @@ export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
   )
 );
 
-// Zustand store definition
-interface AppFirstLaunch {
-  firstLaunch: boolean;
-  showIntro: boolean;
-  email: string | null;
-  setFirstLaunch: () => void;
-  hideIntro: () => void;
-  setEmailAndFirstLaunch: (email: string) => void;
-  resetApp: () => void; // for debugging only
-}
-
-// Helper function to check if email is new
-const isEmailNew = async (email: string): Promise<boolean> => {
-  const storedEmails = await AsyncStorage.getItem('loggedEmails');
-  const loggedEmails = storedEmails ? JSON.parse(storedEmails) : [];
-
-  if (loggedEmails.includes(email)) {
-    return false; // Email has logged in before
-  } else {
-    loggedEmails.push(email);
-    await AsyncStorage.setItem('loggedEmails', JSON.stringify(loggedEmails));
-    return true; // Email is new
-  }
-};
-
 // Zustand implementation
 export const useIsAppFirstLaunchStore = create<AppFirstLaunch>()(
   devtools(
@@ -287,10 +248,6 @@ export const useIsAppFirstLaunchStore = create<AppFirstLaunch>()(
 );
 
 // Zustand store definition for theme
-interface ColorSchemeStorage {
-  theme: 'light' | 'dark' | null;
-  toggleTheme: (newTheme: 'light' | 'dark' | null) => void;
-}
 
 // Zustand store for theme
 export const useColorSchemeStore = create<ColorSchemeStorage>()(
@@ -313,45 +270,18 @@ export const useColorSchemeStore = create<ColorSchemeStorage>()(
   )
 );
 
-//completed implementation on firebase firestore
-
-interface FavoritesItem {
-  id: number;
-  name: string;
-  img?: string;
-  price: string;
-}
-
 // Favorites Store
-interface FavoritesStorage {
-  favorites: number[]; // Array of FavoritesItem objects
-  fetchFavorites: (userId: string) => Promise<void>;
-  addFavorite: (userId: string, favoriteId: number) => Promise<void>;
-  removeFavorite: (userId: string, favoriteId: number) => Promise<void>;
-  isFavorite: (id: number) => boolean;
-  resetFavorites: () => void;
-}
-
 export const useFavoritesStore = create<FavoritesStorage>()(
   devtools(
     persist(
       (set, get) => ({
         favorites: [],
 
-        fetchFavorites: async (userId: string) => {
+        fetchFavorites: async (favorites) => {
           try {
-            const snapshot = await firestore()
-              .collection(`user`)
-              .doc(userId)
-              .get();
-            //console.log('userId', userId)
-            const userFavorites = snapshot.data()?.favorites; 
-          
-            
-            //console.log('favs', userFavorites)
-
-            // Set the favorites to include full product data
-            set({ favorites: userFavorites });
+            if (favorites && Array.isArray(favorites)) {
+              set({ favorites: favorites });
+            }
           } catch (error) {
             console.error('Error fetching favorites:', error);
           }
@@ -426,32 +356,6 @@ export const useFavoritesStore = create<FavoritesStorage>()(
 );
 
 
-// Cart Store
-export interface CartItem {
-  id:number;
-  img?: string;
-  name?: string;
-  size: number;
-  quantity: number;
-  price: string;
-}
-// Update CartStorage interface if necessary
-interface CartStorage {
-  cart: CartItem[];
-  checkOutCartItems: CartItem[];
-  fetchCart: (userId: string) => Promise<void>;
-  addToCart: (userId: string, cartItem: CartItem) => Promise<void>;
-  removeFromCart: (userId: string, cartItemId: number, cartItemSize: number, cartItemQty: number, cartItemPrice: string, noToastNotif?: boolean) => Promise<void>;
-  updateQuantity: (userId: string, cartItemId: number, cartItemQty: number, cartItemSize: number, cartItemPrice: string) => Promise<void>;
-  addCheckOutCartItems: (cartItem: CartItem[]) => void;
-  resetCart: () => void;
-  resetCheckOutCartItems: () => void;
-  totalItems: () => number;
-  totalPrice: () => number;
-  checkOutTotalPrice: () => number;
-  checkOutTotalItems: () => number;
-}
-
 // Your Zustand store implementation
 export const useCartStore = create<CartStorage>()(
   devtools(
@@ -459,27 +363,11 @@ export const useCartStore = create<CartStorage>()(
       (set, get) => ({
         cart: [],
         checkOutCartItems: [],
-        fetchCart: async (userId: string) => {
+        fetchCart: async (cart) => {
           try {
-            const snapshot = await firestore()
-              .collection(`user`)
-              .doc(userId)
-              .get()
-
-            if (!snapshot.exists) {
-              console.error('user cart does not exists');
-              set({ cart: [] }); // Set cart to an empty array if the user does not exist     
-              return;
+            if (cart && Array.isArray(cart)) {
+              set({ cart: cart });
             }
-            //const rawCart = snapshot.data()?.cart || [];
-            //const rawCartIds = rawCart.map((item: CartItem ) => item.id);
-            //console.log('Extracted Cart IDs:', rawCartIds); 
-            //const cartItems = await Promise.all(rawCartIds.map((id: number) => {
-
-            //}));
-            const userCartItems = snapshot.data()?.cart
-            //console.log('full cart:', userCartItems)
-            set({ cart: userCartItems });
           } catch (error) {
             console.error('Error fetching cart:', error);
           }
@@ -642,26 +530,6 @@ export const useCartStore = create<CartStorage>()(
 );
 
 
-export interface OrderItem {
-  orderId: string; // Order ID
-  userId: string; // ID of the user who placed the order
-  items: CartItem[]; // Items in the order
-  totalAmount: number; // Total price of the order
-  totalItems: number;
-  status: "pending" | "shipped" |"delivered" | "cancelled" | "returned"; // Order status
-  createdAt: string; // Timestamp of order creation
-  ETA: string;
-  shippingAddress: shippingAddress
-}
-
-interface OrderStorage {
-  orders: OrderItem[];
-  fetchOrders: (userId: string) => Promise<void>;
-  addOrder: (userId: string, orderId: string, cartItems: CartItem[], totalAmount: number, totalItems: number, ETA: string, shippingAddress: shippingAddress) => Promise<void>;
-  updateOrderStatus: (userId: string, orderId: string, status: "pending" | "completed" | "cancelled") => Promise<void>;
-  resetOrders: () => void;
-}
-
 export const useOrderStore = create<OrderStorage>()(
   devtools(
     persist(
@@ -669,21 +537,11 @@ export const useOrderStore = create<OrderStorage>()(
         orders: [],
 
         // Fetch orders for a specific user
-        fetchOrders: async (userId: string) => {
+        fetchOrders: async (orders) => {
           try {
-            const snapshot = await firestore()
-              .collection("user")
-              .doc(userId)
-              .get();
-
-            if (!snapshot.exists) {
-              console.log("No user found");
-              set({ orders: [] });
-              return;
+            if (orders && Array.isArray(orders)) {
+              set({ orders: orders });
             }
-
-            const userOrders: OrderItem[] = snapshot.data()?.orders || [];
-            set({ orders: userOrders });
           } catch (error) {
             console.error("Error fetching orders:", error);
           }
@@ -718,7 +576,7 @@ export const useOrderStore = create<OrderStorage>()(
               orders: [...state.orders, newOrder],
             }));
 
-            console.log("Order placed successfully!");
+            //console.log("Order placed successfully!");
           } catch (error) {
             console.error("Error adding order:", error);
           }
@@ -764,45 +622,16 @@ export const useOrderStore = create<OrderStorage>()(
   )
 );
 
-export interface shippingAddress {
-  id: string;
-  fullName: string;
-  contactNo: string;
-  addressType: string;
-  defaultAddress: boolean;
-  streetBldgHouseNo: string;
-  postalCode: string;
-  rpcb: string; // Region, province, city, barangay
-}
-
-interface shippingDetailsStore {
-  shippingDetails: shippingAddress[]; 
-  fetchShippingDetails: (userId: string) => Promise<void>;
-  addShippingDetails: (userId: string, newShippingAddress: shippingAddress) => Promise<void>;
-  removeShippingDetails: (userId: string, shippingAddressToRemove: shippingAddress) => Promise<void>;
-  updateShippingDetails: (userId: string, updatedShippingAddress: shippingAddress) => Promise<void>;
-}
-
 export const useShippingDetailsStore = create<shippingDetailsStore>()(
   devtools(
     persist(
       (set, get) => ({
         shippingDetails: [], // Initialize as an empty array of shippingAddress
-        fetchShippingDetails: async (userId: string) => {
+        fetchShippingDetails: async (shippingDetails) => {
           try {
-            const snapshot = await firestore()
-              .collection("user")
-              .doc(userId)
-              .get();
-
-            if (!snapshot.exists) {
-              console.log("No user found");
-              set({ shippingDetails: [] });
-              return;
+            if (shippingDetails && Array.isArray(shippingDetails)) {
+              set({ shippingDetails: shippingDetails });
             }
-
-            const userShippingDetails: shippingAddress[] = snapshot.data()?.shippingDetails || [];
-            set({ shippingDetails: userShippingDetails });
           } catch (error) {
             console.error("Error fetching orders:", error);
           }
@@ -871,7 +700,10 @@ export const useShippingDetailsStore = create<shippingDetailsStore>()(
                 )
               });
             });
-        }
+        },
+        resetShippingDetails:()  => {
+            set({ shippingDetails: [] });
+        },
       }),
       {
         name: 'SHIPPING_DETAILS', // Unique name for the storage
@@ -880,21 +712,6 @@ export const useShippingDetailsStore = create<shippingDetailsStore>()(
     )
   )
 );
-
-interface ShippingAddressForm {
-  fullName: string;
-  contactNo: string;
-  rpcb: string; // Region, Province, City, Barangay
-  postalCode: string;
-  streetBldgHouseNo: string;
-  addressType: 'home' | 'work';
-  defaultAddress: boolean;
-  setField: <K extends keyof ShippingAddressForm>(
-    field: K,
-    value: ShippingAddressForm[K]
-  ) => void;
-  resetShippingAddressForm: () => void;
-}
 
 export const useAddressFormStore = create<ShippingAddressForm>((set) => ({
   fullName: '',
@@ -920,3 +737,106 @@ export const useAddressFormStore = create<ShippingAddressForm>((set) => ({
       defaultAddress: false,
     }),
 }));
+
+export const usePaymentMethodsStore = create<PaymentMethodsStore>()(
+  devtools(
+    persist(
+      (set, get) => ({
+        paymentMethods: [],
+        
+        // Function to fetch payment methods
+        fetchPaymentMethods: async (paymentMethods: PaymentMethods[]) => {
+          set({ paymentMethods: paymentMethods });
+        },
+
+        // Add a new payment method and automatically identify card type
+        addPaymentMethod: async (userId: string, addedPaymentMethod: PaymentMethods) => {
+         await firestore()
+          .collection('user')
+          .doc(userId)
+          .update({
+            paymentMethods: firebase.firestore.FieldValue.arrayUnion(addedPaymentMethod),
+          }) 
+          set((state) => ({
+              paymentMethods: [...state.paymentMethods, addedPaymentMethod],
+          }));
+        },
+       // Update an existing payment method
+        updatePaymentMethod: async (userId: string, updatedPaymentMethod: PaymentMethods) => {
+          try {
+            // Get the current user document
+            const userDocRef = firestore().collection('user').doc(userId);
+            
+            // Fetch the current user's payment methods to find the one that needs to be updated
+            const userDoc = await userDocRef.get();
+            if (!userDoc.exists) {
+              console.log("User not found!");
+              return;
+            }
+
+            // Fetch the existing payment methods array from the document
+            const currentPaymentMethods = userDoc.data()?.paymentMethods || [];
+
+            // Find the index of the payment method to update based on card number
+            const paymentMethodIndex = currentPaymentMethods.findIndex((method: { cardNumber: string; }) => method.cardNumber === updatedPaymentMethod.cardNumber);
+
+            if (paymentMethodIndex === -1) {
+              console.log("Payment method not found!");
+              return;
+            }
+
+            // Update the specific payment method
+            currentPaymentMethods[paymentMethodIndex] = updatedPaymentMethod;
+
+            // Now, update the Firestore document with the modified payment methods array
+            await userDocRef.update({
+              paymentMethods: currentPaymentMethods,
+            });
+
+            // Update the store state with the new payment methods list
+            set((state) => ({
+              paymentMethods: currentPaymentMethods,
+            }));
+
+            console.log("Payment method updated successfully");
+          } catch (error) {
+            console.error("Error updating payment method: ", error);
+          }
+        },
+
+        // Remove a payment method
+        removePaymentMethod: async (userId: string, removedPaymentMethod: PaymentMethods) => {
+          try {
+            // 1. Remove the payment method from the local state
+            set((state) => {
+              const updatedPaymentMethods = state.paymentMethods.filter((method) => 
+                method.cardNumber !== removedPaymentMethod.cardNumber // Filter out the method to remove
+              );
+
+              return { paymentMethods: updatedPaymentMethods };
+            });
+
+            // 2. Remove the payment method from Firestore
+            const userDocRef = firestore().collection('user').doc(userId);
+            
+            await userDocRef.update({
+              paymentMethods: firebase.firestore.FieldValue.arrayRemove(removedPaymentMethod), // Remove the specific payment method
+            });
+
+            console.log("Payment method removed successfully");
+          } catch (error) {
+            console.error("Error removing payment method: ", error);
+          }
+        },
+
+        resetPaymentMethod: () => {
+          set({ paymentMethods: [] });
+        }
+      }),
+      {
+        name: 'PAYMENT_METHODS', // Key for storage 
+        storage: createJSONStorage(() => AsyncStorage), 
+      }
+    )
+  )
+);

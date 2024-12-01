@@ -11,13 +11,14 @@ import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabC
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Entypo, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import { darkBrown, mustard } from '@/constants/Colors';
-import auth from '@react-native-firebase/auth';
+import auth, { reauthenticateWithCredential } from '@react-native-firebase/auth';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import { ThemedText } from '@/components/ThemedText';
 import { useUserStore } from '@/store/appStore';
 import Loader from '@/components/Loader';
 import { router } from 'expo-router';
 import * as yup from 'yup';
+import * as SecureStore from 'expo-secure-store';
 import ThemedModal from '@/components/ThemedModal';
 
 const emailSchema = yup.object().shape({
@@ -27,7 +28,8 @@ const emailSchema = yup.object().shape({
 export default function EditEmail() {
   const theme = useColorSchemeTheme();
   const { userId, userEmail, setUserEmail, userEmailVerified, setUserEmailVerified } = useUserStore();
-  const isEmailVerified = auth().currentUser?.emailVerified || false;
+  const user = auth().currentUser;
+  const isEmailVerified = user?.emailVerified || false;
   const currentUserEmail = userEmail || ''
   const [email, setEmail] = useState(currentUserEmail);
   const [loading, setLoading] = useState(false);
@@ -35,21 +37,54 @@ export default function EditEmail() {
   const [verificationEmailSent, setVerificationEmailSent] = useState(false);
 
   useEffect(() => {
-    setUserEmailVerified(isEmailVerified);
-  },[userEmailVerified])
+    if (isEmailVerified) {
+      setUserEmailVerified(isEmailVerified);
+    } else {
+      setUserEmailVerified(false)
+    }
+  },[isEmailVerified, setUserEmailVerified, userEmailVerified])
+
+  console.log(userEmailVerified)
 
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      // Validate email with yup
+
+      // Validate email using Yup
       await emailSchema.validate({ email });
-      await setUserEmail(userId, email);
+
+      // Retrieve stored email and password
+      const storedEmail = await SecureStore.getItemAsync('email');
+      const storedPassword = await SecureStore.getItemAsync('password');
+
+      if (storedEmail && storedPassword) {
+        const user = auth().currentUser;
+
+        if (!user) {
+          throw new Error('No user is currently signed in.');
+        }
+
+        // Create credential using stored email and password
+        const credential = auth.EmailAuthProvider.credential(storedEmail, storedPassword);
+
+        // Reauthenticate the user
+        await reauthenticateWithCredential(user, credential);
+
+        console.log('User re-authenticated successfully!');
+        await setUserEmail(userId, email);
+        
+        
+        // Perform the sensitive action here (e.g., update email, delete account)
+      } else {
+        throw new Error('Stored credentials are missing.');
+      }
+    } catch (error: any) {
+      console.error('Error during re-authentication:', error.message);
+      setError(error.message); // Display the error message to the user
+    } finally {
+      setLoading(false);
       setVerificationEmailSent(false);
-      setLoading(false);
       router.back();
-    } catch (validationError: any) {
-      setLoading(false);
-      setError(validationError.message); // Show validation error
     }
   };
 

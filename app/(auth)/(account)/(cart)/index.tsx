@@ -9,7 +9,8 @@ import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabC
 import { Drawer } from 'react-native-drawer-layout';
 import { router } from 'expo-router';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
-import { CartItem, useCartStore, useUserStore } from '@/store/appStore';
+import { useCartStore, useUserStore } from '@/store/appStore';
+import { CartItem } from '@/types/useCartStoreTypes';
 import { appData } from '@/assets/data/appData';
 import ThemedDivider from '@/components/ThemedDivider';
 import { Swipeable } from 'react-native-gesture-handler';

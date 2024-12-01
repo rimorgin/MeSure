@@ -56,7 +56,7 @@ export default function Accounts() {
           <TouchableOpacity
             style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}
             onPress={() => {
-              router.navigate('/(account)/(addresses)/')
+              router.navigate('/(account)/(paymentmethods)/')
             }}
           >
             <TextInput

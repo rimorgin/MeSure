@@ -1,10 +1,10 @@
-import { FlatList, Image, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, TouchableOpacity } from 'react-native'
+import { FlatList, Image, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { ThemedView } from '@/components/ThemedView'
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors, darkBrown, mustard } from '@/constants/Colors';
 import { ThemedText } from '@/components/ThemedText';
-import { shippingAddress, useCartStore, useOrderStore, useShippingDetailsStore, useUserStore } from '@/store/appStore';
+import { useCartStore, useOrderStore, usePaymentMethodsStore, useShippingDetailsStore, useUserStore } from '@/store/appStore';
 import { router, useLocalSearchParams } from 'expo-router';
 import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
@@ -12,6 +12,9 @@ import ThemedBottomSheet, { ThemedBottomSheetRef } from '@/components/ThemedBott
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import ThemedDivider from '@/components/ThemedDivider';
 import { makeid } from '@/utils/makeId';
+import { shippingAddress } from '@/types/useShippingDetailsStoreTypes';
+import { PaymentMethods } from '@/types/usePaymentMethodsStoreTypes';
+import { cardTypeImages } from '@/utils/identifyCardType';
 
 export default function Checkout() {
   const { shippingAddressId } = useLocalSearchParams<{shippingAddressId: string}>()
@@ -20,25 +23,37 @@ export default function Checkout() {
   const { shippingDetails } = useShippingDetailsStore();
   const { removeFromCart, checkOutCartItems, checkOutTotalPrice, checkOutTotalItems } = useCartStore();
   const { addOrder } = useOrderStore();
+  const { paymentMethods } = usePaymentMethodsStore();
   const bottomSheetRef = useRef<ThemedBottomSheetRef>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>('Cash on Delivery');
   const [shippingAddress, setShippingAddress] = useState<shippingAddress>();
+  const [defaultPaymentMethod, setDefaultPaymentMethod] = useState<PaymentMethods | undefined>(undefined);
   const snapPoints = ['20%', '40%']
   const [sheetIndex, newSheetIndex] = useState(0);
   const shippingFee = 40;
+  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
+
     //from the change address picker
     if (shippingAddressId) {
       setShippingAddress(shippingDetails.find((address) => address.id === shippingAddressId))
       //else, load the default
     } else if (shippingDetails) {
       const defaultShippingAddress = shippingDetails.find((address) => address.defaultAddress === true);
+      console.log(defaultShippingAddress);
       if (defaultShippingAddress) {
         setShippingAddress(defaultShippingAddress);
       }
     }
   }, [shippingDetails]);
+
+  useEffect(() => {
+    const defaultPayment = paymentMethods.find((card) => card.defaultPaymentMethod === true)
+    if (!defaultPayment) return
+    console.log('checkout', defaultPayment)
+    setDefaultPaymentMethod(defaultPayment)
+  },[paymentMethods])
   
 
   const ETA = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toDateString()
@@ -46,21 +61,21 @@ export default function Checkout() {
   const jatot = checkOutTotalPrice() + shippingFee
   const totalItems = checkOutTotalItems();
 
-  console.log(totalItems)
-
-  const options = [
-    {
-      name: 'Cash on Delivery',
-      icon: 'cash'
-    }, 
-    {
-      name: 'Credit / Debit Card',
-      accountNumber: 'XXXX XXXX XXXX 5678 (DEMO ONLY)',
-      icon: 'credit-card'
-    }
-  ];
+  function getCardSuffix(cardNumber: string) {
+    return cardNumber.slice(-4); // Get the last 4 digits
+  }
+  const renderAsterisks = () => {
+    return Array.from({ length: 12 }).map((_, index) => (
+      <React.Fragment key={index}>
+        <FontAwesome name="asterisk" size={9} color="white"/>
+        {/* Add a space every 4th element */}
+        {(index + 1) % 4 === 0 && <View style={{ width: 5, marginBottom: 5 }} />} {/* Adjust width to set space */}
+      </React.Fragment>
+    ));
+  };
 
   const handleConfirmOrder = async () => {
+    setLoading(true);
     const orderId = makeid(10);
     console.log(orderId);
 
@@ -75,10 +90,12 @@ export default function Checkout() {
         console.log(item);
         await removeFromCart(userId, item.id, item.size, item.quantity, item.price, true);
       });
+      setLoading(false);
       //make this dynamic route
       router.push(`/ordersummary?orderId=${orderId}&paymentMethod=${selectedOption}&totalPrice=${jatot}&ETA=${ETA}&totalItems=${totalItems}`);
     } else {
       alert('Please select a payment option');
+      setLoading(false);
     }
   };
 
@@ -125,17 +142,7 @@ export default function Checkout() {
               SHIPPING DETAILS
             </ThemedText>
             <ThemedView>
-            {!shippingAddress ? (
-              <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center' }}
-                onPress={() => router.navigate(`/(account)/(addresses)/editaddress?shippingAddressId=${shippingAddress?.id}`)}
-              >
-                <ThemedText font="cocoGothicBold" lightColor={darkBrown}>
-                  EDIT
-                </ThemedText>
-                <Ionicons name="pencil" size={18} color={darkBrown} />
-              </TouchableOpacity>
-            ) : (
+            {shippingAddress ? (
               <TouchableOpacity
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
                 onPress={() => router.navigate(`/(account)/(addresses)/pickaddress`)}
@@ -144,6 +151,16 @@ export default function Checkout() {
                   CHANGE
                 </ThemedText>
                 <FontAwesome name="exchange" size={18} color={darkBrown} />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center' }}
+                onPress={() => router.navigate(`/(account)/(addresses)/editaddress?shippingAddressId=${shippingAddress?.id}`)}
+              >
+                <ThemedText font="cocoGothicBold" lightColor={darkBrown}>
+                  EDIT
+                </ThemedText>
+                <Ionicons name="pencil" size={18} color={darkBrown} />
               </TouchableOpacity>
              )}
             </ThemedView>
@@ -226,35 +243,52 @@ export default function Checkout() {
             >PAYMENT METHOD
             </ThemedText>
           </ThemedView>
-          <FlatList
-            scrollEnabled={false}
-            data={options}
-            keyExtractor={(item) => item.name} // Ensure each item has a unique key
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => setSelectedOption(item.name)}>
-                <ThemedView style={styles.paymentOption}>
-                  <ThemedView style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-                    <MaterialCommunityIcons name={item.icon} size={28} color={darkBrown} />
-                    <ThemedView>
-                      <ThemedText>{item.name}</ThemedText>
-                      {item.accountNumber && (
-                        <ThemedText 
-                          style={{ 
-                            color: '#777',
-                            fontSize: 12,
-                          }}
-                        >{item.accountNumber}
-                        </ThemedText>
-                      )}
-                    </ThemedView>
-                  </ThemedView>
-                  <ThemedView style={styles.radioCircle}>
-                    {selectedOption === item.name && <ThemedView style={styles.selectedCircle} />}
+          <TouchableOpacity onPress={() => setSelectedOption('Cash on Delivery')}>
+            <ThemedView style={styles.paymentOption}>
+              <ThemedView style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+                <MaterialCommunityIcons name='cash' size={28} color={darkBrown} />
+                <ThemedView>
+                  <ThemedText>Cash on Delivery</ThemedText>
+                </ThemedView>
+              </ThemedView>
+              <ThemedView style={styles.radioCircle}>
+                {selectedOption === 'Cash on Delivery' && <ThemedView style={styles.selectedCircle} />}
+              </ThemedView>
+            </ThemedView>
+          </TouchableOpacity>
+          {defaultPaymentMethod ? (
+            <TouchableOpacity onPress={() => setSelectedOption('Credit/Debit Card')}>
+              <ThemedView style={styles.paymentOption}>
+                <ThemedView style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+                  <Image source={cardTypeImages[defaultPaymentMethod.cardType]} style={{width: 28, height: 28}} resizeMode='contain'/>
+                  <ThemedView>
+                    <ThemedText>Credit/Debit Card</ThemedText>
+                    <ThemedText>{`**** **** **** ${getCardSuffix(defaultPaymentMethod.cardNumber)}`}</ThemedText>
                   </ThemedView>
                 </ThemedView>
-              </TouchableOpacity>
-            )}
-          />
+                <ThemedView style={styles.radioCircle}>
+                  {selectedOption === 'Credit/Debit Card' && <ThemedView style={styles.selectedCircle} />}
+                </ThemedView>
+              </ThemedView>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity onPress={() => router.navigate('/(auth)/(account)/(paymentmethods)/addpaymentmethod')}>
+              <ThemedView style={styles.paymentOption}>
+                <ThemedView style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+                  <MaterialCommunityIcons name='credit-card-chip-outline' size={26} color={darkBrown} />
+                  <ThemedView>
+                    <ThemedText>No Credit/Debit Card yet</ThemedText>
+                  </ThemedView>
+                </ThemedView>
+                <Ionicons
+                  name='add-circle'
+                  size={26}
+                  color={'#5A5A5A'}
+                  style={{marginRight: 11}}
+                />
+              </ThemedView>
+            </TouchableOpacity>
+          )}
         </ThemedView>
         <ThemedView style={styles.orderSummary}>
           <ThemedText 
