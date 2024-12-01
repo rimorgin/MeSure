@@ -27,6 +27,7 @@ export default function HomeScreen() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // State for sort order
   const [selectedCategory, setSelectedCategory] = useState<'rings' | 'bangles' | 'All'>('All'); // Default to 'All'
   const [selectedSize, setSelectedSize] = useState(25); // Default maximum size for the slider
+  const [showARProducts, setShowARProducts] = useState(false); // State to toggle AR-supported products
 
   const ringsCategory = appData.categories.find(category => category.name === 'rings');
   const banglesCategory = appData.categories.find(category => category.name === 'bangles');
@@ -67,7 +68,8 @@ export default function HomeScreen() {
 
   const filteredProducts = sortedProducts.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) && // Filter by search term
-    product.sizes.some((size: number) => size <= selectedSize) // Filter by selected size
+    product.sizes.some((size: number) => size <= selectedSize) && // Filter by selected size
+    (!showARProducts || product.AR) // Filter by AR support if toggled
   );
 
   return (
@@ -114,6 +116,20 @@ export default function HomeScreen() {
                     maximumTrackTintColor={Colors.light.text}
                   />
                   <ThemedText customColor={black}>Max Size: {selectedSize}</ThemedText>
+                </View>
+                {/* AR Filter */}
+                <View style={styles.arFilter}>
+                  <TouchableOpacity 
+                    style={[
+                      styles.toggleButton, 
+                      showARProducts ? styles.activeToggle : styles.inactiveToggle
+                    ]}
+                    onPress={() => setShowARProducts(!showARProducts)}
+                  >
+                    <ThemedText customColor={white}>
+                      {showARProducts ? 'Show All' : 'Show AR Supported'}
+                    </ThemedText>
+                  </TouchableOpacity>
                 </View>
               </View>
             )}
@@ -194,66 +210,59 @@ const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
     backgroundColor: Colors.light.background,
-    padding: 16,
-    overflow: 'hidden',
-  },
-  headerContent: {
-    width: '100%',
-    gap: 25
-  },
-  headerImg: {
-    height: '100%',
-    width: '100%',
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-    opacity: 0.888,
-  },
-  cartButton: {
-    padding: 8, 
-    borderRadius: 8,
-  },
-  cartCount: {
-    position: 'absolute',
-    alignItems: 'center',
-    top: 0,
-    right: 0,
-    backgroundColor: tintColorLight,
-    width: 25,
-    height: 25, 
-    zIndex: 2,
-    borderRadius: 15,
-    transform: [
-      { translateX: 10 },
-      { translateY: -10 },
-    ],
-  },
-  filterButton: {
-    paddingHorizontal: 10,
-  },
-  contentContainer: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 15,
-    paddingBottom: 100,
-    overflow: 'hidden',
-  },
-  listItems: {
-    flex: 1,
-    overflow: 'hidden',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   sortOptions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     marginVertical: 10,
   },
   sortOrder: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     marginVertical: 10,
   },
   sizeFilter: {
-    marginTop: 20,
+    marginVertical: 10,
   },
-
+  arFilter: {
+    marginVertical: 10,
+  },
+  toggleButton: {
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  activeToggle: {
+    backgroundColor: tintColorLight,
+  },
+  inactiveToggle: {
+    backgroundColor: '#2c1414',
+  },
+  contentContainer: {
+    flex: 1,
+    backgroundColor: Colors.light.background,
+    padding: 10,
+  },
+  headerContent: {
+    paddingHorizontal: 10,
+  },
+  cartButton: {
+    marginRight: 10,
+  },
+  cartCount: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: tintColorLight,
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterButton: {
+    marginLeft: 10,
+  },
+  listItems: {
+    flex: 1,
+    marginHorizontal: 16,
+  },
 });
