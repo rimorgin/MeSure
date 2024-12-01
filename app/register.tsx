@@ -259,20 +259,6 @@ export default function Register() {
           </ThemedTouchableFilled>
 
 
-          <View style={styles.socialLoginContainer}>
-        <ThemedText type='default' style={styles.socialButtonText}>Or Sign up using</ThemedText>
-              <TouchableOpacity style={styles.socialButton}>
-                <FontAwesome name="facebook" size={20} color="#4267B2" />
-                <ThemedText type="default" style={styles.socialButtonText}>Sign up with Facebook</ThemedText>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.socialButton}>
-                <FontAwesome name="google" size={20} color="#DB4437" />
-                <ThemedText type="default" style={styles.socialButtonText}>Sign up with Google</ThemedText>
-              </TouchableOpacity>
-
-    
-            </View>
             
           <ThemedTouchablePlain
             variant='opacity'

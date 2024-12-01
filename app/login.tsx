@@ -259,22 +259,7 @@ export default function Login() {
 
   
 
-      {/* Social login buttons */}
-
-      <View style={styles.socialLoginContainer}>
-      <ThemedText type='default' style={styles.register}>Or Sign in using</ThemedText>
-            <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="facebook" size={20} color="#4267B2" />
-              <ThemedText type="default" style={styles.socialButtonText}>Continue with Facebook</ThemedText>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.socialButton}>
-              <FontAwesome name="google" size={20} color="#DB4437" />
-              <ThemedText type="default" style={styles.socialButtonText}>Continue with Google</ThemedText>
-            </TouchableOpacity>
-
   
-          </View>
 
         <ThemedView style={styles.register}>
           <ThemedText type="default">
