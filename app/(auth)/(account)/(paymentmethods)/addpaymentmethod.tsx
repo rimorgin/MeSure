@@ -17,7 +17,7 @@ import { router } from 'expo-router'
 export default function AddPaymentMethod() {
   const theme = useColorSchemeTheme();
   const { userId } = useUserStore();
-  const { paymentMethods, addPaymentMethod } = usePaymentMethodsStore();
+  const { addPaymentMethod } = usePaymentMethodsStore();
   const [cardNumber, setCardNumber] = useState<string>('');
   const [cardHolder, setCardHolder] = useState<string>('');
   const [cardExpiration, setCardExpiration] = useState<string>('');
@@ -26,6 +26,7 @@ export default function AddPaymentMethod() {
   const [defaultPaymentMethod, setDefaultPaymentMethod] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  
   const toggleSwitch = () => setDefaultPaymentMethod(!defaultPaymentMethod)
 
   

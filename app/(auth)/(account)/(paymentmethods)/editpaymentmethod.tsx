@@ -32,7 +32,7 @@ export default function EditPaymentMethod() {
     if (!editingPaymentMethods) {
       return
     }
-    console.log(editingPaymentMethods);
+    //console.log(editingPaymentMethods);
     setCardNumber(editingPaymentMethods.cardNumber)
     setCardHolder(editingPaymentMethods.holderName)
     setCardExpiration(editingPaymentMethods.expirationDate)

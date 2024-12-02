@@ -1,8 +1,8 @@
 
 
 
-import React, { useState } from 'react';
-import { TouchableOpacity, TextInput, StyleSheet, View, SafeAreaView, Image, Dimensions, StatusBar } from 'react-native';
+import { useState } from 'react';
+import { TextInput, StyleSheet, SafeAreaView, Image, Dimensions, StatusBar } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
@@ -12,7 +12,6 @@ import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/Themed
 import { ThemedView } from '@/components/ThemedView';
 import { useSession } from '@/provider/AuthContext';
 import { Colors, white } from '@/constants/Colors';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import Loader from '@/components/Loader';
 
@@ -288,7 +287,7 @@ export default function Register() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   formcontainer: {
     flex: 1,

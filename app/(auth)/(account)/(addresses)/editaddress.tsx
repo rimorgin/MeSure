@@ -23,13 +23,14 @@ export default function EditAddress() {
   const [loading, setLoading] = useState(false);
   const { userId } = useUserStore();
   const { shippingDetails, updateShippingDetails } = useShippingDetailsStore();
+  const defaultAddressExists = shippingDetails.find((address) => address.defaultAddress === true)
   const { fullName, contactNo, rpcb, postalCode, streetBldgHouseNo, addressType, defaultAddress, setField, resetShippingAddressForm } = useAddressFormStore();
   const [notFound, setNotFound] = useState(false);
   
   useEffect(() => {
     if (shippingAddressId) {
       const shippingAddress = shippingDetails.find((address) => address.id === shippingAddressId);
-      console.log('match ',shippingAddress)
+      //console.log('match ',shippingAddress)
       if (shippingAddress) {
         setField('fullName', shippingAddress.fullName)
         setField('contactNo', shippingAddress.contactNo)
@@ -45,9 +46,15 @@ export default function EditAddress() {
 
   },[])
   // make a query on local state
-  console.log(shippingAddressId)
+  //console.log(shippingAddressId)
 
-  const toggleSwitch = () => setField('defaultAddress', !defaultAddress);
+  const toggleSwitch = () => {
+    if (defaultAddressExists) {
+      alert('Default address already exists!')
+    } else {
+      setField('defaultAddress', !defaultAddress)
+    }
+  };
 
   const handleAddressTypeChange = (type: 'home' | 'work') => {
     setField('addressType', type);

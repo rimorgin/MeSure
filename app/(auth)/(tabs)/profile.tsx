@@ -25,7 +25,7 @@ const { width } = Dimensions.get('screen');
 export default function ProfileScreen() {
     const theme = useColorSchemeTheme() ?? 'light';
     const { toggleTheme } = useColorSchemeStore();
-    const { userId, userEmail } = useUserStore();
+    const { userId, userEmail, userEmailVerified } = useUserStore();
     const isEnabled = theme === 'dark';
     const userFullName = useUserStore((state) => state.userFullName);
     const { fingerMeasurements, wristMeasurement, setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
@@ -45,7 +45,7 @@ export default function ProfileScreen() {
     const [inputFocus, setInputFocus] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const nameParts = userFullName?.split(' ') || [];
+    const nameParts = userFullName?.trim().split(' ') || [];
 
     // Set the first word as the first name
     const firstName = nameParts[0] || '';
@@ -132,6 +132,13 @@ export default function ProfileScreen() {
               type="default"
               customColor={white}
             >{userEmail}
+            </ThemedText>
+            <ThemedText
+              font='montserratLight' 
+              type="default"
+              textAligned='right'
+              customColor={'#CCC'}
+            >{userEmailVerified ? '(verified)' : '(unverified)'}
             </ThemedText>
           </ThemedView>
           <Image 
@@ -365,6 +372,8 @@ export default function ProfileScreen() {
                         </TouchableOpacity>
                         <ThemedTouchableFilled
                           onPress={() => handleSubmitAddMeasurement('fingers')}
+                          disabled={!fingerSizes.thumb || !fingerSizes.middle || !fingerSizes.pinky || !fingerSizes.ring || !fingerSizes.thumb}
+                          style={{backgroundColor: !fingerSizes.thumb || !fingerSizes.middle || !fingerSizes.pinky || !fingerSizes.ring || !fingerSizes.thumb ? "#CCC" : mustard}}
                         > 
                           <ThemedText>SUBMIT</ThemedText>
                         </ThemedTouchableFilled>
@@ -394,6 +403,8 @@ export default function ProfileScreen() {
                         </TouchableOpacity>
                         <ThemedTouchableFilled
                           onPress={() => handleSubmitAddMeasurement('wrist')}
+                          disabled={!wristSize.length}
+                          style={{backgroundColor: !wristSize.length ? "#CCC" : mustard}}
                         > 
                           <ThemedText>SUBMIT</ThemedText>
                         </ThemedTouchableFilled>

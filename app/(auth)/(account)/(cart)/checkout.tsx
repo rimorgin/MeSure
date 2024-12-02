@@ -15,6 +15,7 @@ import { makeid } from '@/utils/makeId';
 import { shippingAddress } from '@/types/useShippingDetailsStoreTypes';
 import { PaymentMethods } from '@/types/usePaymentMethodsStoreTypes';
 import { cardTypeImages } from '@/utils/identifyCardType';
+import Loader from '@/components/Loader';
 
 export default function Checkout() {
   const { shippingAddressId } = useLocalSearchParams<{shippingAddressId: string}>()
@@ -41,7 +42,7 @@ export default function Checkout() {
       //else, load the default
     } else if (shippingDetails) {
       const defaultShippingAddress = shippingDetails.find((address) => address.defaultAddress === true);
-      console.log(defaultShippingAddress);
+      //console.log(defaultShippingAddress);
       if (defaultShippingAddress) {
         setShippingAddress(defaultShippingAddress);
       }
@@ -51,7 +52,7 @@ export default function Checkout() {
   useEffect(() => {
     const defaultPayment = paymentMethods.find((card) => card.defaultPaymentMethod === true)
     if (!defaultPayment) return
-    console.log('checkout', defaultPayment)
+    //console.log('checkout', defaultPayment)
     setDefaultPaymentMethod(defaultPayment)
   },[paymentMethods])
   
@@ -64,20 +65,12 @@ export default function Checkout() {
   function getCardSuffix(cardNumber: string) {
     return cardNumber.slice(-4); // Get the last 4 digits
   }
-  const renderAsterisks = () => {
-    return Array.from({ length: 12 }).map((_, index) => (
-      <React.Fragment key={index}>
-        <FontAwesome name="asterisk" size={9} color="white"/>
-        {/* Add a space every 4th element */}
-        {(index + 1) % 4 === 0 && <View style={{ width: 5, marginBottom: 5 }} />} {/* Adjust width to set space */}
-      </React.Fragment>
-    ));
-  };
+
 
   const handleConfirmOrder = async () => {
     setLoading(true);
     const orderId = makeid(10);
-    console.log(orderId);
+    //console.log(orderId);
 
     if (!shippingAddress) {
       alert('Please select a shipping address');
@@ -87,7 +80,7 @@ export default function Checkout() {
     if (selectedOption !== null) {
       await addOrder(userId, orderId, checkOutCartItems, jatot, totalItems, ETA, shippingAddress);
       checkOutCartItems.map(async (item) => {
-        console.log(item);
+        //console.log(item);
         await removeFromCart(userId, item.id, item.size, item.quantity, item.price, true);
       });
       setLoading(false);
@@ -109,6 +102,8 @@ export default function Checkout() {
   };
 
   return (
+    <>
+    {loading && <Loader/>}
     <SafeAreaView style={[styles.container, {backgroundColor: theme === 'light' ? Colors.light.background : Colors.dark.background,}]}>
      <FocusAwareStatusBar barStyle={theme==='light' ? 'dark-content' : 'light-content'} />
      <ThemedView style={{flex: 1}}>
@@ -142,27 +137,17 @@ export default function Checkout() {
               SHIPPING DETAILS
             </ThemedText>
             <ThemedView>
-            {shippingAddress ? (
+            {shippingAddress && (
               <TouchableOpacity
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
-                onPress={() => router.navigate(`/(account)/(addresses)/pickaddress`)}
+                onPress={() => router.replace(`/(account)/(addresses)/pickaddress`)}
               >
                 <ThemedText font="cocoGothicBold" lightColor={darkBrown}>
                   CHANGE
                 </ThemedText>
                 <FontAwesome name="exchange" size={18} color={darkBrown} />
               </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center' }}
-                onPress={() => router.navigate(`/(account)/(addresses)/editaddress?shippingAddressId=${shippingAddress?.id}`)}
-              >
-                <ThemedText font="cocoGothicBold" lightColor={darkBrown}>
-                  EDIT
-                </ThemedText>
-                <Ionicons name="pencil" size={18} color={darkBrown} />
-              </TouchableOpacity>
-             )}
+            )}
             </ThemedView>
           </ThemedView>
           {!shippingAddress ? (
@@ -211,13 +196,19 @@ export default function Checkout() {
               <ThemedView style={{flexDirection: 'row', gap: 10}}>
                 {shippingAddress?.defaultAddress && 
                 <ThemedView style={styles.boxes}>
-                  <ThemedText>Default</ThemedText>
+                  <ThemedText>default</ThemedText>
                 </ThemedView>
                 }
                 <ThemedView style={styles.boxes}>
                   <ThemedText>{shippingAddress?.addressType}</ThemedText>
                 </ThemedView>
               </ThemedView>
+              <ThemedText 
+                font="montserratLight"
+                customColor='#AAA'
+                style={{position:'absolute', bottom: 15, right: 10}}
+              >{'(click to edit)'}
+              </ThemedText>
             </ThemedView>
           </TouchableOpacity>
           )}
@@ -370,6 +361,7 @@ export default function Checkout() {
       </ThemedBottomSheet>
      </ThemedView>
     </SafeAreaView>
+    </>
   )
 }
 
@@ -429,7 +421,7 @@ const styles = StyleSheet.create({
   eta: {
     marginTop: 35,
     borderRadius: 15,
-    height: '10%',
+    height: 'auto',
     width: '100%',
     padding: 15,
     borderColor: '#CCC',

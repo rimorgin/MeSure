@@ -90,6 +90,17 @@ export default function PickAddress() {
             </ThemedView>
           )
         }}
+        ListFooterComponent={() => 
+          shippingDetails.length > 0 && ( 
+          <>
+          <ThemedDivider width={0.1} opacity={0.1} marginY={20} />
+          <ThemedTouchableFilled
+            onPress={() => router.navigate('/(account)/(addresses)/addnewaddress')}
+          >
+            <ThemedText>Add new address</ThemedText>
+          </ThemedTouchableFilled>
+          </>
+        )}
       />
     </ThemedView>
     </>

@@ -4,7 +4,7 @@ import { ThemedView } from '@/components/ThemedView'; // View component with the
 import SearchInput from '@/components/SearchBar'; // Custom search input component
 import Ionicons from '@expo/vector-icons/Ionicons'; // Icons from Expo Ionicons package
 import { router } from 'expo-router'; // Router for navigation
-import { black, Colors, tintColorLight, white } from '@/constants/Colors'; // Color constants
+import { black, Colors, darkBrown, tintColorLight, white } from '@/constants/Colors'; // Color constants
 import { FlashList } from "@shopify/flash-list"; // High-performance list component
 import { appData } from '@/assets/data/appData'; // Data source for categories and items
 import { Drawer } from 'react-native-drawer-layout'; // Drawer layout for side menus
@@ -16,7 +16,7 @@ import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabC
 import { HelloWave } from '@/components/Header';
 import Slider from '@react-native-community/slider';
 
-const { width } = Dimensions.get('screen'); // Get screen dimensions
+const { height, width } = Dimensions.get('screen'); // Get screen dimensions
 
 export default function HomeScreen() {
   const theme = useColorSchemeTheme(); // Get the current theme (light/dark)
@@ -79,6 +79,7 @@ export default function HomeScreen() {
         <ScrollView>
           <Drawer
             drawerPosition="right"
+            style={{height:height}}
             open={openFilter}
             onOpen={() => setOpenFilter(true)}
             onClose={() => setOpenFilter(false)}
@@ -111,6 +112,7 @@ export default function HomeScreen() {
                     maximumValue={25}
                     step={0.5}
                     value={selectedSize}
+                    thumbTintColor={darkBrown}
                     onValueChange={(value) => setSelectedSize(value)}
                     minimumTrackTintColor={tintColorLight}
                     maximumTrackTintColor={Colors.light.text}
@@ -139,11 +141,13 @@ export default function HomeScreen() {
                 <ThemedView style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                   <HelloWave />
                   <TouchableOpacity 
+                    style={{marginRight: -4, marginTop: 4}}
                     onPress={() => router.navigate('/(account)/(cart)/')}>
+                    
                     <Ionicons
                       style={styles.cartButton}
                       name="cart-sharp"
-                      size={24}
+                      size={30}
                       color={tintColorLight}
                     />
                     <ThemedView style={styles.cartCount}>
@@ -243,18 +247,34 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     paddingHorizontal: 10,
+    width: '100%',
+    gap: 25
+  },
+  headerImg: {
+    height: '100%',
+    width: '100%',
+    bottom: 0,
+    left: 0,
+    position: 'absolute',
+    opacity: 0.888,
   },
   cartButton: {
-    marginRight: 10,
+    padding: 8, 
+    borderRadius: 8,
   },
   cartCount: {
     position: 'absolute',
     top: 0,
     right: 0,
     backgroundColor: tintColorLight,
-    borderRadius: 10,
-    width: 20,
-    height: 20,
+    borderRadius: 15,
+    width: 25,
+    height: 25, 
+    zIndex: 2,
+    transform: [
+      { translateX: 5 },
+      { translateY: -5 },
+    ],
     justifyContent: 'center',
     alignItems: 'center',
   },

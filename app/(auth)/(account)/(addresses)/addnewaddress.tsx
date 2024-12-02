@@ -20,7 +20,8 @@ export default function AddNewAddress() {
   const { newRpcb } = useLocalSearchParams<{newRpcb: string}>()
   const theme = useColorSchemeTheme();
   const { userId } = useUserStore();
-  const { addShippingDetails } = useShippingDetailsStore();
+  const { shippingDetails, addShippingDetails } = useShippingDetailsStore();
+  const defaultAddressExists = shippingDetails.find((address) => address.defaultAddress === true)
   /*
   const [fullName, setFullName] = useState('');
   const [contactNo, setContactNo] = useState('');
@@ -42,7 +43,14 @@ export default function AddNewAddress() {
     }
   },[newRpcb, setField])
 
-  const toggleSwitch = () => setField('defaultAddress', !defaultAddress);
+
+  const toggleSwitch = () => {
+    if (defaultAddressExists) {
+      alert('Default address already exists!')
+    } else {
+      setField('defaultAddress', !defaultAddress)
+    }
+  };
 
   const handleAddressTypeChange = (type: 'home' | 'work') => {
     setField('addressType', type);

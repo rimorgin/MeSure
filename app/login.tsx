@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react'
-import { TouchableOpacity, StyleSheet, TextInput, View, Dimensions, Image, StatusBar } from "react-native";
+import { StyleSheet, TextInput, Dimensions, Image, StatusBar } from "react-native";
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -16,7 +16,6 @@ import { ThemedTouchableFilled, ThemedTouchablePlain } from '@/components/Themed
 import ThemedModal from '@/components/ThemedModal';
 import ThemedDivider from '@/components/ThemedDivider';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import Loader from '@/components/Loader';
@@ -57,7 +56,7 @@ export default function Login() {
   });
 
   // Handle form submission
-  const onSubmit = async (data: {email: string; password: string} ) => {
+  const onSubmit = async (data: any ) => {
     setLoading(true);
     const { email, password } = data;
     await signIn(email, password);
@@ -296,7 +295,8 @@ export default function Login() {
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    minHeight: Math.round(Dimensions.get('window').height)
   },
   formcontainer: {
     flex: 1,

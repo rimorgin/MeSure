@@ -358,7 +358,7 @@ export default function Favorites() {
             <Ionicons
               style={styles.cartButton}
               name="cart-sharp"
-              size={24}
+              size={30}
               color={tintColorLight}
             />
             <ThemedView style={styles.cartCount}>
@@ -541,18 +541,19 @@ const styles = StyleSheet.create({
   },
   cartCount: {
     position: 'absolute',
-    alignItems: 'center',
     top: 0,
     right: 0,
     backgroundColor: tintColorLight,
+    borderRadius: 15,
     width: 25,
     height: 25, 
     zIndex: 2,
-    borderRadius: 15,
     transform: [
-      { translateX: 10 },
-      { translateY: -10 },
+      { translateX: 5 },
+      { translateY: -5 },
     ],
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   addToCart: {
     flexDirection: 'column',

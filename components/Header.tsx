@@ -18,8 +18,7 @@ interface HelloWaveProps {
 export function HelloWave({} : HelloWaveProps) {
   const rotationAnimation = useSharedValue(0);
   const userFullName = useUserStore((state) => state.userFullName);
-  const nameParts = userFullName?.split(' ') || [];
-
+  const nameParts = userFullName?.trim().split(' ') || [];
   // Set the first word as the first name
   const firstName = nameParts[0] || '';
 
