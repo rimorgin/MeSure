@@ -2,6 +2,7 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  View,
   SafeAreaView,
   Platform,
   StatusBar,
@@ -12,7 +13,7 @@ import { ThemedView } from '@/components/ThemedView';
 import SearchInput from '@/components/SearchBar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { Colors, tintColorLight, white } from '@/constants/Colors';
+import { black, Colors, tintColorLight, white } from '@/constants/Colors';
 import { FlashList } from '@shopify/flash-list';
 import { appData } from '@/assets/data/appData';
 import { Drawer } from 'react-native-drawer-layout';
@@ -86,10 +87,7 @@ export default function HomeScreen() {
         <ScrollView>
           <Drawer
             drawerPosition="right"
-            style={{
-              height: filteredProducts.length <= 6 ? height + 50 : 'auto', 
-              paddingBottom: filteredProducts.length <= 6 ? 0 : 100
-            }}
+            style={{ height }}
             open={openFilter}
             onOpen={() => setOpenFilter(true)}
             onClose={() => setOpenFilter(false)}
@@ -138,25 +136,23 @@ export default function HomeScreen() {
                     />
                   </TouchableOpacity>
                 </ThemedView>
-                <ThemedView>
-                  <ThemedText style={{ marginBottom: 5 }} type="semititle" font="glacialIndifferenceBold">
-                    Discover Elegance
-                  </ThemedText>
-                  <FlashList
-                    data={appData.categories}
-                    horizontal
-                    renderItem={({ item, index }) => (
-                      <CategoryCard
-                        item={item}
-                        isOdd={index % 2 === 0}
-                        handleCategorySelect={() =>
-                          handleCategorySelect(item.name as 'All' | 'rings' | 'bangles')
-                        }
-                      />
-                    )}
-                    estimatedItemSize={3}
-                  />
-                </ThemedView>
+                <ThemedText style={{ marginBottom: 8 }} type="semititle" font="glacialIndifferenceBold">
+                  Discover Elegance
+                </ThemedText>
+                <FlashList
+                  data={appData.categories}
+                  horizontal
+                  renderItem={({ item, index }) => (
+                    <CategoryCard
+                      item={item}
+                      isOdd={index % 2 === 0}
+                      handleCategorySelect={() =>
+                        handleCategorySelect(item.name as 'All' | 'rings' | 'bangles')
+                      }
+                    />
+                  )}
+                  estimatedItemSize={3}
+                />
               </ThemedView>
               <ThemedView style={styles.listItems}>
                 <FlashList

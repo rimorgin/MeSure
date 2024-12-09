@@ -13,6 +13,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import { router } from 'expo-router';
 import ThemedDivider from '@/components/ThemedDivider';
+import FilterDrawer from '@/components/productfilter';
 
 const { width, height } = Dimensions.get('screen')
 
@@ -25,11 +26,18 @@ export default function Favorites() {
   const { cart, addToCart } = useCartStore();
   const [sizes, setSize] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(0);
+  const [sortOption, setSortOption] = useState<'name' | 'price'>('name'); // Default sorting by name
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // State for sort order
+  const [selectedCategory, setSelectedCategory] = useState<'rings' | 'bangles' | 'All'>('All'); // Default to 'All'
+  const [selectedSize, setSelectedSize] = useState(25); // Default maximum size for the slider
+  const [showARProducts, setShowARProducts] = useState(false); // State to toggle AR-supported products
 
   console.log('from favorites',favorites)
 
   const ringsCategory = appData.categories.find((category) => category.name === 'rings');
   const banglesCategory = appData.categories.find((category) => category.name === 'bangles');
+  const rings = ringsCategory ? ringsCategory.rings : [];
+  const bangles = banglesCategory ? banglesCategory.bangles : [];
 
   const favoriteRings = ringsCategory ? ringsCategory?.rings?.filter((ring) =>
     favorites.includes(ring.id)
@@ -43,6 +51,34 @@ export default function Favorites() {
     ...(favoriteRings ?? []), 
     ...(favoriteBangles ?? [])
   ];
+
+  const sortProducts = (products: any[]) => {
+    return products.sort((a, b) => {
+      if (sortOption === 'name') {
+        return sortOrder === 'asc'
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      } else if (sortOption === 'price') {
+        return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
+      }
+      return 0; // Default case
+    });
+  };
+
+  const selectedProducts =
+  selectedCategory === 'All'
+    ? [...(rings || []), ...(bangles || [])]
+    : selectedCategory === 'rings'
+    ? rings || []
+    : bangles || [];
+
+const sortedProducts = sortProducts([...allFavorites]); // Create a new array for sorting
+
+const filteredProducts = sortedProducts.filter(
+  (product) =>
+    product.sizes.some((size: number) => size <= selectedSize) && // Filter by selected size
+    (!showARProducts || product.AR) // Filter by AR support if toggled
+);
 
   const handleDelete = (itemId: number) => {
     // Handle deletion of the item from favorites here
@@ -369,46 +405,56 @@ export default function Favorites() {
         
       </ThemedView>
       <Drawer
-        drawerPosition='right'
-        open={openFilter}
-        onOpen={() => setOpenFilter(true)}
-        onClose={() => setOpenFilter(false)}
-        renderDrawerContent={() => (
-          <View style={styles.drawerContent}>
-            <ThemedText>Filter Options</ThemedText>
-          </View>
-        )}
-      >
-        <FlatList
-          data={allFavorites}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({item, index}) => renderItem(item, index, allFavorites)}
-          ListEmptyComponent={() => {
-              return (
-                <ThemedView style={styles.emptyScreenContainer}>
-                  <Image 
-                    style={styles.emptyScreenImage}
-                    source={require('@/assets/images/noItemsEmoji3.png')}
-                  />
-                  <ThemedText
-                    style={{marginVertical: 15}}
-                    type='subtitle'
-                    font='glacialIndifferenceBold'
-                  >
-                    Your favorites is empty
-                  </ThemedText>
-                  <ThemedTouchableFilled
-                    onPress={() => router.back()}
-                  >
-                    <ThemedText>Browse items</ThemedText>
-                  </ThemedTouchableFilled>
-                </ThemedView>
-              )
-            }}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-          scrollEventThrottle={16}
+            drawerPosition="right"
+            style={{ height }}
+            open={openFilter}
+            onOpen={() => setOpenFilter(true)}
+            onClose={() => setOpenFilter(false)}
+            renderDrawerContent={() => (
+              <FilterDrawer
+                openFilter={openFilter}
+                onClose={() => setOpenFilter(false)}
+                sortOption={sortOption}
+                setSortOption={setSortOption}
+                sortOrder={sortOrder}
+                setSortOrder={setSortOrder}
+                selectedSize={selectedSize}
+                setSelectedSize={setSelectedSize}
+                showARProducts={showARProducts}
+                setShowARProducts={setShowARProducts}
+              />
+            )}
+          >
+   <FlatList
+  data={sortedProducts} // Use sortedProducts here
+  keyExtractor={(item) => item.id.toString()}
+  renderItem={({ item, index }) => renderItem(item, index, sortedProducts)}
+  ListEmptyComponent={() => {
+    return (
+      <ThemedView style={styles.emptyScreenContainer}>
+        <Image 
+          style={styles.emptyScreenImage}
+          source={require('@/assets/images/noItemsEmoji3.png')}
         />
+        <ThemedText
+          style={{marginVertical: 15}}
+          type="subtitle"
+          font="glacialIndifferenceBold"
+        >
+          Your favorites are empty
+        </ThemedText>
+        <ThemedTouchableFilled
+          onPress={() => router.back()}
+        >
+          <ThemedText>Browse items</ThemedText>
+        </ThemedTouchableFilled>
+      </ThemedView>
+    )
+  }}
+  contentContainerStyle={styles.list}
+  showsVerticalScrollIndicator={false}
+  scrollEventThrottle={16}
+/>
       </Drawer>
       {/* FlatList for displaying all favorite items */}
       
