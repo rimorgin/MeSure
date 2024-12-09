@@ -34,13 +34,13 @@ export const appData = {
     landingItems: [
         {
             id: 0,
-            img: require('@/assets/images/landing/10334485.png'),
-            title: 'Niga',
+            img: require('@/assets/images/bangles/bangle1.png'),
+            title: 'Calvin Bangles',
             price:'15000 PHP'
         },
         {
             id: 1,
-            img: require('@/assets/images/landing/10334490.png'),
+            img: require('@/assets/images/rings/TiffanyKhalafRing.png'),
             title: 'Tiffany Ring',
             price:'15000 PHP'
         },
@@ -96,7 +96,7 @@ export const appData = {
                     img: [
                         require('@/assets/images/rings/WinstonKhalafRing.png'),
                     ],
-                    name: 'Mejur Khalaf',
+                    name: 'Gottfried Khalaf',
                     sizes: [12,16,18,20],
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 5,
@@ -139,7 +139,7 @@ export const appData = {
                     img: [
                         require('@/assets/images/rings/ring_main2.png'),
                     ],
-                    name: 'Ring',
+                    name: 'TestRing',
                     sizes: [7.5, 8, 8.5, 9.5, 10.5],
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 3.7,
@@ -181,7 +181,7 @@ export const appData = {
                     img: [
                         require('@/assets/images/bangles/bangle1.png'),
                     ],
-                    name: 'Seanono Lover',
+                    name: 'Calvin Bangles',
                     sizes: [12,14,16,18,20],
                     description: 'Elegant gold bangle with intricate design.',
                     rating: 4.2,
@@ -195,7 +195,7 @@ export const appData = {
                     img: [
                         require('@/assets/images/bangles/bangle2.png'),
                     ],
-                    name: 'Jaigga',
+                    name: 'Lester Bangle',
                     sizes: [12,14,16,18,20],
                     description: 'Stylish silver bangle with modern design.',
                     rating: 4.5,
