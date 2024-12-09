@@ -19,6 +19,7 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import ThemedModal from '@/components/ThemedModal';
 import RatingStars from '@/components/ratingsStars';
 import Loader from '@/components/Loader';
+import { ExternalLink } from '@/components/ExternalLink';
 
 const { width } = Dimensions.get('screen');
 
@@ -643,6 +644,7 @@ export default function ProfileScreen() {
                 color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
               />
             </TouchableOpacity>
+            
             {/*
             <ThemedDivider width={1.2}  opacity={0.1} marginY={3}/>
             <TouchableOpacity

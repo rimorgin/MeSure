@@ -1,17 +1,15 @@
 import { Dimensions, Image, Platform, StatusBar, StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ThemedText } from '@/components/ThemedText'
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf'
-import { Colors } from 'react-native/Libraries/NewAppScreen'
 import useColorSchemeTheme from '@/hooks/useColorScheme'
 import { router, useLocalSearchParams } from 'expo-router'
-import { darkBrown, white } from '@/constants/Colors'
+import { darkBrown } from '@/constants/Colors'
 import { ThemedView } from '@/components/ThemedView'
 import { AntDesign, Ionicons } from '@expo/vector-icons'
-import { ThemedTouchableFilled } from '@/components/ThemedButton'
 import { useOrderStore } from '@/store/appStore'
-import ThemedDivider from '@/components/ThemedDivider'
+import { useState } from 'react'
+import AnimatedPopup from '@/components/MiniPopup'
 
 const { width, height } = Dimensions.get('screen')
 
@@ -21,8 +19,9 @@ export default function OrderSummaryDetails() {
   const params = useLocalSearchParams<{ orderId?: string, paymentMethod?: string, totalPrice?: string, totalItems?: string, ETA?: string }>();
   
   const order = orders.find(order => order.orderId === params.orderId);
-  console.log(order);
+  //console.log(order);
 
+  const [expandDetails, setExpandDetails] = useState(false)
 
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: theme === 'light' ? '#200A0A' : darkBrown,}]}>
@@ -103,7 +102,7 @@ export default function OrderSummaryDetails() {
                 height: 160, width: 130,
                 position: 'absolute',
                 left: 20,
-                bottom: 0
+                bottom: -12
               }}
 
             />
@@ -122,6 +121,7 @@ export default function OrderSummaryDetails() {
                   {order?.shippingAddress.contactNo}
                 </ThemedText>
               </ThemedView>
+              {/* 
               <ThemedText 
                 font="montserratLight" 
                 customColor='white'
@@ -135,6 +135,40 @@ export default function OrderSummaryDetails() {
               >
                 {order?.shippingAddress.rpcb}
               </ThemedText>
+              */}
+              <AnimatedPopup
+                isVisible={expandDetails}
+                toggleVisibility={() => setExpandDetails(!expandDetails)}
+                height={150}
+                duration={400}
+              >
+                <ThemedView transparent>
+                  <ThemedText font="montserratBold" customColor='white'>Full address</ThemedText>
+                  <ThemedText 
+                    font="montserratLight" 
+                    customColor='white'
+
+                    style={{fontSize: 15, textAlign: 'center', marginTop: 25}}
+                  >{order?.shippingAddress.streetBldgHouseNo},
+                  </ThemedText>
+                  <ThemedText 
+                    font="montserratLight" 
+                    customColor='white'
+                    style={{fontSize: 15, textAlign: 'center'}}
+                  >
+                    {order?.shippingAddress.rpcb}
+                  </ThemedText>
+                </ThemedView>
+              </AnimatedPopup>
+              <TouchableOpacity
+                onPress={() => setExpandDetails(!expandDetails)}
+              >
+                <ThemedText
+                  font="montserratLight" 
+                  customColor='white'
+                >{expandDetails ? '(close)' : '(expand details)'}
+                </ThemedText>
+              </TouchableOpacity>
             </ThemedView>
             {/* 
             <ThemedView transparent style={{justifyContent: 'space-between', width: '100%', flexDirection: 'row', marginVertical: 2}}>

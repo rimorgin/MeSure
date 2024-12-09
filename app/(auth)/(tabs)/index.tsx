@@ -2,7 +2,6 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  View,
   SafeAreaView,
   Platform,
   StatusBar,
@@ -13,7 +12,7 @@ import { ThemedView } from '@/components/ThemedView';
 import SearchInput from '@/components/SearchBar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { black, Colors, tintColorLight, white } from '@/constants/Colors';
+import { Colors, tintColorLight, white } from '@/constants/Colors';
 import { FlashList } from '@shopify/flash-list';
 import { appData } from '@/assets/data/appData';
 import { Drawer } from 'react-native-drawer-layout';
@@ -23,7 +22,7 @@ import { CategoryCard, ItemCard } from '@/components/ThemedCard';
 import { useCartStore } from '@/store/appStore';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import { HelloWave } from '@/components/Header';
-import FilterDrawer from '@/app/productfilter'; // Import the reusable FilterDrawer component
+import FilterDrawer from '@/components/productfilter'; // Import the reusable FilterDrawer component
 
 const { height } = Dimensions.get('screen'); // Get screen height
 
@@ -87,7 +86,10 @@ export default function HomeScreen() {
         <ScrollView>
           <Drawer
             drawerPosition="right"
-            style={{ height }}
+            style={{
+              height: filteredProducts.length <= 6 ? height + 50 : 'auto', 
+              paddingBottom: filteredProducts.length <= 6 ? 0 : 100
+            }}
             open={openFilter}
             onOpen={() => setOpenFilter(true)}
             onClose={() => setOpenFilter(false)}
@@ -136,23 +138,25 @@ export default function HomeScreen() {
                     />
                   </TouchableOpacity>
                 </ThemedView>
-                <ThemedText style={{ marginBottom: 8 }} type="semititle" font="glacialIndifferenceBold">
-                  Discover Elegance
-                </ThemedText>
-                <FlashList
-                  data={appData.categories}
-                  horizontal
-                  renderItem={({ item, index }) => (
-                    <CategoryCard
-                      item={item}
-                      isOdd={index % 2 === 0}
-                      handleCategorySelect={() =>
-                        handleCategorySelect(item.name as 'All' | 'rings' | 'bangles')
-                      }
-                    />
-                  )}
-                  estimatedItemSize={3}
-                />
+                <ThemedView>
+                  <ThemedText style={{ marginBottom: 5 }} type="semititle" font="glacialIndifferenceBold">
+                    Discover Elegance
+                  </ThemedText>
+                  <FlashList
+                    data={appData.categories}
+                    horizontal
+                    renderItem={({ item, index }) => (
+                      <CategoryCard
+                        item={item}
+                        isOdd={index % 2 === 0}
+                        handleCategorySelect={() =>
+                          handleCategorySelect(item.name as 'All' | 'rings' | 'bangles')
+                        }
+                      />
+                    )}
+                    estimatedItemSize={3}
+                  />
+                </ThemedView>
               </ThemedView>
               <ThemedView style={styles.listItems}>
                 <FlashList

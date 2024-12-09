@@ -148,6 +148,23 @@ export const appData = {
                     stock:90,
                     AR: true,
                 },
+                {
+                    id: 10986,
+                    img: [
+                        require('@/assets/images/rings/arRing.jpg'),
+                        require('@/assets/images/rings/arRing2.jpg'),
+                    ],
+                    name: 'Ring',
+                    sizes: [7.5, 8, 8.5, 9.5, 10.5],
+                    description: 'Oval diamond centre and floral diamond halo engagement ring set in 18ct yellow gold.',
+                    rating: 3.7,
+                    sold: 24,
+                    price: '20000',
+                    stock:90,
+                    AR: true,
+                    arlink: 'https://a1khalafgoldandjewelrytryon.web.app/ring1'
+                },
+
 
 
             ],
@@ -215,6 +232,21 @@ export const appData = {
                     price: '5000',
                     stock: 50,
                     AR: true,
+                },
+                {
+                    id: 12624,
+                    img: [
+                        require('@/assets/images/bangles/arBangle.png'),
+                    ],
+                    name: 'Bangle',
+                    sizes: [15, 17, 18, 19],
+                    description: 'Elegant gold bangle with intricate design.',
+                    rating: 4.5,
+                    sold: 10,
+                    price: '5000',
+                    stock: 50,
+                    AR: true,
+                    arlink:'https://a1khalafgoldandjewelrytryon.web.app/bracelet1'
                 },
             ], 
         },

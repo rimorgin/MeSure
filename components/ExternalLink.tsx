@@ -16,7 +16,11 @@ export function ExternalLink({ href, ...rest }: Props) {
           // Prevent the default behavior of linking to the default browser on native.
           event.preventDefault();
           // Open the link in an in-app browser.
-          await openBrowserAsync(href);
+          await openBrowserAsync(href, {
+            enableBarCollapsing: true, // Allows the toolbar to collapse
+            dismissButtonStyle: 'close', // Adds a close button
+            showTitle: true
+          });
         }
       }}
     />

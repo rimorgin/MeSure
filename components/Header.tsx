@@ -11,11 +11,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from './ThemedView';
 import { useUserStore } from '@/store/appStore';
 
-interface HelloWaveProps {
-  showIntro?: boolean;
-}
-
-export function HelloWave({} : HelloWaveProps) {
+export function HelloWave() {
   const rotationAnimation = useSharedValue(0);
   const userFullName = useUserStore((state) => state.userFullName);
   const nameParts = userFullName?.trim().split(' ') || [];
@@ -25,14 +21,17 @@ export function HelloWave({} : HelloWaveProps) {
   // Set the last word as the last name
   const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
 
+  /* 
   rotationAnimation.value = withRepeat(
     withSequence(withTiming(25, { duration: 150 }), withTiming(0, { duration: 150 })),
     4 // Run the animation 4 times
   );
 
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotationAnimation.value}deg` }],
   }));
+  */
 
   return (
     <>

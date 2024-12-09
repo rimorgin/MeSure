@@ -16,7 +16,7 @@ interface FilterDrawerProps {
   setShowARProducts: (show: boolean) => void;
 }
 
-export default function productfilter({
+export default function ProductFilter({
   openFilter,
   onClose,
   sortOption,
@@ -63,6 +63,34 @@ export default function productfilter({
               {showARProducts ? 'AR On' : 'AR Off'}
             </ThemedText>
           </TouchableOpacity>
+        </View>
+        <View style={styles.section}>
+          <ThemedText customColor={black} style={styles.sectionTitle}>Sort Order</ThemedText>
+          <View style={styles.row}>
+            <TouchableOpacity
+              style={[
+                styles.sortOrder,
+                sortOrder === 'asc' ? styles.activeOption : styles.inactiveOption,
+              ]}
+              onPress={() => setSortOrder('asc')}
+            >
+              <ThemedText customColor={white}>
+                Ascending
+              </ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.sortOrder,
+                sortOrder === 'desc' ? styles.activeOption : styles.inactiveOption,
+                
+              ]}
+              onPress={() => setSortOrder('desc')}
+            >
+              <ThemedText customColor={white}>
+                Descending
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -119,6 +147,15 @@ const styles = StyleSheet.create({
   },
   inactiveOption: {
     backgroundColor: '#2c1414',
+  },
+  sortOrder: {
+    width: '45%',
+    padding: 12,
+    marginHorizontal: 4,
+    gap: 50,
+    borderRadius: 5,
+    backgroundColor: '#2c1414',
+    alignItems: 'center'
   },
   slider: {
     width: '100%',
