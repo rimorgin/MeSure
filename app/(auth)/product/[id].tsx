@@ -17,6 +17,7 @@ import { useCartStore, useFavoritesStore, useUserStore } from '@/store/appStore'
 import ThemedModal from '@/components/ThemedModal';
 import RatingStars from '@/components/ratingsStars';
 import { ExternalLink } from '@/components/ExternalLink';
+import InAppWebView from '@/components/InAppWebView';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -37,7 +38,7 @@ const { width, height } = Dimensions.get('screen');
     // Safely access the categories and rings
     const product = appData.categories
     .flatMap(category => category.rings || category.bangles || [])
-    .find((item): item is { id: number; img: any[]; name: string; sizes: number[]; description: string; rating: number; sold: number; price: string; stock: number; AR: boolean } => item?.id?.toString() === id) || {
+    .find((item): item is { id: number; img: any[]; name: string; sizes: number[]; description: string; rating: number; sold: number; price: string; stock: number; AR: boolean, arlink: string } => item?.id?.toString() === id) || {
       id: 0,
       img: [],
       name: '',
@@ -48,6 +49,7 @@ const { width, height } = Dimensions.get('screen');
       price: '',
       stock: 0,
       AR: false,
+      arlink: ''
     };  
     const [image, setImage] = useState(product?.img[0])
   
@@ -319,10 +321,9 @@ const { width, height } = Dimensions.get('screen');
 
                 />
               </ThemedView>
-              {product.AR && (
-              <ExternalLink
-                href={product.arlink ? product.arlink : ''}
-                
+   
+              <TouchableOpacity
+                onPress={product.arlink ? () => router.replace(`/(camera)/arcamera?arlink=${product.arlink}`) : () => {}}
               >
                 <ThemedView style={{
                   flexDirection:'row', 
@@ -341,15 +342,21 @@ const { width, height } = Dimensions.get('screen');
                       font='montserratSemiBold' 
                       type='default'
                       lightColor={white}
-                      style={{letterSpacing:1, right:7}}
-                      >TRY IT OUT
+                      style={{
+                        letterSpacing:1, 
+                        right:7,
+                        marginRight: product.AR ? 0 : 15
+                      }}
+                      >{product.AR ? 'TRY IT OUT' : `NO AR \n FEATURES \n  YET... 😔 `}
                     </ThemedText>
+                    {product.AR && (
                     <ThemedText 
                       font='montserratRegular' 
                       lightColor={white}
                       style={{letterSpacing:1, fontSize:12, right:17}}
                       >Discover the best
                     </ThemedText>
+                    )}
                   </ThemedView>
                 <FontAwesome6 
                   name="hand-sparkles" 
@@ -358,8 +365,8 @@ const { width, height } = Dimensions.get('screen');
                   style={{right:18}}
                 />
                 </ThemedView>
-              </ExternalLink>
-              )}
+              </TouchableOpacity>
+              
             </ThemedView>
           </ThemedView>
 

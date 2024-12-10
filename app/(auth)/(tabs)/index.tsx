@@ -87,7 +87,10 @@ export default function HomeScreen() {
         <ScrollView>
           <Drawer
             drawerPosition="right"
-            style={{ height }}
+            style={{
+              height: filteredProducts.length <= 6 ? height + 50 : 'auto', 
+              paddingBottom: filteredProducts.length <= 6 ? 0 : 100
+            }}
             open={openFilter}
             onOpen={() => setOpenFilter(true)}
             onClose={() => setOpenFilter(false)}
@@ -136,23 +139,25 @@ export default function HomeScreen() {
                     />
                   </TouchableOpacity>
                 </ThemedView>
-                <ThemedText style={{ marginBottom: 8 }} type="semititle" font="glacialIndifferenceBold">
-                  Discover Elegance
-                </ThemedText>
-                <FlashList
-                  data={appData.categories}
-                  horizontal
-                  renderItem={({ item, index }) => (
-                    <CategoryCard
-                      item={item}
-                      isOdd={index % 2 === 0}
-                      handleCategorySelect={() =>
-                        handleCategorySelect(item.name as 'All' | 'rings' | 'bangles')
-                      }
-                    />
-                  )}
-                  estimatedItemSize={3}
-                />
+                <ThemedView>
+                  <ThemedText style={{ marginBottom: 5 }} type="semititle" font="glacialIndifferenceBold">
+                    Discover Elegance
+                  </ThemedText>
+                  <FlashList
+                    data={appData.categories}
+                    horizontal
+                    renderItem={({ item, index }) => (
+                      <CategoryCard
+                        item={item}
+                        isOdd={index % 2 === 0}
+                        handleCategorySelect={() =>
+                          handleCategorySelect(item.name as 'All' | 'rings' | 'bangles')
+                        }
+                      />
+                    )}
+                    estimatedItemSize={3}
+                  />
+                </ThemedView>
               </ThemedView>
               <ThemedView style={styles.listItems}>
                 <FlashList
@@ -211,5 +216,6 @@ const styles = StyleSheet.create({
   listItems: {
     flex: 1,
     marginHorizontal: 16,
+    marginLeft: 8
   },
 });

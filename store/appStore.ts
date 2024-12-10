@@ -14,7 +14,6 @@ import { CartItem, CartStorage } from '@/types/useCartStoreTypes';
 import { OrderItem, OrderStorage } from '@/types/useOrderStoreTypes';
 import { shippingAddress, ShippingAddressForm, shippingDetailsStore } from '@/types/useShippingDetailsStoreTypes';
 import { PaymentMethods, PaymentMethodsStore } from '@/types/usePaymentMethodsStoreTypes';
-import { identifyCardType } from '@/utils/identifyCardType';
 
 export const useUserStore = create<user>()(
   devtools(
@@ -27,8 +26,9 @@ export const useUserStore = create<user>()(
         userEmailVerified: false,
         userContactNo: '',
         firstTimeUser: false,
+        requestToDelete: false,
         fetchUserData: async (): Promise<UserData | null> => {
-          const { userId } = get(); // Replace `get()` with your actual state access logic
+          const { userId } = get(); 
           if (!userId) {
             console.warn('No userId found in state.');
             return null; // Early exit if userId is not set
@@ -111,6 +111,37 @@ export const useUserStore = create<user>()(
         setUserEmailVerified:(isEmailVerified) => {
             set({ userEmailVerified: isEmailVerified });
         },
+        requestAccountDeletion: async () => {
+          const { userEmail } = get()
+          const now = new Date();
+
+          const requestDate = `${
+              now.getMonth() + 1
+          }/${now.getDate()}/${now.getFullYear()} ${
+              now.getHours() % 12 || 12
+          }:${now.getMinutes().toString().padStart(2, '0')}:${
+              now.getSeconds().toString().padStart(2, '0')
+          } ${now.getHours() >= 12 ? 'PM' : 'AM'}`;
+
+          await firestore()
+            .collection('requestForAccountDeletions')
+            .doc(userEmail)
+            .set({
+              requestToDelete: true,
+              requestDate: requestDate
+            })
+
+          set({ requestToDelete: true });
+        },
+        cancelAccountDeletion: async () => {
+          const { userEmail } = get()
+          await firestore()
+            .collection('requestForAccountDeletions')
+            .doc(userEmail)
+            .delete()
+
+          set({ requestToDelete: false });
+        },
         resetUserId:() =>  set({ 
           userId: '',
           userFullName: '',
@@ -118,6 +149,7 @@ export const useUserStore = create<user>()(
           userEmail: '',
           userEmailVerified: false,
           userContactNo: '',
+          requestToDelete: false
          }),
       }),
       {

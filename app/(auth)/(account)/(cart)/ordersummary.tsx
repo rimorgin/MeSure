@@ -93,19 +93,19 @@ export default function OrderSummaryDetails() {
               borderBottomLeftRadius: 15,
               borderBottomRightRadius: 15,
               padding: 15,
-              alignItems: 'flex-end'
             }}
           >
             <Image 
               source={require('@/assets/images/orderSummary/pin-pointer.png')} 
               style={{
-                height: 160, width: 130,
+                height: 200, width: 160,
                 position: 'absolute',
                 left: 20,
                 bottom: -12
               }}
 
             />
+            <ThemedView transparent style={{justifyContent: 'space-between', height: '100%'}}>
             <ThemedText
               font='montserratBold'
               customColor='white'
@@ -114,12 +114,13 @@ export default function OrderSummaryDetails() {
             </ThemedText>
             
             <ThemedView transparent style={{ alignItems: 'flex-end', marginTop: -8}}>
-              <ThemedView transparent style={{flexDirection: 'row'}}>
+              <ThemedView transparent>
                 <ThemedText  style={{textAlign: 'right'}} font="cocoGothicBold" customColor='white'>{order?.shippingAddress.fullName}</ThemedText>
-                <ThemedText style={{color:'#AAA'}}> | </ThemedText>
-                <ThemedText customColor='white' font="spaceMonoRegular">
+                
+                <ThemedText style={{textAlign: 'right'}} customColor='white' font="spaceMonoRegular">
                   {order?.shippingAddress.contactNo}
                 </ThemedText>
+              </ThemedView>
               </ThemedView>
               {/* 
               <ThemedText 
@@ -166,6 +167,7 @@ export default function OrderSummaryDetails() {
                 <ThemedText
                   font="montserratLight" 
                   customColor='white'
+                  style={{textAlign: 'right'}}
                 >{expandDetails ? '(close)' : '(expand details)'}
                 </ThemedText>
               </TouchableOpacity>

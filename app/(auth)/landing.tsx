@@ -25,8 +25,8 @@ const ListItems: React.FC<ItemProps> = ({item}) => {
 
 return (
 
-    <ThemedView style={styles.content}>
-      <Image defaultSource={require('@/assets/images/adaptive-icon.png')} style={styles.image} source={item.img}/>
+    <ThemedView style={styles.itemContainer}>
+      <Image style={styles.image} source={item.img}/>
       <ThemedText style={styles.title}>{item.title}</ThemedText>
       <ThemedText style={styles.price}>{item.price}</ThemedText>
     </ThemedView>
@@ -46,7 +46,7 @@ function Landing() {
 
   return (
     <ParallaxScrollView
-      headerHeight={height * 0.6}
+      headerHeight={height * 0.5}
       headerBackgroundColor={{ light: darkBrown, dark: '#1D3D47' }}
       headerImage={
         <Image
@@ -73,7 +73,7 @@ function Landing() {
             font='montserratMedium'
             type='default'
             customColor='#301915'
-            style={{textDecorationLine:'underline', fontSize:14}}
+            style={{textDecorationLine:'underline', fontSize:15, letterSpacing:1.5}}
           >
             BROWSE CATALOG
           </ThemedText>
@@ -81,11 +81,13 @@ function Landing() {
         </ThemedView>
         <ThemedView style={styles.listContainer}>
           <FlatList
-            contentContainerStyle={styles.list}
             data={appData.landingItems}
+            contentContainerStyle={styles.flatListContent}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }: ListRenderItemInfo<ItemType>) => <ListItems item={item} />}
-            horizontal
-            showsHorizontalScrollIndicator={false}
+            horizontal={false}
+            numColumns={2}
+            scrollEnabled={false}
           />
           </ThemedView>
       </ThemedView>
@@ -105,19 +107,23 @@ const styles = StyleSheet.create({
   listContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 50,
     width: '100%',
-    height: '100%'
+    paddingVertical: 10,
   },
-  list: {
-    gap: 100,
+  flatListContent: {
+    paddingHorizontal: 10, // Add horizontal padding to space items better
   },
   image: {
     height: 150,
     width: '100%',
+    borderRadius: 8,
   },
-  content: {
+  itemContainer: {
+    margin: 5,
+    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 8,
+    width: 160
   },
   title: {
     fontSize: 16,

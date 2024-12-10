@@ -110,6 +110,7 @@ export function CategoryCard({ item, handleCategorySelect, isOdd }: CategoryCard
 
   return (
     <ThemedTouchableFilled 
+      variant='opacity'
       style={{ 
         marginRight: 10, 
         borderRadius: 30,

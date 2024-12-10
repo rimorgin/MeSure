@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   StyleSheet,
   Switch,
@@ -17,6 +17,7 @@ const ICON_SIZE = 26;
 
 export default function PermissionsScreen() {
   const router = useRouter();
+  const { routeBack, arlink } = useLocalSearchParams<{routeBack: string, arlink:string}>();
   const [cameraPermissionStatus, setCameraPermissionStatus] =
    useState<CameraPermissionStatus>("not-determined");
 
@@ -29,12 +30,19 @@ export default function PermissionsScreen() {
     setCameraPermissionStatus(permission);
   };
 
+  console.log(routeBack)
+  console.log(arlink)
+
   useEffect(() => {
     if (
     cameraPermissionStatus === "granted" &&
     mediaLibraryPermission?.granted
     ) {
-    router.replace("/(camera)/visioncamera");
+      if (routeBack === 'visioncamera') {
+        router.replace(`/(camera)/visioncamera`);
+      } else if (routeBack === 'arcamera') {
+        router.replace(`/(camera)/arcamera?arlink=${arlink}`);
+      }
     }
   })
 

@@ -44,6 +44,18 @@ export const appData = {
             title: 'Tiffany Ring',
             price:'15000 PHP'
         },
+        {
+            id: 2,
+            img: require('@/assets/images/rings/WinstonKhalafRing.png'),
+            title: 'Winston Khalaf Ring',
+            price:'13000 PHP'
+        },
+        {
+            id: 3,
+            img: require('@/assets/images/bangles/arBangle.png'),
+            title: 'Bangle',
+            price:'5000 PHP'
+        },
     ],
     profile: {
         dp: require('@/assets/images/avatars/7309707.jpg')
@@ -131,7 +143,7 @@ export const appData = {
                     sold: 24,
                     price: '20000',
                     stock:90,
-                    AR: true,
+                    AR: false,
                 },
 
                 {
@@ -146,7 +158,7 @@ export const appData = {
                     sold: 24,
                     price: '20000',
                     stock:90,
-                    AR: true,
+                    AR: false,
                 },
                 {
                     id: 10986,
@@ -216,7 +228,7 @@ export const appData = {
                     sold: 10,
                     price: '5000',
                     stock: 50,
-                    AR: true,
+                    AR: false,
                 },
 
                 {
@@ -231,7 +243,7 @@ export const appData = {
                     sold: 10,
                     price: '5000',
                     stock: 50,
-                    AR: true,
+                    AR: false,
                 },
                 {
                     id: 12624,

@@ -1,14 +1,12 @@
 import { useState } from 'react';
-import { Image, StyleSheet, TouchableOpacity, Dimensions, Switch, FlatList, View, Text, TextInput } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, Dimensions, Switch, View, Text, TextInput } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useSession } from '@/provider/AuthContext';
-import { useColorSchemeStore, useIsAppFirstLaunchStore, useUserStore, useUserMeasurementStorage } from '@/store/appStore';
+import { useColorSchemeStore, useUserStore, useUserMeasurementStorage } from '@/store/appStore';
 import { appData } from '@/assets/data/appData';
 import { Colors, darkBrown, mustard, white } from '@/constants/Colors';
 import ThemedDivider from '@/components/ThemedDivider';
-import auth from '@react-native-firebase/auth';
 import { Collapsible } from '@/components/Collapsible';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
@@ -19,7 +17,6 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import ThemedModal from '@/components/ThemedModal';
 import RatingStars from '@/components/ratingsStars';
 import Loader from '@/components/Loader';
-import { ExternalLink } from '@/components/ExternalLink';
 
 const { width } = Dimensions.get('screen');
 
@@ -30,7 +27,6 @@ export default function ProfileScreen() {
     const isEnabled = theme === 'dark';
     const userFullName = useUserStore((state) => state.userFullName);
     const { fingerMeasurements, wristMeasurement, setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
-    const [result, setResult] = useState(null);
     const [rating, setRating] = useState(0);
     const [showRating, setShowRating] = useState(false);
     const [showModalAddManually, setShowModalAddManually] = useState(false);
@@ -43,7 +39,6 @@ export default function ProfileScreen() {
       });
     const [wristSize, addWristSizesManually] = useState('');
     const [showBodyPartInput, setShowBodyPartInput] = useState<'fingers' | 'wrist' | null>(null);
-    const [inputFocus, setInputFocus] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const nameParts = userFullName?.trim().split(' ') || [];
@@ -536,7 +531,7 @@ export default function ProfileScreen() {
                   style={{flexDirection:'row', gap: 10}}>
                 <ThemedTouchableFilled
                     variant='opacity'
-                    onPress={() => router.navigate('/(camera)')}
+                    onPress={() => router.navigate('/(camera)/visioncamera')}
                 >
                   <ThemedText type="default">Find size</ThemedText>
                 </ThemedTouchableFilled>

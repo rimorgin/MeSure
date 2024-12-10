@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Animated,
   Easing,
-  Text,
 } from 'react-native';
 
 interface Popup{
@@ -61,8 +60,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignSelf: 'center',
     position: 'absolute',
-    top: -39,
-    left: -92
+    top: 0,
+    left: 0
   },
   button: {
     padding: 2,

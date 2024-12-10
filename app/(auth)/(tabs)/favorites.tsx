@@ -22,13 +22,13 @@ export default function Favorites() {
   const [openFilter, setOpenFilter] = useState(false);
   const userId = useUserStore((state) => state.userId);
   // Fetch favorites and actions from the Zustand store
-  const { favorites, addFavorite, removeFavorite, isFavorite, fetchFavorites } = useFavoritesStore((state) => state);
+  const { favorites,  removeFavorite } = useFavoritesStore((state) => state);
   const { cart, addToCart } = useCartStore();
   const [sizes, setSize] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(0);
   const [sortOption, setSortOption] = useState<'name' | 'price'>('name'); // Default sorting by name
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // State for sort order
-  const [selectedCategory, setSelectedCategory] = useState<'rings' | 'bangles' | 'All'>('All'); // Default to 'All'
+  const [selectedCategory] = useState<'rings' | 'bangles' | 'All'>('All'); // Default to 'All'
   const [selectedSize, setSelectedSize] = useState(25); // Default maximum size for the slider
   const [showARProducts, setShowARProducts] = useState(false); // State to toggle AR-supported products
 
@@ -369,7 +369,7 @@ const filteredProducts = sortedProducts.filter(
           </ThemedView>
         </ThemedView>
       </Swipeable>
-      {!isLastItem && <ThemedDivider />}
+      {!isLastItem && <ThemedDivider opacity={0.2}/>}
       </>
     );
   };

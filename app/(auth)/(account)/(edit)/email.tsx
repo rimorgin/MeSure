@@ -44,7 +44,7 @@ export default function EditEmail() {
     }
   },[isEmailVerified, setUserEmailVerified, userEmailVerified])
 
-  console.log(userEmailVerified)
+  //console.log(userEmailVerified)
 
   const handleSubmit = async () => {
     try {

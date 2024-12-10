@@ -6,7 +6,6 @@ import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Colors, darkBrown, tintColorLight } from '@/constants/Colors';
 import { useEffect, useRef, useState } from 'react';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
-import { Drawer } from 'react-native-drawer-layout';
 import { router } from 'expo-router';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import { useCartStore, useUserStore } from '@/store/appStore';
@@ -21,7 +20,6 @@ const { width, height } = Dimensions.get('screen')
 
 export default function Cart() {
   const theme = useColorSchemeTheme();
-  const [openFilter, setOpenFilter] = useState(false);
   const bottomSheetRef = useRef<ThemedBottomSheetRef>(null);
   const { userId } = useUserStore();
   const { cart, addCheckOutCartItems, removeFromCart, updateQuantity, totalItems, totalPrice } = useCartStore();
@@ -279,7 +277,7 @@ export default function Cart() {
             </ThemedView>
           </ThemedView>
         </Swipeable>
-        <ThemedDivider width={0.5} />
+        <ThemedDivider opacity={0.2}/>
       </>
     );
   };
@@ -303,7 +301,8 @@ export default function Cart() {
           flexDirection:'row', 
           alignItems:'center', 
           gap:10,
-          justifyContent:'center'
+          justifyContent:'center',
+          alignSelf: 'center'
         }}>
         <ThemedText 
           font='montserratSemiBold' 
@@ -319,15 +318,7 @@ export default function Cart() {
         >{cart.length}
         </ThemedText>
         </ThemedView> 
-        <TouchableOpacity onPress={() => setOpenFilter(prev => !prev)}>
-          <Ionicons 
-            style={styles.filterButton}
-            name='filter' 
-            size={30}
-            backgroundColor='transparent'
-            color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
-          />
-        </TouchableOpacity>
+        <ThemedText>          </ThemedText>
       </ThemedView>
       <ThemedView style={{flexDirection:'row', gap: 15, width: '100%', alignItems: 'center', paddingHorizontal: 25, marginLeft: 8, padding:10}}>
         <ThemedCheckBox 
@@ -336,17 +327,7 @@ export default function Cart() {
         />
         <ThemedText font='spaceMonoRegular'>Select All</ThemedText>
       </ThemedView>
-      <Drawer
-        drawerPosition='right'
-        open={openFilter}
-        onOpen={() => setOpenFilter(true)}
-        onClose={() => setOpenFilter(false)}
-        renderDrawerContent={() => (
-          <View style={styles.drawerContent}>
-            <ThemedText>Filter Options</ThemedText>
-          </View>
-        )}
-      >
+      
         <ThemedView style={styles.mainContent}>
           <FlatList
             data={allCartItems}
@@ -416,7 +397,7 @@ export default function Cart() {
           </ThemedView>
           </ThemedBottomSheet>
         </ThemedView>
-      </Drawer>
+      
     </SafeAreaView>
   );
 }

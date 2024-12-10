@@ -7,6 +7,7 @@ export interface user {
   userDisplayName?: string; 
   userContactNo?: string;
   firstTimeUser: boolean;
+  requestToDelete?: boolean;
   fetchUserData: () => Promise<UserData | null>;
   setUserId: (userId: string) => void;
   setUserFullName: (userId: string, userFullName: string) => Promise<void>;
@@ -16,6 +17,8 @@ export interface user {
   setUserEmail: (userId: string, userEmail: string) => Promise<void>;
   setUserEmailVerified: (isEmailVerified: boolean) => void;
   setUserContactNo: (userId: string, userContactNo: string) => Promise<void>;
+  requestAccountDeletion: () => Promise<void>;
+  cancelAccountDeletion: () => Promise<void>;
   resetUserId: () => void;
 }
 
@@ -57,7 +60,7 @@ interface ShippingDetail {
 
 interface PaymentMethods {
   cardNumber: number;
-  cvc: number;
+  cvv: number;
   holderName: string;
   expirationDate: string;
   cardType: string;

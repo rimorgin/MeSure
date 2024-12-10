@@ -5,7 +5,8 @@ import {
   Camera, 
   PhotoFile, 
   useCameraDevice, 
-  useCameraFormat
+  useCameraFormat,
+  useCameraPermission
 } from 'react-native-vision-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { white } from '@/constants/Colors';
@@ -17,11 +18,14 @@ import ConfirmBodyPartAlertDialog from '@/components/CameraHelpers/ConfirmBodyPa
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import Loader from '@/components/Loader';
 import { useUserStore, useUserMeasurementStorage } from '@/store/appStore';
+import useColorSchemeTheme from '@/hooks/useColorScheme';
 
 const { width, height } = Dimensions.get('screen');
 
 export default function CameraApp() {
   const device = useCameraDevice('back');
+  const { hasPermission } = useCameraPermission();
+  const [mediaLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
   const camera = useRef<Camera>(null);
   const [isCameraInitialized, initializeCamera] = useState(false)
   // Allow photo state to accept both PhotoFile objects and URI strings
@@ -36,6 +40,7 @@ export default function CameraApp() {
   const { userId } = useUserStore();
   const { setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
   const userFullName = useUserStore((state) => state.userFullName);
+  const theme = useColorSchemeTheme();
 
   const [fingerSizes, setFingerSizes] = useState({
     thumb: '',
@@ -45,6 +50,22 @@ export default function CameraApp() {
     pinky: '',
   });
   const [wristSize, setWristSize] = useState('');
+
+  useEffect(() => {
+    if (!hasPermission && !mediaLibraryPermission?.granted) {
+      router.replace('/permissions?routeBack=visioncamera')
+    }
+
+  },[hasPermission, mediaLibraryPermission?.granted])
+  
+
+  if (!hasPermission && !mediaLibraryPermission?.granted) {
+    return (
+      <View style={styles.container}>
+        <Text>No camera device found!</Text>
+      </View>
+    );
+  }
 
   const takePhoto = async () => {
   try {
@@ -164,7 +185,7 @@ export default function CameraApp() {
     };
   }, []);
 
-    if (!device) {
+  if (!device) {
     return (
       <View style={styles.container}>
         <Text>No camera device found!</Text>
@@ -177,7 +198,7 @@ export default function CameraApp() {
   
   return (
     <>
-    <FocusAwareStatusBar barStyle="dark-content" animated />
+    <FocusAwareStatusBar barStyle={theme === 'dark' ? 'dark-content' : 'light-content'} animated/>
     <TouchableWithoutFeedback 
       onPress={Keyboard.dismiss}
     >
