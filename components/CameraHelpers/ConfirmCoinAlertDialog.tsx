@@ -5,6 +5,7 @@ import  ThemedModal  from '@/components/ThemedModal';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
+import { Image, TouchableOpacity } from 'react-native';
 
 interface ConfirmCoinAlertDialogProps {
   showCoinDialog: boolean;
@@ -34,6 +35,7 @@ const ConfirmCoinAlertDialog: React.FC<ConfirmCoinAlertDialogProps> = ({
         A coin is needed to be captured in the image together with your {bodyPart} as it will be used as the reference width.
     </ThemedText>
     <ThemedView style={{ flexDirection: 'row', justifyContent: 'space-around', width: '100%' }}>
+      {/* 
         <ThemedTouchableFilled onPress={() => setCoin(1)}>
         <ThemedText type="default">1 Peso</ThemedText>
         </ThemedTouchableFilled>
@@ -43,6 +45,26 @@ const ConfirmCoinAlertDialog: React.FC<ConfirmCoinAlertDialogProps> = ({
         <ThemedTouchableFilled onPress={() => setCoin(10)}>
         <ThemedText type="default">10 Peso</ThemedText>
         </ThemedTouchableFilled>
+      */}
+      <TouchableOpacity onPress={() => setCoin(1)}>
+        <Image 
+          source={require('@/assets/images/coins/coin1.png')}
+          style={{width: 60, height: 60}}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => setCoin(5)}>
+        <Image 
+          source={require('@/assets/images/coins/coin5.png')}
+          style={{width: 60, height: 60}}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => setCoin(10)}>
+        <Image 
+          source={require('@/assets/images/coins/coin10.png')}
+          style={{width: 60, height: 60}}
+        />
+      </TouchableOpacity>
+      
     </ThemedView>
     </ThemedModal>
   );

@@ -17,8 +17,10 @@ import ConfirmCoinAlertDialog from '@/components/CameraHelpers/ConfirmCoinAlertD
 import ConfirmBodyPartAlertDialog from '@/components/CameraHelpers/ConfirmBodyPartAlertDialog';
 import FocusAwareStatusBar from '@/components/navigation/FocusAwareStatusBarTabConf';
 import Loader from '@/components/Loader';
-import { useUserStore, useUserMeasurementStorage } from '@/store/appStore';
+import { useUserStore, useUserMeasurementStorage, useIsAppFirstLaunchStore } from '@/store/appStore';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
+import { Feather } from '@expo/vector-icons';
+import HelpDialog from '@/components/CameraHelpers/HelpDialog';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -27,6 +29,7 @@ export default function CameraApp() {
   const { hasPermission } = useCameraPermission();
   const [mediaLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
   const camera = useRef<Camera>(null);
+  const { showCameraIntro } = useIsAppFirstLaunchStore();
   const [isCameraInitialized, initializeCamera] = useState(false)
   // Allow photo state to accept both PhotoFile objects and URI strings
   const [photo, setPhoto] = useState<PhotoFile | string>();
@@ -36,6 +39,7 @@ export default function CameraApp() {
   const [measured, setMeasured] = useState(false);
   const [showBodyPartDialog, setShowBodyPartDialog] = useState(false);
   const [showCoinDialog, setShowCoinDialog] = useState(false);
+  const [showHelpDialog, setShowHelpDialog] = useState(false);
   const [inputFocus, setInputFocus] = useState(false);
   const { userId } = useUserStore();
   const { setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
@@ -50,22 +54,6 @@ export default function CameraApp() {
     pinky: '',
   });
   const [wristSize, setWristSize] = useState('');
-
-  useEffect(() => {
-    if (!hasPermission && !mediaLibraryPermission?.granted) {
-      router.replace('/permissions?routeBack=visioncamera')
-    }
-
-  },[hasPermission, mediaLibraryPermission?.granted])
-  
-
-  if (!hasPermission && !mediaLibraryPermission?.granted) {
-    return (
-      <View style={styles.container}>
-        <Text>No camera device found!</Text>
-      </View>
-    );
-  }
 
   const takePhoto = async () => {
   try {
@@ -172,10 +160,28 @@ export default function CameraApp() {
     //await saveImageToGallery(photo, `${userFullName}-${bodyPart}-size.jpg`)
   };
 
+   useEffect(() => {
+    if (!hasPermission && !mediaLibraryPermission?.granted) {
+      router.replace('/permissions?routeBack=visioncamera')
+    }
+
+  },[hasPermission, mediaLibraryPermission?.granted])
+
+  useEffect(() => {
+    //set to false initially to make help dialog appears first
+    if (showCameraIntro) {
+      setShowHelpDialog(true);
+      setShowBodyPartDialog(false);
+      setShowCoinDialog(false);
+    } else {
+      setShowHelpDialog(false);
+      setShowBodyPartDialog(true);
+      setShowCoinDialog(true);
+    }
+  },[showCameraIntro])
+
   useEffect(() => {
     initializeCamera(true);
-    setShowBodyPartDialog(true);
-    setShowCoinDialog(true);
     // This function will run when the component unmounts
     return () => {
       setBodyPart('');
@@ -184,6 +190,15 @@ export default function CameraApp() {
       setShowCoinDialog(false);
     };
   }, []);
+  
+
+  if (!hasPermission && !mediaLibraryPermission?.granted) {
+    return (
+      <View style={styles.container}>
+        <Text>No camera device found!</Text>
+      </View>
+    );
+  }
 
   if (!device) {
     return (
@@ -220,6 +235,10 @@ export default function CameraApp() {
           setBodyPart(part); 
           setShowBodyPartDialog(false); 
         }} // Hide the dialog after selection
+      />
+      <HelpDialog
+        showHelpDialog={showHelpDialog}
+        setShowHelpDialog={() => setShowHelpDialog(!showHelpDialog)}
       />
       {loading && (
       <Loader/>
@@ -382,6 +401,17 @@ export default function CameraApp() {
               color={white}
             />
           </TouchableOpacity>
+          <TouchableOpacity 
+            style={{top:60, right:80, position:'absolute', zIndex:2}}
+            onPress={() => setShowHelpDialog(true)}
+          >
+            <Feather 
+              name="help-circle" 
+              size={45} 
+              color={white} 
+            />
+          </TouchableOpacity>
+          
           <TouchableOpacity 
             style={{top:50, left:0, position:'absolute', zIndex:2}}
             onPress={() => router.navigate('/profile')}

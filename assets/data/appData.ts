@@ -177,8 +177,6 @@ export const appData = {
                     arlink: 'https://a1khalafgoldandjewelrytryon.web.app/ring1'
                 },
 
-
-
             ],
             
         },
@@ -186,7 +184,7 @@ export const appData = {
             id:2,
             name: 'bangles',
             iconProvider: 'FontAwesome5',
-            iconName: 'Bangle',
+            iconName: 'ring',
             bangles: [
                 {
                     id: 12423,
@@ -262,5 +260,25 @@ export const appData = {
                 },
             ], 
         },
-    ]
+    ],
+    cameraHelp: [
+        {
+            id: 1,
+            img: require('@/assets/images/coins/compiled.png'),
+            title: 'New Generation Currency Coin series',
+            description: 'Use only coins that are made compatible as reference width to determine your size',
+        },
+        {
+            id: 2,
+            img: require('@/assets/images/demo/fingerMeasurementDemo.jpeg'),
+            title: 'Finger Measurement Demo',
+            description: 'Place the coin above your hand and spread your fingers just like the image from above',
+        },
+        {
+            id: 3,
+            img: require('@/assets/images/demo/wristMeasurementDemo.jpeg'),
+            title: 'Wrist Measurement Demo',
+            description: 'Place the coin above your hand and close your fist just like the image from above',
+        }
+    ],
 };

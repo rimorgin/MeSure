@@ -12,7 +12,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import { router } from 'expo-router';
 import useColorSchemeTheme from '@/hooks/useColorScheme';
-import * as WebBrowser from 'expo-web-browser';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import ThemedModal from '@/components/ThemedModal';
 import RatingStars from '@/components/ratingsStars';
@@ -39,6 +38,8 @@ export default function ProfileScreen() {
       });
     const [wristSize, addWristSizesManually] = useState('');
     const [showBodyPartInput, setShowBodyPartInput] = useState<'fingers' | 'wrist' | null>(null);
+    const [showUsSizesFinger, setShowUsSizesFinger] = useState(false);
+    const [showUsSizesWrist, setShowUsSizesWrist] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const nameParts = userFullName?.trim().split(' ') || [];
@@ -76,23 +77,6 @@ export default function ProfileScreen() {
       setLoading(false)
     }
 
-    // Function to open an external link
-    const handleOpenInAppBrowser = async (url: any) => {
-      try {
-        const result = await WebBrowser.openBrowserAsync(url, {
-          enableBarCollapsing: true, // Allows the toolbar to collapse
-          dismissButtonStyle: 'close', // Adds a close button
-          showTitle: true
-
-        });
-
-        if (result.type === 'dismiss') {
-          console.log('Browser dismissed by the user');
-        }
-      } catch (error: any) {
-        console.error('Error opening in-app browser:', error.message);
-      }
-    };
   return (
     <>
     {loading && <Loader/>}
@@ -227,7 +211,7 @@ export default function ProfileScreen() {
                   type='subtitle'
                   style={{textAlign: 'center'}}
                 >
-                  {showBodyPartInput ? 'enter your sizes here' : 'what body part you want to add manually?'}
+                  {showBodyPartInput ? 'enter your sizes here in mm' : 'what body part you want to add manually?'}
                 </ThemedText>
                 {!showBodyPartInput && (
                 <ThemedText
@@ -265,8 +249,6 @@ export default function ProfileScreen() {
                           ]}>Thumb</Text>
                           <TextInput 
                             keyboardType='numeric'
-                            onFocus={()=> setInputFocus(true)}
-                            onEndEditing={() => setInputFocus(false)}
                             style={[styles.textInput, 
                               {
                                 color: theme === 'light' ? darkBrown : mustard,
@@ -285,8 +267,6 @@ export default function ProfileScreen() {
                           ]}>Index</Text>
                           <TextInput 
                           keyboardType='numeric'
-                          onFocus={()=> setInputFocus(true)}
-                          onEndEditing={() => setInputFocus(false)}
                           style={[styles.textInput, 
                             {
                               color: theme === 'light' ? darkBrown : mustard,
@@ -305,8 +285,6 @@ export default function ProfileScreen() {
                           ]}>Middle</Text>
                           <TextInput 
                           keyboardType='numeric'
-                          onFocus={()=> setInputFocus(true)}
-                          onEndEditing={() => setInputFocus(false)}
                           style={[styles.textInput, 
                               {
                                 color: theme === 'light' ? darkBrown : mustard,
@@ -325,8 +303,6 @@ export default function ProfileScreen() {
                           ]}>Ring</Text>
                           <TextInput 
                           keyboardType='numeric'
-                          onFocus={()=> setInputFocus(true)}
-                          onEndEditing={() => setInputFocus(false)}
                           style={[styles.textInput, 
                               {
                                 color: theme === 'light' ? darkBrown : mustard,
@@ -345,8 +321,6 @@ export default function ProfileScreen() {
                           ]}>Pinky</Text>
                           <TextInput 
                           keyboardType='numeric'
-                          onFocus={()=> setInputFocus(true)}
-                          onEndEditing={() => setInputFocus(false)}
                           style={[styles.textInput, 
                               {
                                 color: theme === 'light' ? darkBrown : mustard,
@@ -382,8 +356,6 @@ export default function ProfileScreen() {
                       <Text style={styles.text}>Wrist Size</Text>
                       <TextInput 
                         keyboardType='numeric'
-                        onFocus={()=> setInputFocus(true)}
-                        onEndEditing={() => setInputFocus(false)}
                         style={styles.textInput}
                         value={wristSize}
                         onChangeText={(value) => addWristSizesManually(value)}
@@ -479,10 +451,22 @@ export default function ProfileScreen() {
                 style={styles.dropdownContent}
               >
                 <ThemedView  transparent style={{flexDirection:'row'}}> 
-                  <ThemedView transparent style={{gap:5 }}>
+                  <ThemedView transparent style={{marginTop: 10, marginBottom: -10}}>
+                  {fingerMeasurements.index && 
+                    fingerMeasurements.middle && 
+                    fingerMeasurements.pinky &&
+                    fingerMeasurements.ring &&
+                    fingerMeasurements.thumb && (
+                      <TouchableOpacity 
+                        onPress={() => setShowUsSizesFinger(!showUsSizesFinger)}
+                        style={{alignSelf: 'center', marginBottom: 5}}
+                      >
+                        <ThemedText style={{textDecorationLine:'underline'}}>See US Size</ThemedText>
+                      </TouchableOpacity>
+                    )
+                  }
                   <ThemedText 
                     type="default" 
-                    style={{width:100}}
                     textAligned={!fingerMeasurements.index && 
                     !fingerMeasurements.middle && 
                     !fingerMeasurements.pinky &&
@@ -497,25 +481,24 @@ export default function ProfileScreen() {
                     <>
                       
                       <ThemedText font='montserratSemiBold'>Thumb: </ThemedText>
-                      {`${fingerMeasurements.thumb} \n`} 
+                      {`${fingerMeasurements.thumb}\n`} 
                       <ThemedText font='montserratSemiBold'>Index: </ThemedText>
-                      {`${fingerMeasurements.index} \n`}
+                      {`${fingerMeasurements.index}\n`}
                       <ThemedText font='montserratSemiBold'>Middle: </ThemedText>
-                      {`${fingerMeasurements.middle} \n`} 
+                      {`${fingerMeasurements.middle}\n`} 
                       <ThemedText font='montserratSemiBold'>Ring: </ThemedText>
-                      {`${fingerMeasurements.ring} \n`}
+                      {`${fingerMeasurements.ring}\n`}
                       <ThemedText font='montserratSemiBold'>Pinky: </ThemedText>
-                      {`${fingerMeasurements.pinky} \n`}
+                      {`${fingerMeasurements.pinky}\n`}
                     </>
                   )}
                   </ThemedText>
                   </ThemedView>
                   <ThemedDivider orientation='vertical' opacity={0.2} marginX={10}/>
-                  <ThemedView transparent style={{gap:5}}>
+                  <ThemedView transparent style={{marginTop: 10, marginBottom: -10}}>
                     <ThemedText 
                       type="default" 
                       textAligned='center'
-                      style={{width:100}}
                     >{!wristMeasurement ? `No saved wrist size yet.` : (
                       <>
                         <ThemedText font='montserratSemiBold'>Wrist: </ThemedText>
@@ -722,7 +705,6 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: -18,
     gap: 10
   },
   avatar: {
@@ -764,7 +746,7 @@ const styles = StyleSheet.create({
     borderWidth:3,
     padding: 3,
     paddingHorizontal: 8,
-    fontSize: 18,
+    fontSize: width * 0.04,
     textAlign: 'center',
     marginBottom:3
   },

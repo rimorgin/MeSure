@@ -28,9 +28,9 @@ export const getCoinWidth = (coin: number) => {
     case 1:
       return '23.0';
     case 5:
-      return '24.0';
-    case 10:
       return '25.0';
+    case 10:
+      return '27.0';
     default:
       return null; // Return null if no valid coin is selected
   }

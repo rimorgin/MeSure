@@ -8,7 +8,7 @@ import { router } from 'expo-router';
 import { Colors, darkBrown, mustard, white } from '@/constants/Colors';
 import { AntDesign, FontAwesome, FontAwesome6, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import ThemedDivider from '@/components/ThemedDivider';
-import { useUserStore } from '@/store/appStore';
+import { useIsAppFirstLaunchStore, useUserStore } from '@/store/appStore';
 import { useSession } from '@/provider/AuthContext';
 import { ThemedTouchableFilled } from '@/components/ThemedButton';
 import ThemedModal from '@/components/ThemedModal';
@@ -18,6 +18,7 @@ export default function Accounts() {
   const { requestToDelete, requestAccountDeletion, cancelAccountDeletion } = useUserStore();
   const { signOut } = useSession()
   const [showAccountDeletionModal, setShowAccountDeletionModal] = useState(false);
+  const { resetApp } = useIsAppFirstLaunchStore();
 
   const handleAccountDelete = () => {
     requestAccountDeletion()
@@ -122,6 +123,19 @@ export default function Accounts() {
         <ThemedTouchableFilled
           style={styles.button}
           onPress={signOut}
+        >
+          <ThemedView transparent style={{flexDirection:'row', gap: 10, alignItems: 'center'}}>
+            <ThemedText type="default">Logout</ThemedText>
+            <Ionicons
+              name='log-out'
+              size={25}
+              color={theme === 'light' ? Colors.light.icon : Colors.dark.icon}
+            />
+          </ThemedView>
+        </ThemedTouchableFilled>
+        <ThemedTouchableFilled
+          style={styles.button}
+          onPress={resetApp}
         >
           <ThemedView transparent style={{flexDirection:'row', gap: 10, alignItems: 'center'}}>
             <ThemedText type="default">Logout</ThemedText>

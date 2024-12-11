@@ -28,6 +28,12 @@ interface SlideItemProps {
   isActive: boolean;
 }
 
+interface SliderProps {
+  data: SlideItemType[];
+  onFinish: () => void; // Callback for finishing the slider
+  onSkip?: () => void; // Optional callback for skipping the slider
+}
+
 const Pagination: React.FC<PaginationProps> = ({ data, scrollX, index }) => {
   const width12 = width / 1.2;
   return (
@@ -58,7 +64,7 @@ const Pagination: React.FC<PaginationProps> = ({ data, scrollX, index }) => {
             key={idx.toString()}
             style={[
               styles.dot,
-              { width: dotWidth, backgroundColor },
+              { width: dotWidth, backgroundColor, opacity },
             ]}
           />
         );
@@ -108,11 +114,9 @@ const SlideItem: React.FC<SlideItemProps> = ({ item, isActive }) => {
   );
 };
 
-const Slider: React.FC = () => {
+const Slider: React.FC<SliderProps> = ({ data, onFinish, onSkip }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
-
-  const { hideIntro } = useIsAppFirstLaunchStore()
 
   const handleOnScroll = (event: any) => {
     Animated.event(
@@ -140,7 +144,7 @@ const Slider: React.FC = () => {
   return (
     <View>
       <FlatList
-        data={appData.intro}
+        data={data}
         renderItem={({ item, index }: ListRenderItemInfo<SlideItemType>) => (
           <SlideItem item={item} isActive={index === activeIndex} />
         )}
@@ -152,32 +156,31 @@ const Slider: React.FC = () => {
         onScroll={handleOnScroll}
         onViewableItemsChanged={handleOnViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
-        contentContainerStyle={{justifyContent: 'center'}}
+        contentContainerStyle={{ justifyContent: 'center' }}
       />
       <View style={styles.bottomRowActions}>
+        {onSkip && (
           <ThemedTouchablePlain
-            onPress={hideIntro}
+            onPress={onSkip}
             variant="opacity"
-            disabled={activeIndex !== 0 && activeIndex === 4 && true}
+            disabled={activeIndex !== 0 && activeIndex === data.length - 1}
           >
-            <ThemedText style={activeIndex !== 0 && activeIndex === 4 && { color: 'transparent' }}>
+            <ThemedText style={activeIndex !== 0 && activeIndex === data.length - 1 && { color: 'transparent' }}>
               Skip
             </ThemedText>
           </ThemedTouchablePlain>
-
-          <Pagination data={appData.intro} scrollX={scrollX} index={activeIndex} />
-          
-          <ThemedTouchablePlain
-            onPress={hideIntro}
-            variant='opacity'
-            disabled={activeIndex !== 4 && true}
-          >
-            <ThemedText style={activeIndex !== 4 && { color: 'transparent' }}>
-                Finish
-            </ThemedText>
-          </ThemedTouchablePlain>
+        )}
+        <Pagination data={data} scrollX={scrollX} index={activeIndex} />
+        <ThemedTouchablePlain
+          onPress={onFinish}
+          variant="opacity"
+          disabled={activeIndex !== data.length - 1}
+        >
+          <ThemedText style={activeIndex !== data.length - 1 ? { color: 'transparent' } : undefined}>
+            Finish
+          </ThemedText>
+        </ThemedTouchablePlain>
       </View>
-      
     </View>
   );
 };
@@ -195,6 +198,7 @@ const styles = StyleSheet.create({
   image: {
     flex: 0.6,
     width: '100%',
+    borderRadius: 10
   },
   content: {
     flex: 0.4,

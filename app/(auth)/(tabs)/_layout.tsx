@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import Slider from '@/components/Slider';
 import Loader from '@/components/Loader';
+import { appData } from '@/assets/data/appData';
 
 export default function TabLayout() {
   const colorScheme = useColorSchemeTheme();
@@ -38,7 +39,11 @@ export default function TabLayout() {
         <ThemedView style={styles.centeredView}>
           <ThemedView style={styles.modalView}>
             <ThemedText type="semititle">Welcome to MeSure!</ThemedText>
-            <Slider />
+            <Slider 
+              data={appData.intro}
+              onFinish={hideIntro}
+              onSkip={hideIntro}
+            />
           </ThemedView>
         </ThemedView>
       </Modal>

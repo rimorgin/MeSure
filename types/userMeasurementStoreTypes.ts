@@ -9,6 +9,8 @@ export interface FingerMeasurements {
 export interface UserMeasurementStorage {
   fingerMeasurements: FingerMeasurements;
   wristMeasurement: string;
+  USSizeFingerMeasurements: FingerMeasurements;
+  USSizeWristMeasurement: string;
   fetchMeasurements: (measurements: any) => Promise<void>;
   setFingerMeasurements: (userId: string, measurements: FingerMeasurements) => Promise<void>;
   setWristMeasurement: (userId: string, size: string) => Promise<void>;

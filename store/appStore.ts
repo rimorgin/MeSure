@@ -14,6 +14,7 @@ import { CartItem, CartStorage } from '@/types/useCartStoreTypes';
 import { OrderItem, OrderStorage } from '@/types/useOrderStoreTypes';
 import { shippingAddress, ShippingAddressForm, shippingDetailsStore } from '@/types/useShippingDetailsStoreTypes';
 import { PaymentMethods, PaymentMethodsStore } from '@/types/usePaymentMethodsStoreTypes';
+import { convertAllToUSRingSizesUsingGuide } from '@/utils/measurementConverter';
 
 export const useUserStore = create<user>()(
   devtools(
@@ -173,11 +174,20 @@ export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
           pinky: '',
         },
         wristMeasurement: '',
-
+        USSizeFingerMeasurements: {
+          thumb: '',
+          index: '',
+          middle: '',
+          ring: '',
+          pinky: '',
+        },
+        USSizeWristMeasurement: '',
         // Fetch measurements from Firestore and update Zustand state
         fetchMeasurements: async (measurements: any) => {
           try {
             if (measurements) {
+              console.log('fingers measurement ',measurements.fingerMeasurements)
+              const usFingerSizes = convertAllToUSRingSizesUsingGuide(measurements.fingerMeasurements)
               set({
                 fingerMeasurements: measurements.fingerMeasurements || {
                   thumb: '',
@@ -187,7 +197,10 @@ export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
                   pinky: '',
                 },
                 wristMeasurement: measurements.wristMeasurement || '',
+                USSizeFingerMeasurements: usFingerSizes
               });
+
+              console.log('US size ',usFingerSizes)
             }
           } catch (error) {
             console.error('Error fetching measurements:', error);
@@ -207,6 +220,9 @@ export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
 
             // Update Zustand state
             set({ fingerMeasurements: measurements });
+
+            //also update the USSize for finger here with the conversion
+            //set({ USSizeFingerMeasurement: size });
           } catch (error) {
             console.error('Error updating finger measurements:', error);
           }
@@ -226,6 +242,10 @@ export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
 
             // Update Zustand state
             set({ wristMeasurement: size });
+
+            //also update the USSize for wrist here with the conversion
+
+            //set({ USSizeWristMeasurement: size });
           } catch (error) {
             console.error('Error updating wrist measurement:', error);
           }
@@ -260,16 +280,17 @@ export const useIsAppFirstLaunchStore = create<AppFirstLaunch>()(
       (set) => ({
         firstLaunch: true,
         showIntro: true,
+        showCameraIntro: true,
         email: null,
-        
         setFirstLaunch: () => set({ firstLaunch: false }),
         hideIntro: () => set({ showIntro: false }),
+        hideCameraIntro: () => set({ showCameraIntro: false }),
         // Set email and update firstLaunch if email is new
         setEmailAndFirstLaunch: async (email) => {
           const isNew = await isEmailNew(email);
           set({ email, firstLaunch: isNew, showIntro: isNew });
         },
-        resetApp: () => set({ firstLaunch: true, showIntro: true }),
+        resetApp: () => set({ firstLaunch: true, showIntro: true, showCameraIntro: true }),
       }),
       {
         name: 'FIRST_LAUNCH',

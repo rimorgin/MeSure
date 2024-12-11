@@ -29,7 +29,7 @@ const ConfirmBodyPartAlertDialog: React.FC<ConfirmBodyPartAlertDialogProps> = ({
           What body part are you measuring?
         </ThemedText>
         <ThemedText style={{ padding: 8, marginVertical: 5 }} type="default">
-          Specify what you want to measure to get accurate results.
+          Specify what you want to measure to get your desired results.
         </ThemedText>
         <ThemedView style={{ flexDirection: 'row', justifyContent: 'space-around', width: '100%', bottom: 35, position: 'absolute' }}>
           <ThemedTouchableFilled onPress={() => setBodyPart('fingers')}>

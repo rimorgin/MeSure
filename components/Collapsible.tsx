@@ -139,8 +139,9 @@ const styles = StyleSheet.create({
   },
   content: {
     marginTop: 6,
-    marginLeft: 24,
     overflow: 'hidden', // To ensure the content is hidden during collapse
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   transparentBackground: {
     backgroundColor: 'rgba(0,0,0,0)', // Transparent background when the `transparent` prop is true
