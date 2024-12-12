@@ -149,13 +149,13 @@ export default function OrderSummaryDetails() {
                     font="montserratLight" 
                     customColor='white'
 
-                    style={{fontSize: 15, textAlign: 'center', marginTop: 25}}
+                    style={{textAlign: 'center', marginTop: 25}}
                   >{order?.shippingAddress.streetBldgHouseNo},
                   </ThemedText>
                   <ThemedText 
                     font="montserratLight" 
                     customColor='white'
-                    style={{fontSize: 15, textAlign: 'center'}}
+                    style={{textAlign: 'center'}}
                   >
                     {order?.shippingAddress.rpcb}
                   </ThemedText>

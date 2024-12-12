@@ -21,6 +21,7 @@ import { useUserStore, useUserMeasurementStorage, useIsAppFirstLaunchStore } fro
 import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Feather } from '@expo/vector-icons';
 import HelpDialog from '@/components/CameraHelpers/HelpDialog';
+import { scaledSize } from '@/utils/fontSizer';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -60,7 +61,7 @@ export default function CameraApp() {
     if (camera.current == null) throw new Error("Camera ref is null!");
       // Capture the photo
       const photo = await camera.current.takePhoto({
-        flash: 'on',
+        //flash: 'on',
         enableShutterSound: false,
       });
       // Crop the image to a 4:3 aspect ratio
@@ -99,39 +100,51 @@ export default function CameraApp() {
 
   const processConfirmedImage = async () => {
     setLoading(true);
-    const data = await processImageHelper(photo, coin, bodyPart);
-    if (data?.processed_image) {
+    try {
+      const data = await processImageHelper(photo, coin, bodyPart);
+
+      if (!data) {
+        alert('Failed to process image');
+        throw new Error('Failed to process image')
+      }
+      
       setPhoto(`data:image/jpeg;base64,${data.processed_image}`);
       //console.log(data.hand_label)
-    }
-    if (bodyPart === 'fingers') {
-      const measurements = data?.finger_measurement;
       
-      // Assuming finger_measurement array order is: pinky, ring, middle, index, thumb
-      if (data?.hand_label === 'Left') {
-        setFingerSizes({
-          pinky: parseFloat(measurements[0]).toFixed(2).toString(),
-          ring: parseFloat(measurements[1]).toFixed(2).toString(),
-          middle: parseFloat(measurements[2]).toFixed(2).toString(),
-          index: parseFloat(measurements[3]).toFixed(2).toString(),
-          thumb: parseFloat(measurements[4]).toFixed(2).toString(),
-        });
-      } else {
-        setFingerSizes({
-          pinky: parseFloat(measurements[4]).toFixed(2).toString(),
-          ring: parseFloat(measurements[3]).toFixed(2).toString(),
-          middle: parseFloat(measurements[2]).toFixed(2).toString(),
-          index: parseFloat(measurements[1]).toFixed(2).toString(),
-          thumb: parseFloat(measurements[0]).toFixed(2).toString(),
-        });
+      if (bodyPart === 'fingers') {
+        const measurements = data?.finger_measurement;
+        
+        // Assuming finger_measurement array order is: pinky, ring, middle, index, thumb
+        if (data?.hand_label === 'Left') {
+          setFingerSizes({
+            pinky: parseFloat(measurements[0]).toFixed(2).toString(),
+            ring: parseFloat(measurements[1]).toFixed(2).toString(),
+            middle: parseFloat(measurements[2]).toFixed(2).toString(),
+            index: parseFloat(measurements[3]).toFixed(2).toString(),
+            thumb: parseFloat(measurements[4]).toFixed(2).toString(),
+          });
+        } else {
+          setFingerSizes({
+            pinky: parseFloat(measurements[4]).toFixed(2).toString(),
+            ring: parseFloat(measurements[3]).toFixed(2).toString(),
+            middle: parseFloat(measurements[2]).toFixed(2).toString(),
+            index: parseFloat(measurements[1]).toFixed(2).toString(),
+            thumb: parseFloat(measurements[0]).toFixed(2).toString(),
+          });
+        }
+      } else if (bodyPart === 'wrist') {
+        const measurement = data?.wrist_measurement;
+        //console.log(data)
+        setWristSize(parseFloat(measurement).toFixed(2).toString());
       }
-    } else if (bodyPart === 'wrist') {
-      const measurement = data?.wrist_measurement;
-      //console.log(data)
-      setWristSize(parseFloat(measurement).toFixed(2).toString());
+      setLoading(false);
+      setMeasured(true)
+    } catch (error) {
+      console.error(error);
+      setLoading(false);
+      setMeasured(false)
     }
-    setLoading(false);
-    setMeasured(true)
+    
     //console.log(fingerSizes)
     //console.log(wristSize)
   };
@@ -379,6 +392,17 @@ export default function CameraApp() {
         </>
       ) : (
         <>
+          {bodyPart && (
+            <Image
+              source={bodyPart === 'fingers' 
+                  ? 
+                require(`@/assets/images/cameraoverlay/edgedFinger.png`) 
+                  : 
+                require(`@/assets/images/cameraoverlay/edgedWrist.png`)
+              }
+              style={[styles.image, {position:'absolute', zIndex: 500}]}
+            />
+          )}
           <TouchableOpacity 
             style={{top:60, right:0, position:'absolute', zIndex:2}}
             onPress={() => setShowBodyPartDialog(true)}
@@ -516,7 +540,7 @@ const styles = StyleSheet.create({
     padding: 3,
     paddingHorizontal: 8,
     color: white,
-    fontSize: 18,
+    fontSize: scaledSize(13),
     textAlign: 'center'
   },
   text: {

@@ -28,6 +28,7 @@ export default function Accounts() {
   return (
     <>
      <ThemedModal
+      height={465}
       showModal={showAccountDeletionModal}
       onClose={() => setShowAccountDeletionModal(false)}
     >
@@ -133,6 +134,7 @@ export default function Accounts() {
             />
           </ThemedView>
         </ThemedTouchableFilled>
+        {/* 
         <ThemedTouchableFilled
           style={styles.button}
           onPress={resetApp}
@@ -146,6 +148,7 @@ export default function Accounts() {
             />
           </ThemedView>
         </ThemedTouchableFilled>
+        */}
       </ThemedView>
     </ThemedView>
     </>

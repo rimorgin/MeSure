@@ -1,24 +1,21 @@
 import { FingerMeasurements } from "@/types/userMeasurementStoreTypes";
 
 export const convertToUSRingSizeUsingGuide = (mm: number): string => {
-  // Start at size 3 with 14 mm, increment by 0.4 mm for each half-size
+  const minus = mm - 0.5
   const baseSize = 3;
   const baseWidth = 14;
   const incrementPerHalfSize = 0.4;
 
-  // Calculate the approximate size
-  const size = (mm - baseWidth) / incrementPerHalfSize / 2 + baseSize;
-
-  // Round to the nearest half size (0.5 increments)
+  const size = (minus - baseWidth) / incrementPerHalfSize / 2 + baseSize;
   const roundedSize = Math.round(size * 2) / 2;
 
-  // Valid size range check (sizes 3 to 13.5)
-  if (roundedSize < 3 || roundedSize > 13.5) {
-    return 'Invalid size';
+  if (roundedSize < 3 && roundedSize > 13.5) {
+    return 'invalid';
   }
 
-  return roundedSize.toFixed(1); // Convert to string with one decimal place
+  return roundedSize.toFixed(1);
 };
+
 
 export const convertAllToUSRingSizesUsingGuide = (measurements: FingerMeasurements): FingerMeasurements => {
   // Convert each finger measurement to its US size

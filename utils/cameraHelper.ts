@@ -3,25 +3,6 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 
-
-export const blobToBase64 = (blob: Blob) => {
-  const reader = new FileReader();
-  reader.readAsDataURL(blob);
-  return new Promise((resolve, reject) => {
-    reader.onloadend = () => {
-      resolve(reader.result);
-    };
-    reader.onerror = reject;
-  });
-};
-
-export const convertBase64ToBlob = (base64: any, mimeType = 'image/png') => {
-  const byteCharacters = atob(base64); // Decode the Base64 string
-  const byteNumbers = new Array(byteCharacters.length).fill(null).map((_, i) => byteCharacters.charCodeAt(i));
-  const byteArray = new Uint8Array(byteNumbers);
-  return new Blob([byteArray], { type: mimeType });
-};
-
 // cameraHelpers.js
 export const getCoinWidth = (coin: number) => {
   switch (coin) {
@@ -49,11 +30,13 @@ export const getBodyPartSpecificURL = (bodyPart: string) => {
       break;
   }
   //backend live deployment 
-  return `http://34.81.21.169:8080/${urlScheme}`;
+  //return `http://34.81.21.169:8080/${urlScheme}`;
 
   //backend local deployment 
-  //return `http://10.15.20.39:8080/${urlScheme}`;
-  //return `http://localhost:5000/${urlScheme}`;
+  return `http://10.15.20.37:8080/${urlScheme}`;
+  //return `http://172.20.10.2:8080/${urlScheme}`;
+  //return `http://172.16.0.20:8080/${urlScheme}`
+  // return `http://10.168.20.104:8080/
 };
 
 

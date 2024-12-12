@@ -25,7 +25,14 @@ export default function ProfileScreen() {
     const { userId, userEmail, userEmailVerified } = useUserStore();
     const isEnabled = theme === 'dark';
     const userFullName = useUserStore((state) => state.userFullName);
-    const { fingerMeasurements, wristMeasurement, setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
+    const { 
+      fingerMeasurements, 
+      wristMeasurement, 
+      USSizeFingerMeasurements, 
+      USSizeWristMeasurement, 
+      setFingerMeasurements, 
+      setWristMeasurement 
+    } = useUserMeasurementStorage();
     const [rating, setRating] = useState(0);
     const [showRating, setShowRating] = useState(false);
     const [showModalAddManually, setShowModalAddManually] = useState(false);
@@ -481,15 +488,15 @@ export default function ProfileScreen() {
                     <>
                       
                       <ThemedText font='montserratSemiBold'>Thumb: </ThemedText>
-                      {`${fingerMeasurements.thumb}\n`} 
+                      {showUsSizesFinger ? `${USSizeFingerMeasurements.thumb}\n` : `${fingerMeasurements.thumb}\n`} 
                       <ThemedText font='montserratSemiBold'>Index: </ThemedText>
-                      {`${fingerMeasurements.index}\n`}
+                      {showUsSizesFinger ? `${USSizeFingerMeasurements.index}\n` : `${fingerMeasurements.index}\n`}
                       <ThemedText font='montserratSemiBold'>Middle: </ThemedText>
-                      {`${fingerMeasurements.middle}\n`} 
+                      {showUsSizesFinger ? `${USSizeFingerMeasurements.middle}\n` : `${fingerMeasurements.middle}\n`} 
                       <ThemedText font='montserratSemiBold'>Ring: </ThemedText>
-                      {`${fingerMeasurements.ring}\n`}
+                      {showUsSizesFinger ? `${USSizeFingerMeasurements.ring}\n` : `${fingerMeasurements.ring}\n`}
                       <ThemedText font='montserratSemiBold'>Pinky: </ThemedText>
-                      {`${fingerMeasurements.pinky}\n`}
+                      {showUsSizesFinger ? `${USSizeFingerMeasurements.pinky}\n` : `${fingerMeasurements.pinky}\n`}
                     </>
                   )}
                   </ThemedText>

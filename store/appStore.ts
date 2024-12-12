@@ -209,6 +209,7 @@ export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
         // Action to set finger measurements
         setFingerMeasurements: async (userId, measurements) => {
           try {
+            const usFingerSizes = convertAllToUSRingSizesUsingGuide(measurements)
             // Update Firestore
             await firestore()
               .collection('user')
@@ -219,7 +220,11 @@ export const useUserMeasurementStorage = create<UserMeasurementStorage>()(
               );
 
             // Update Zustand state
-            set({ fingerMeasurements: measurements });
+            set({ 
+              fingerMeasurements: measurements,
+              USSizeFingerMeasurements: usFingerSizes 
+            });
+
 
             //also update the USSize for finger here with the conversion
             //set({ USSizeFingerMeasurement: size });

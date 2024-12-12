@@ -33,7 +33,7 @@ const { width, height } = Dimensions.get('screen');
     const { addFavorite, removeFavorite, isFavorite } = useFavoritesStore();
     const [isExpanded, setIsExpanded] = useState(false);
     const [textHeight, setTextHeight] = useState(0);
-    const maxHeight = 28;
+    const maxHeight = 40;
     const [arAlertModal, setArAlertModal] = useState(false);
     // Safely access the categories and rings
     const product = appData.categories
@@ -101,14 +101,7 @@ const { width, height } = Dimensions.get('screen');
       }
     }
 
-    const handleArClick = () => {
-      if (product.AR) {
-        
-      } else {
-        setArAlertModal(true);
-      }
-    }
-
+    console.log(width, height)
     return (
       <>
       <ThemedModal
@@ -271,7 +264,7 @@ const { width, height } = Dimensions.get('screen');
                 font='montserratRegular' 
                 type='default'
                 lightColor='#301713'
-                style={{letterSpacing:1, marginTop:20}}
+                style={{letterSpacing:1, marginTop: 20}}
               >DESCRIPTION
             </ThemedText>
             <ThemedView
@@ -298,7 +291,7 @@ const { width, height } = Dimensions.get('screen');
                 </TouchableOpacity>
               )}
             </ThemedView>
-            <View style={{marginTop:30}}/>
+            <View style={{marginTop: textHeight > maxHeight ? 30 : height >= 800 ? 40 : 15}}/>
             <ThemedView style={{flexDirection: 'row', justifyContent:'space-between'}}>
               <ThemedView>
                 <ThemedText 
@@ -565,7 +558,7 @@ const { width, height } = Dimensions.get('screen');
       marginRight: 8
     },
     expandableDescription: { 
-      height: width * 0.15,
+      height: 'auto',
     },
     description: {
       color: '#555',
