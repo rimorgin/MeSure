@@ -563,6 +563,7 @@ export default function ProfileScreen() {
           </ThemedView>
           <ThemedText type="default" style={{marginVertical:10}}>Preferences</ThemedText>
           <ThemedView style={styles.buttonContainers}>
+            {/*
             <TouchableOpacity
               style={styles.button}
               onPress={handleToggleScheme}
@@ -588,6 +589,7 @@ export default function ProfileScreen() {
               />
             </TouchableOpacity>
             <ThemedDivider width={1.2}  opacity={0.1} marginY={3}/>
+            */}
             <TouchableOpacity
               style={styles.button}
               onPress={() => router.navigate('/(account)/')}

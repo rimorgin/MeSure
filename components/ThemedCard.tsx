@@ -14,11 +14,9 @@ interface ItemCardProps {
   item: {
     id: number; 
     img: any[]; 
-    name: string; 
-    description: string;
+    name: string;
     price: string;
-    rating: number;
-    sold: number
+    sold: number;
     AR: boolean;
   };
 }
@@ -132,7 +130,8 @@ export function CategoryCard({ item, handleCategorySelect, isOdd }: CategoryCard
 
 const styles = StyleSheet.create({
   button: {
-    margin: 10,
+    marginHorizontal: 10,
+    marginVertical: 7,
     borderRadius: 9,
   },
   cardContainer: {

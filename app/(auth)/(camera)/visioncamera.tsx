@@ -61,7 +61,7 @@ export default function CameraApp() {
     if (camera.current == null) throw new Error("Camera ref is null!");
       // Capture the photo
       const photo = await camera.current.takePhoto({
-        //flash: 'on',
+        flash: 'on',
         enableShutterSound: false,
       });
       // Crop the image to a 4:3 aspect ratio
@@ -400,7 +400,7 @@ export default function CameraApp() {
                   : 
                 require(`@/assets/images/cameraoverlay/edgedWrist.png`)
               }
-              style={[styles.image, {position:'absolute', zIndex: 500}]}
+              style={bodyPart === 'fingers' ? styles.overlayImage : [styles.image, {position: 'absolute', zIndex: 500}]}
             />
           )}
           <TouchableOpacity 
@@ -526,6 +526,14 @@ const styles = StyleSheet.create({
     height: width * (4 / 3),
     width: width,
     alignSelf: 'center', // Center the image horizontally
+  },
+  overlayImage: {
+    height: (width * 1.15) * (4 / 3),
+    width: width * 1.16,
+    left: -55,
+    alignSelf: 'center',
+    position: 'absolute',
+    zIndex: 500
   },
   textInputContainer: {
     position: 'absolute',

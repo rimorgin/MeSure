@@ -2,7 +2,6 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  View,
   SafeAreaView,
   Platform,
   StatusBar,
@@ -13,7 +12,7 @@ import { ThemedView } from '@/components/ThemedView';
 import SearchInput from '@/components/SearchBar';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
-import { black, Colors, tintColorLight, white } from '@/constants/Colors';
+import { Colors, tintColorLight, white } from '@/constants/Colors';
 import { FlashList } from '@shopify/flash-list';
 import { appData } from '@/assets/data/appData';
 import { Drawer } from 'react-native-drawer-layout';
