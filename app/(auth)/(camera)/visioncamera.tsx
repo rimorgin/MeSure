@@ -21,17 +21,24 @@ import useColorSchemeTheme from '@/hooks/useColorScheme';
 import { Feather } from '@expo/vector-icons';
 import HelpDialog from '@/components/CameraHelpers/HelpDialog';
 import { scaledSize } from '@/utils/fontSizer';
-import { gyroscope, setUpdateIntervalForType, SensorTypes } from 'react-native-sensors';
+import { useIsFocused } from '@react-navigation/native';
+import {useAppState} from '@react-native-community/hooks'
+import { Gyroscope } from 'expo-sensors';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width, height } = Dimensions.get('screen');
 
 export default function CameraApp() {
+  const theme = useColorSchemeTheme();
   const device = useCameraDevice('back');
   const { hasPermission } = useCameraPermission();
   const [mediaLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
   const camera = useRef<Camera>(null);
   const { showCameraIntro } = useIsAppFirstLaunchStore();
-  const [isCameraInitialized, initializeCamera] = useState(false);
+  const isFocused = useIsFocused()
+  const appState = useAppState()
+  const isActive = isFocused && appState === "active"
+  const [isCameraInitialized, initializeCamera] = useState(isActive);
   const [photo, setPhoto] = useState<PhotoFile | string>();
   const [coin, setCoin] = useState(0);
   const [bodyPart, setBodyPart] = useState('');
@@ -44,7 +51,7 @@ export default function CameraApp() {
   const { userId } = useUserStore();
   const { setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
   const userFullName = useUserStore((state) => state.userFullName);
-  const theme = useColorSchemeTheme();
+  
 
   const [fingerSizes, setFingerSizes] = useState({
     thumb: '',
@@ -55,39 +62,23 @@ export default function CameraApp() {
   });
   const [wristSize, setWristSize] = useState('');
 
-  // Gyroscope state
-  const [isLevel, setIsLevel] = useState(false);
-  const [pitch, setPitch] = useState(0);
-  const [roll, setRoll] = useState(0);
+  const [gyroData, setGyroData] = useState({ x: 0, y: 0, z: 0 });
+  const [gyroEnabled, setGyroEnabled] = useState(true);
 
-  // Gyroscope setup
   useEffect(() => {
-    setUpdateIntervalForType(SensorTypes.gyroscope, 100); // Update every 100ms
+    let subscription: any;
+    if (gyroEnabled) {
+      subscription = Gyroscope.addListener((data) => {
+        setGyroData(data);
+      });
+    } else {
+      subscription?.remove();
+    }
+    return () => {
+      subscription?.remove();
+    }
 
-    const subscription = gyroscope.subscribe(({ x, y, z }) => {
-      // Calculate pitch and roll angles (in radians)
-      const pitchAngle = Math.atan2(y, Math.sqrt(x * x + z * z));
-      const rollAngle = Math.atan2(x, Math.sqrt(y * y + z * z));
-
-      // Convert to degrees
-      const pitchDeg = (pitchAngle * 180) / Math.PI;
-      const rollDeg = (rollAngle * 180) / Math.PI;
-
-      setPitch(pitchDeg);
-      setRoll(rollDeg);
-
-      // Check if the camera is level (within a small threshold)
-      const threshold = 5; // Degrees
-      if (Math.abs(pitchDeg) < threshold && Math.abs(rollDeg) < threshold) {
-        setIsLevel(true);
-      } else {
-        setIsLevel(false);
-      }
-    });
-
-    // Cleanup subscription on unmount
-    return () => subscription.unsubscribe();
-  }, []);
+  }, [gyroEnabled]);
 
   const takePhoto = async () => {
     try {
@@ -193,6 +184,8 @@ export default function CameraApp() {
     await saveImageToGallery(photo, userFullName || 'image', bodyPart);
   };
 
+
+
   useEffect(() => {
     if (!hasPermission && !mediaLibraryPermission?.granted) {
       router.replace('/permissions?routeBack=visioncamera');
@@ -242,16 +235,7 @@ export default function CameraApp() {
       <FocusAwareStatusBar barStyle={theme === 'dark' ? 'dark-content' : 'light-content'} animated/>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView style={styles.container}>
-          {/* Gyroscope Level Indicator */}
-          <View style={styles.levelIndicator}>
-            <Text style={styles.levelText}>
-              {isLevel ? 'Level ✅' : 'Not Level ❌'}
-            </Text>
-            <Text style={styles.levelText}>
-              Pitch: {pitch.toFixed(2)}°, Roll: {roll.toFixed(2)}°
-            </Text>
-          </View>
-
+          
           <ConfirmCoinAlertDialog 
             setShowCoinDialog={() => setShowCoinDialog(false)} 
             showCoinDialog={showCoinDialog}
@@ -411,7 +395,40 @@ export default function CameraApp() {
             </>
           ) : (
             <>
-              {bodyPart && (
+            {/* Fixed Yellow Plus */}
+             <AntDesign
+              name="plus"
+              size={50}
+              color="yellow"
+              style={[
+                styles.gyroPlusIndicator,
+                {
+                  position: "absolute",
+                  transform: [
+                    { translateX: -(gyroData.y * 10) }, 
+                    { translateY: -(gyroData.x * 10) }
+                  ], // Center the plus icon
+                },
+              ]}
+            />
+
+            {/* White Indicator (Follows Gyroscope Data) */}
+            <AntDesign
+              name="plus"
+              size={50}
+              color="white"
+              style={[
+                styles.gyroPlusIndicator,
+                {
+                  position: "absolute",
+                  transform: [
+                    { translateX: gyroData.y * 10 }, // Adjust relative to center
+                    { translateY: gyroData.x * 10 },
+                  ],
+                },
+              ]}
+            />
+              {/*bodyPart && (
                 <Image
                   source={bodyPart === 'fingers' 
                       ? 
@@ -421,7 +438,7 @@ export default function CameraApp() {
                   }
                   style={bodyPart === 'fingers' ? styles.overlayImage : [styles.image, {position: 'absolute', zIndex: 500}]}
                 />
-              )}
+              )*/}
               <TouchableOpacity 
                 style={{top:60, right:0, position:'absolute', zIndex:2}}
                 onPress={() => setShowBodyPartDialog(true)}
@@ -471,7 +488,7 @@ export default function CameraApp() {
                 <Camera
                   style={StyleSheet.absoluteFillObject}
                   device={device}
-                  isActive={isCameraInitialized}
+                  isActive={isActive}
                   ref={camera}
                   photo={true}
                   format={format}
@@ -482,7 +499,7 @@ export default function CameraApp() {
                 />
                 <View style={{opacity:0.7, backgroundColor:'#000', height: width * (4/3)/4, zIndex: 1, bottom: 0,position:'absolute', width:'100%'}}/>
               </View>
-        
+              <TouchableOpacity style={styles.captureButton} onPress={takePhoto} />
               <TouchableOpacity onPress={pickImage} style={styles.mediaLibs}>
                 <Ionicons 
                   size={50}
@@ -575,17 +592,11 @@ const styles = StyleSheet.create({
     marginBottom:3,
     textAlign: 'center'
   },
-  levelIndicator: {
-    position: 'absolute',
-    top: 20,
-    zIndex: 2,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 10,
-    borderRadius: 10,
-  },
-  levelText: {
-    color: 'white',
-    fontSize: 16,
-    textAlign: 'center',
-  },
+  gyroPlusIndicator: {
+    position: 'absolute', 
+    top: '50%', 
+    alignSelf: 'center', 
+    zIndex: 5
+  }
+
 });

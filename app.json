@@ -98,6 +98,12 @@
         }
       ],
       [
+        "expo-sensors",
+        {
+          "motionPermission": "Allow $(PRODUCT_NAME) to access your device motion"
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "android": {

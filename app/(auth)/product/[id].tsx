@@ -16,8 +16,6 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { useCartStore, useFavoritesStore, useUserStore } from '@/store/appStore';
 import ThemedModal from '@/components/ThemedModal';
 import RatingStars from '@/components/ratingsStars';
-import { ExternalLink } from '@/components/ExternalLink';
-import InAppWebView from '@/components/InAppWebView';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -38,7 +36,7 @@ const { width, height } = Dimensions.get('screen');
     // Safely access the categories and rings
     const product = appData.categories
     .flatMap(category => category.rings || category.bangles || [])
-    .find((item): item is { id: number; img: any[]; name: string; sizes: number[]; description: string; rating: number; sold: number; price: string; stock: number; AR: boolean, arlink: string } => item?.id?.toString() === id) || {
+    .find((item): item is { id: number; img: any[]; name: string; sizes: number[]; description: string; rating: number; sold: number; price: string; stock: number; AR: boolean; arlink: string } => item?.id?.toString() === id) || {
       id: 0,
       img: [],
       name: '',

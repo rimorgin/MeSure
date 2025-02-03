@@ -33,7 +33,7 @@ export const getBodyPartSpecificURL = (bodyPart: string) => {
   //return `http://34.81.21.169:8080/${urlScheme}`;
 
   //backend local deployment 
-  return `http://10.15.20.37:8080/${urlScheme}`;
+  return `http://10.15.20.40:8080/${urlScheme}`;
   //return `http://172.20.10.2:8080/${urlScheme}`;
   //return `http://172.16.0.20:8080/${urlScheme}`
   // return `http://10.168.20.104:8080/
@@ -44,7 +44,7 @@ export const processImageHelper = async (photo: any, coin: number, bodyPart: str
   const width = getCoinWidth(coin);
   const url = getBodyPartSpecificURL(bodyPart)
 
-  //console.log('url-used ',url)
+  console.log('url-used ',url)
 
   try {
     if (!photo) {
