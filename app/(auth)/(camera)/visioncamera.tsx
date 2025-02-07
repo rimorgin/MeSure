@@ -395,39 +395,41 @@ export default function CameraApp() {
             </>
           ) : (
             <>
-            {/* Fixed Yellow Plus */}
-             <AntDesign
-              name="plus"
-              size={50}
-              color="yellow"
-              style={[
-                styles.gyroPlusIndicator,
-                {
-                  position: "absolute",
-                  transform: [
-                    { translateX: -(gyroData.y * 10) }, 
-                    { translateY: -(gyroData.x * 10) }
-                  ], // Center the plus icon
-                },
-              ]}
-            />
+                    {/* Fixed Yellow Plus */}
+          <AntDesign
+            name="plus"
+            size={50}
+            color="yellow"
+            style={[
+              styles.gyroPlusIndicator,
+              {
+                position: "absolute",
+                transform: [
+                  { translateX: -(gyroData.y * 10) },
+                  { translateY: -(gyroData.x * 10) },
+                ],
+                opacity: Math.abs(gyroData.x) < 0.1 && Math.abs(gyroData.y) < 0.1 ? 1 : 0, // Visible only when centered
+              },
+            ]}
+          />
 
-            {/* White Indicator (Follows Gyroscope Data) */}
-            <AntDesign
-              name="plus"
-              size={50}
-              color="white"
-              style={[
-                styles.gyroPlusIndicator,
-                {
-                  position: "absolute",
-                  transform: [
-                    { translateX: gyroData.y * 10 }, // Adjust relative to center
-                    { translateY: gyroData.x * 10 },
-                  ],
-                },
-              ]}
-            />
+   {/* White Indicator (Follows Gyroscope Data) */}
+<AntDesign
+  name="plus"
+  size={50}
+  color="white"
+  style={[
+    styles.gyroPlusIndicator,
+    {
+      position: "absolute",
+      transform: [
+        { translateX: gyroData.y * 10 }, // Adjust relative to center
+        { translateY: gyroData.x * 10 },
+      ],
+      opacity: Math.abs(gyroData.x) < 0.1 && Math.abs(gyroData.y) < 0.1 ? 0 : 1, // Invisible when centered
+    },
+  ]}
+/>
               {/*bodyPart && (
                 <Image
                   source={bodyPart === 'fingers' 
