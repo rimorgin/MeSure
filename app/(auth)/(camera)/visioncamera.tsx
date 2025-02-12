@@ -51,7 +51,7 @@ export default function CameraApp() {
   const { userId } = useUserStore();
   const { setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
   const userFullName = useUserStore((state) => state.userFullName);
-  
+  const [zoom, setZoom] = useState(2);
 
   const [fingerSizes, setFingerSizes] = useState({
     thumb: '',
@@ -235,7 +235,16 @@ export default function CameraApp() {
       <FocusAwareStatusBar barStyle={theme === 'dark' ? 'dark-content' : 'light-content'} animated/>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView style={styles.container}>
-          
+       
+      <ConfirmCoinAlertDialog 
+        setShowCoinDialog={() => setShowCoinDialog(false)} 
+        showCoinDialog={showCoinDialog}
+        bodyPart={bodyPart} 
+        setCoin={(coin) => { 
+          setCoin(coin); 
+          setShowCoinDialog(false); 
+        }} // Hide the dialog after selection
+      />
 
           <ConfirmBodyPartAlertDialog
             setShowBodyPartDialog={() => setShowBodyPartDialog(false)}
@@ -490,6 +499,7 @@ export default function CameraApp() {
                   pixelFormat="yuv"
                   focusable
                   photoQualityBalance='quality'
+                  zoom={zoom} 
                 />
                 <View style={{opacity:0.7, backgroundColor:'#000', height: width * (4/3)/4, zIndex: 1, bottom: 0,position:'absolute', width:'100%'}}/>
               </View>

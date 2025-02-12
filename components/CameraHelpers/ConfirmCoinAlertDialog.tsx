@@ -29,10 +29,10 @@ const ConfirmCoinAlertDialog: React.FC<ConfirmCoinAlertDialogProps> = ({
       height={300}
     >
     <ThemedText type="semititle" style={{ textAlign: 'left', width: '100%', paddingLeft: 10, paddingTop: 10 }}>
-        What coin are you using?
+        Instructions
     </ThemedText>
     <ThemedText style={{ padding: 10, marginVertical: 10 }} type="default">
-        A coin is needed to be captured in the image together with your {bodyPart} as it will be used as the reference width.
+        Tap the old 1 Peso Coin as reference, ensure that the old 1 Peso coin is visible in the image along with your {bodyPart}, as it will be used to determine the reference width. 
     </ThemedText>
     <ThemedView style={{ flexDirection: 'row', justifyContent: 'space-around', width: '100%' }}>
       {/* 
@@ -52,18 +52,7 @@ const ConfirmCoinAlertDialog: React.FC<ConfirmCoinAlertDialogProps> = ({
           style={{width: 60, height: 60}}
         />
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => setCoin(5)}>
-        <Image 
-          source={require('@/assets/images/coins/coin5.png')}
-          style={{width: 60, height: 60}}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => setCoin(10)}>
-        <Image 
-          source={require('@/assets/images/coins/coin10.png')}
-          style={{width: 60, height: 60}}
-        />
-      </TouchableOpacity>
+ 
       
     </ThemedView>
     </ThemedModal>
