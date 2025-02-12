@@ -236,15 +236,7 @@ export default function CameraApp() {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView style={styles.container}>
           
-          <ConfirmCoinAlertDialog 
-            setShowCoinDialog={() => setShowCoinDialog(false)} 
-            showCoinDialog={showCoinDialog}
-            bodyPart={bodyPart} 
-            setCoin={(coin) => { 
-              setCoin(coin); 
-              setShowCoinDialog(false); 
-            }}
-          />
+
           <ConfirmBodyPartAlertDialog
             setShowBodyPartDialog={() => setShowBodyPartDialog(false)}
             showBodyPartDialog={showBodyPartDialog} 
