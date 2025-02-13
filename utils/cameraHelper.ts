@@ -33,7 +33,7 @@ export const getBodyPartSpecificURL = (bodyPart: string) => {
   //return `http://34.81.21.169:8080/${urlScheme}`;
 
   //backend local deployment 
-  return `http://10.15.20.40:8080/${urlScheme}`;
+  return `https://python.jaitolentino.studio/${urlScheme}`;
   //return `http://172.20.10.2:8080/${urlScheme}`;
   //return `http://172.16.0.20:8080/${urlScheme}`
   // return `http://10.168.20.104:8080/
@@ -73,7 +73,7 @@ export const processImageHelper = async (photo: any, coin: number, bodyPart: str
 
     if (contentType?.includes('application/json')) {
       const json = await response.json();
-
+      console.log("JSON: "+json['finger_measurements']);
       // Extract the measurements and image from the response
       const { finger_measurement, wrist_measurement, hand_label, processed_image } = json;
 

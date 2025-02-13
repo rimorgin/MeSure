@@ -8,7 +8,7 @@ import {
   useCameraPermission
 } from 'react-native-vision-camera';
 import * as ImagePicker from 'expo-image-picker';
-import { white } from '@/constants/Colors';
+import { white, black } from '@/constants/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { cropImage, processImageHelper, saveImageToGallery } from '@/utils/cameraHelper';
 import { router } from 'expo-router';
@@ -23,7 +23,7 @@ import HelpDialog from '@/components/CameraHelpers/HelpDialog';
 import { scaledSize } from '@/utils/fontSizer';
 import { useIsFocused } from '@react-navigation/native';
 import {useAppState} from '@react-native-community/hooks'
-import { Gyroscope } from 'expo-sensors';
+import { Gyroscope, Magnetometer } from 'expo-sensors';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width, height } = Dimensions.get('screen');
@@ -65,11 +65,30 @@ export default function CameraApp() {
   const [gyroData, setGyroData] = useState({ x: 0, y: 0, z: 0 });
   const [gyroEnabled, setGyroEnabled] = useState(true);
 
+  const DEFAULT_GYRO_DATA = { x: 0, y: 48.375, z: 5.875 };
+  const TOLERANCE = 0.5;  // Adjust this value as needed for sensitivity
+  type GyroData = {
+    x: number;
+    y: number;
+    z: number;
+  };
+
+  function isGyroDataNearDefault(gyroData: GyroData) {
+    print(
+    )
+    return (
+      (gyroData.x - DEFAULT_GYRO_DATA.x) <= TOLERANCE &&
+      (gyroData.y - DEFAULT_GYRO_DATA.y) <= TOLERANCE &&
+      (gyroData.z - DEFAULT_GYRO_DATA.z) <= TOLERANCE
+    );
+  }
+
   useEffect(() => {
     let subscription: any;
     if (gyroEnabled) {
-      subscription = Gyroscope.addListener((data) => {
+      subscription = Magnetometer.addListener((data) => {
         setGyroData(data);
+        
       });
     } else {
       subscription?.remove();
@@ -84,6 +103,7 @@ export default function CameraApp() {
     try {
       if (camera.current == null) throw new Error("Camera ref is null!");
       const photo = await camera.current.takePhoto({
+        
         flash: 'on',
         enableShutterSound: false,
       });
@@ -131,7 +151,7 @@ export default function CameraApp() {
       
       if (bodyPart === 'fingers') {
         const measurements = data?.finger_measurement;
-        
+        console.log(data.finger_measurement);
         if (data?.hand_label === 'Left') {
           setFingerSizes({
             pinky: parseFloat(measurements[0]).toFixed(2).toString(),
@@ -406,14 +426,13 @@ export default function CameraApp() {
               {
                 position: "absolute",
                 transform: [
-                  { translateX: -(gyroData.y * 10) },
-                  { translateY: -(gyroData.x * 10) },
+                  { translateX: 0 + 10},
+                  { translateY: 0 },
                 ],
-                opacity: Math.abs(gyroData.x) < 0.1 && Math.abs(gyroData.y) < 0.1 ? 1 : 0, // Visible only when centered
+                opacity: isGyroDataNearDefault(gyroData) ? 1 : 0, // Visible only when centered
               },
             ]}
           />
-
    {/* White Indicator (Follows Gyroscope Data) */}
 <AntDesign
   name="plus"
@@ -424,10 +443,10 @@ export default function CameraApp() {
     {
       position: "absolute",
       transform: [
-        { translateX: gyroData.y * 10 }, // Adjust relative to center
-        { translateY: gyroData.x * 10 },
+        { translateX: gyroData.y - 40 }, // Adjust relative to center
+        { translateY: gyroData.x},
       ],
-      opacity: Math.abs(gyroData.x) < 0.1 && Math.abs(gyroData.y) < 0.1 ? 0 : 1, // Invisible when centered
+      opacity: gyroData.x == 0 && gyroData.y == 48.375 && gyroData.z == 5.875 ? 0 : 1, // Invisible when centered
     },
   ]}
 />
@@ -579,15 +598,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 25,
+    gap: 5,
+    backgroundColor: black,
     flexDirection: 'row'
   },
   textInput: {
     borderWidth:3,
     borderColor: white,
     padding: 3,
+    margin: 5,
     paddingHorizontal: 8,
     color: white,
+    fontWeight: '900',
     fontSize: scaledSize(13),
     textAlign: 'center'
   },
