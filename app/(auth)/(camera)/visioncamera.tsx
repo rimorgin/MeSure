@@ -81,7 +81,7 @@ export default function CameraApp() {
     const pitch = Math.atan2(-gyroData.x, Math.sqrt(gyroData.y * gyroData.y + gyroData.z * gyroData.z)) * (180 / Math.PI); // Convert to degrees
 
     // Check if the phone is leveled (roll and pitch near 0 degrees)
-    if (Math.abs(roll) < 5 && Math.abs(pitch) < 5) {
+    if (Math.abs(roll) < .5 && Math.abs(pitch) < .5) {
       return true;
     } else {
       return false;
