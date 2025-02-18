@@ -23,7 +23,7 @@ import HelpDialog from '@/components/CameraHelpers/HelpDialog';
 import { scaledSize } from '@/utils/fontSizer';
 import { useIsFocused } from '@react-navigation/native';
 import {useAppState} from '@react-native-community/hooks'
-import { Gyroscope, Magnetometer } from 'expo-sensors';
+import { Accelerometer, Gyroscope, Magnetometer } from 'expo-sensors';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 const { width, height } = Dimensions.get('screen');
@@ -63,6 +63,7 @@ export default function CameraApp() {
   const [wristSize, setWristSize] = useState('');
 
   const [gyroData, setGyroData] = useState({ x: 0, y: 0, z: 0 });
+  const [updatedGyroData, setupdatedGyroData] = useState({ x: 0, y: 0, });
   const [gyroEnabled, setGyroEnabled] = useState(true);
 
   const DEFAULT_GYRO_DATA = { x: 0, y: 48.375, z: 5.875 };
@@ -73,21 +74,37 @@ export default function CameraApp() {
     z: number;
   };
 
-  function isGyroDataNearDefault(gyroData: GyroData) {
-    print(
-    )
-    return (
-      (gyroData.x - DEFAULT_GYRO_DATA.x) <= TOLERANCE &&
-      (gyroData.y - DEFAULT_GYRO_DATA.y) <= TOLERANCE &&
-      (gyroData.z - DEFAULT_GYRO_DATA.z) <= TOLERANCE
-    );
+  function IsCentered(gyroData: GyroData) {
+    // Calculate the roll angle (rotation around the x-axis)
+    const roll = Math.atan2(gyroData.y, gyroData.z) * (180 / Math.PI); // Convert to degrees
+    // Calculate the pitch angle (rotation around the y-axis)
+    const pitch = Math.atan2(-gyroData.x, Math.sqrt(gyroData.y * gyroData.y + gyroData.z * gyroData.z)) * (180 / Math.PI); // Convert to degrees
+
+    // Check if the phone is leveled (roll and pitch near 0 degrees)
+    if (Math.abs(roll) < 5 && Math.abs(pitch) < 5) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  function updatePosition(updatedGyroData: GyroData) {
+    const roll = Math.atan2(updatedGyroData.y, updatedGyroData.z) * (180 / Math.PI);
+    const pitch = Math.atan2(-updatedGyroData.x, Math.sqrt(updatedGyroData.y * updatedGyroData.y + updatedGyroData.z * updatedGyroData.z)) * (180 / Math.PI);
+
+    // Map roll and pitch to x and y positions (clamped between -50 and 50)
+    const mappedX = Math.max(-50, Math.min(50, roll));
+    const mappedY = Math.max(-50, Math.min(50, pitch));
+
+    setupdatedGyroData({x: mappedX, y: mappedY} );
   }
 
   useEffect(() => {
     let subscription: any;
     if (gyroEnabled) {
-      subscription = Magnetometer.addListener((data) => {
+      subscription = Accelerometer.addListener((data) => {
         setGyroData(data);
+        
         
       });
     } else {
@@ -420,7 +437,7 @@ export default function CameraApp() {
           <AntDesign
             name="plus"
             size={50}
-            color="yellow"
+            color={ IsCentered(gyroData) ? "yellow" : white}
             style={[
               styles.gyroPlusIndicator,
               {
@@ -429,12 +446,12 @@ export default function CameraApp() {
                   { translateX: 0 + 10},
                   { translateY: 0 },
                 ],
-                opacity: isGyroDataNearDefault(gyroData) ? 1 : 0, // Visible only when centered
+                opacity: 1, // Visible only when centered
               },
             ]}
           />
    {/* White Indicator (Follows Gyroscope Data) */}
-<AntDesign
+{/* <AntDesign
   name="plus"
   size={50}
   color="white"
@@ -443,13 +460,13 @@ export default function CameraApp() {
     {
       position: "absolute",
       transform: [
-        { translateX: gyroData.y - 40 }, // Adjust relative to center
-        { translateY: gyroData.x},
+        { translateX: updatedGyroData.y}, // Adjust relative to center
+        { translateY: updatedGyroData.x},
       ],
-      opacity: gyroData.x == 0 && gyroData.y == 48.375 && gyroData.z == 5.875 ? 0 : 1, // Invisible when centered
+      opacity: IsCentered(gyroData) ? 0 : 1, // Invisible when centered
     },
   ]}
-/>
+/> */}
               {/*bodyPart && (
                 <Image
                   source={bodyPart === 'fingers' 

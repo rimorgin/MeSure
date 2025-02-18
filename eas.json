@@ -11,7 +11,8 @@
         "API_URL": "http://34.81.21.169:8080/"
       },
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "resourceClass": "large"
       }
     },
     "preview": {
@@ -21,7 +22,9 @@
         "API_URL": "http://34.81.21.169:8080/"
       },
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "resourceClass": "large"
+
       }
     },
     "production": {

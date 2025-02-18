@@ -12,7 +12,8 @@
     "easbuild:stage": "eas build --profile preview --platform android",
     "easbuild:dev": "eas build --profile development --platform android",
     "easbuild:prod": "eas build --profile production --platform android",
-    "easbuild:prodlocal": "eas build --profile production --local --platform android"
+    "easbuild:prodlocal": "eas build --profile production --local --platform android",
+    "easbuild:stagelocal": "eas build --profile preview --local --platform android"
   },
   "jest": {
     "preset": "jest-expo"
