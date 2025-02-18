@@ -57,7 +57,7 @@ export const processImageHelper = async (photo: any, coin: number, bodyPart: str
     const photoUri = typeof photo === 'string' ? photo : `file://${photo?.path}`;
 
     formData.append('image', { uri: photoUri, type: 'image/jpeg', name: fileName || 'image.jpg' } as any);
-    formData.append('width', String(width));
+    formData.append('width', String(20.5));
 
     const response = await fetch(url, {
       method: 'POST',
