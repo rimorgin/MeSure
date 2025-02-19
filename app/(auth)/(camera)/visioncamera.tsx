@@ -148,7 +148,8 @@ export default function CameraApp() {
     { 
       fps: 'max',
       photoAspectRatio: 16/9,
-      photoResolution: 'max'
+      photoResolution: 'max',
+      
     }
   ]);
 
@@ -169,23 +170,15 @@ export default function CameraApp() {
       if (bodyPart === 'fingers') {
         const measurements = data?.finger_measurement;
         console.log(data.finger_measurement);
-        if (data?.hand_label === 'Left') {
-          setFingerSizes({
-            pinky: parseFloat(measurements[0]).toFixed(2).toString(),
-            ring: parseFloat(measurements[1]).toFixed(2).toString(),
-            middle: parseFloat(measurements[2]).toFixed(2).toString(),
-            index: parseFloat(measurements[3]).toFixed(2).toString(),
-            thumb: parseFloat(measurements[4]).toFixed(2).toString(),
-          });
-        } else {
-          setFingerSizes({
-            pinky: parseFloat(measurements[4]).toFixed(2).toString(),
-            ring: parseFloat(measurements[3]).toFixed(2).toString(),
-            middle: parseFloat(measurements[2]).toFixed(2).toString(),
-            index: parseFloat(measurements[1]).toFixed(2).toString(),
-            thumb: parseFloat(measurements[0]).toFixed(2).toString(),
-          });
-        }
+       
+        setFingerSizes({
+          pinky: parseFloat(measurements['pinky']).toFixed(2).toString(),
+          ring: parseFloat(measurements['ring']).toFixed(2).toString(),
+          middle: parseFloat(measurements['middle']).toFixed(2).toString(),
+          index: parseFloat(measurements['index']).toFixed(2).toString(),
+          thumb: parseFloat(measurements['thumb']).toFixed(2).toString(),
+        });
+        
       } else if (bodyPart === 'wrist') {
         const measurement = data?.wrist_measurement;
         setWristSize(parseFloat(measurement).toFixed(2).toString());
@@ -471,7 +464,7 @@ export default function CameraApp() {
                 <Image
                   source={bodyPart === 'fingers' 
                       ? 
-                    require(`@/assets/images/cameraoverlay/edgedFinger.png`) 
+                    require(`@/assets/images/cameraoverlay/edgedFingerLeft.png`) 
                       : 
                     require(`@/assets/images/cameraoverlay/edgedWrist.png`)
                   }
@@ -604,8 +597,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center', // Center the image horizontally
   },
   overlayImage: {
-    height: (width * 1.15) * (4 / 3),
-    width: width * 1.16,
+    height: (width * 0.95) * (4 / 3),
+    width: width * 1.12,
     left: -55,
     alignSelf: 'center',
     position: 'absolute',
