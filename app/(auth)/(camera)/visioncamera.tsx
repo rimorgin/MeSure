@@ -51,7 +51,7 @@ export default function CameraApp() {
   const { userId } = useUserStore();
   const { setFingerMeasurements, setWristMeasurement } = useUserMeasurementStorage();
   const userFullName = useUserStore((state) => state.userFullName);
-  const [zoom, setZoom] = useState(2);
+  const [zoom, setZoom] = useState(1); // Start with 1x zoom
 
   const [fingerSizes, setFingerSizes] = useState({
     thumb: '',
@@ -74,6 +74,21 @@ export default function CameraApp() {
     z: number;
   };
 
+  useEffect(() => {
+    if (device) {
+      const minZoom = device.minZoom;
+      const maxZoom = device.maxZoom;
+      const defaultZoom = 2; // Desired default zoom level
+
+      if (defaultZoom >= minZoom && defaultZoom <= maxZoom) {
+        setZoom(defaultZoom);
+      } else {
+        console.warn(`Default zoom level ${defaultZoom}x is not supported by this device. Supported range: ${minZoom}x - ${maxZoom}x`);
+      }
+    }
+  }, [device]);
+
+
   function IsCentered(gyroData: GyroData) {
     // Calculate the roll angle (rotation around the x-axis)
     const roll = Math.atan2(gyroData.y, gyroData.z) * (180 / Math.PI); // Convert to degrees
@@ -81,7 +96,7 @@ export default function CameraApp() {
     const pitch = Math.atan2(-gyroData.x, Math.sqrt(gyroData.y * gyroData.y + gyroData.z * gyroData.z)) * (180 / Math.PI); // Convert to degrees
 
     // Check if the phone is leveled (roll and pitch near 0 degrees)
-    if (Math.abs(roll) < .5 && Math.abs(pitch) < .5) {
+    if (Math.abs(roll) < 3 && Math.abs(pitch) < 3) {
       return true;
     } else {
       return false;
@@ -518,17 +533,17 @@ export default function CameraApp() {
               <View style={{flex: 1, width:'100%'}}>
                 <View style={{opacity:0.7, backgroundColor:'#000', height: width * (4/3)/4, zIndex: 1}}/>
                 <Camera
-                  style={StyleSheet.absoluteFillObject}
-                  device={device}
-                  isActive={isActive}
-                  ref={camera}
-                  photo={true}
-                  format={format}
-                  fps={fps}
-                  pixelFormat="yuv"
-                  focusable
-                  photoQualityBalance='quality'
-                  zoom={zoom} 
+                 style={StyleSheet.absoluteFillObject}
+                 device={device}
+                 isActive={isActive}
+                 ref={camera}
+                 photo={true}
+                 format={format}
+                 fps={fps}
+                 pixelFormat="yuv"
+                 focusable
+                 photoQualityBalance='quality'
+                 zoom={zoom} 
                 />
                 <View style={{opacity:0.7, backgroundColor:'#000', height: width * (4/3)/4, zIndex: 1, bottom: 0,position:'absolute', width:'100%'}}/>
               </View>
