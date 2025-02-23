@@ -441,7 +441,7 @@ export default function CameraApp() {
             </>
           ) : (
             <>
-                    {/* Fixed Yellow Plus */}
+          {/* Fixed Yellow Plus */}
           <AntDesign
             name="plus"
             size={50}
@@ -451,30 +451,30 @@ export default function CameraApp() {
               {
                 position: "absolute",
                 transform: [
-                  { translateX: 0 + 10},
+                  { translateX: 0 },
                   { translateY: 0 },
                 ],
                 opacity: 1, // Visible only when centered
               },
             ]}
           />
-   {/* White Indicator (Follows Gyroscope Data) */}
-{/* <AntDesign
-  name="plus"
-  size={50}
-  color="white"
-  style={[
-    styles.gyroPlusIndicator,
-    {
-      position: "absolute",
-      transform: [
-        { translateX: updatedGyroData.y}, // Adjust relative to center
-        { translateY: updatedGyroData.x},
-      ],
-      opacity: IsCentered(gyroData) ? 0 : 1, // Invisible when centered
-    },
-  ]}
-/> */}
+        {/* White Indicator (Follows Gyroscope Data) */}
+          <AntDesign
+            name="plus"
+            size={50}
+            color={ IsCentered(gyroData) ? "yellow" : white}
+            style={[
+              styles.gyroPlusIndicator,
+              {
+                position: "absolute",
+                transform: [
+                  { translateX: gyroData.x * 250}, // Adjust relative to center
+                  { translateY: gyroData.y * 250},
+                ],
+                //opacity: IsCentered(gyroData) ? 0 : 1, // Invisible when centered
+              },
+            ]}
+          /> 
               {/*bodyPart && (
                 <Image
                   source={bodyPart === 'fingers' 
@@ -547,7 +547,11 @@ export default function CameraApp() {
                 />
                 <View style={{opacity:0.7, backgroundColor:'#000', height: width * (4/3)/4, zIndex: 1, bottom: 0,position:'absolute', width:'100%'}}/>
               </View>
-              <TouchableOpacity style={styles.captureButton} onPress={takePhoto} />
+              <TouchableOpacity 
+                style={[styles.captureButton, {borderColor: IsCentered(gyroData) ? "yellow" : white}]} 
+                onPress={takePhoto} 
+                disabled={!IsCentered(gyroData)}
+              />
               <TouchableOpacity onPress={pickImage} style={styles.mediaLibs}>
                 <Ionicons 
                   size={50}
