@@ -1,7 +1,28 @@
-import { CameraDeviceFormat } from "react-native-vision-camera";
+import { CameraDeviceFormat, Frame, VisionCameraProxy } from "react-native-vision-camera";
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
+import { NativeEventEmitter, NativeModules } from "react-native";
+
+
+const { HandLandmarks } = NativeModules;
+
+export const handLandmarksEmitter = new NativeEventEmitter(HandLandmarks);
+
+// Initialize the frame processor plugin 'handLandmarks'
+const handLandMarkPlugin = VisionCameraProxy.initFrameProcessorPlugin(
+  'handLandmarks',
+  {},
+);
+
+// Create a worklet function 'handLandmarks' that will call the plugin function
+export function handLandmarks(frame: Frame) {
+  'worklet';
+  if (handLandMarkPlugin == null) {
+    throw new Error('Failed to load Frame Processor Plugin!');
+  }
+  return handLandMarkPlugin.call(frame);
+}
 
 // cameraHelpers.js
 export const getCoinWidth = (coin: number) => {

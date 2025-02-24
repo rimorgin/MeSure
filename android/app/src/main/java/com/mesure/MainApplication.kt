@@ -11,6 +11,8 @@ import com.facebook.react.ReactHost
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
+import com.MeSure.HandLandmarksPackage
+import com.MeSure.handlandmarksframeprocessor.HandLandmarksFrameProcessorPluginPackage
 
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
@@ -21,10 +23,16 @@ class MainApplication : Application(), ReactApplication {
         this,
         object : DefaultReactNativeHost(this) {
           override fun getPackages(): List<ReactPackage> {
-            // Packages that cannot be autolinked yet can be added manually here, for example:
-            // packages.add(new MyReactNativePackage());
-            return PackageList(this).packages
+              val packages = mutableListOf<ReactPackage>()
+              packages.add(HandLandmarksFrameProcessorPluginPackage())  // Add the HandLandmarks package
+              packages.add(HandLandmarksPackage())  // Add any other packages you need
+
+              // Add the default React Native packages (this is necessary for React Native to function correctly)
+              packages.addAll(PackageList(this).packages)  // Add all default packages
+
+              return packages
           }
+
 
           override fun getJSMainModuleName(): String = ".expo/.virtual-metro-entry"
 

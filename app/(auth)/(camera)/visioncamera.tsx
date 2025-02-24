@@ -2,15 +2,18 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Dimensions, StatusBar, StyleSheet, Text, TouchableOpacity, View, Image, SafeAreaView, Platform, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { 
   Camera, 
+  Frame, 
   PhotoFile, 
   useCameraDevice, 
   useCameraFormat,
-  useCameraPermission
+  useCameraPermission,
+  useFrameProcessor,
+  VisionCameraProxy
 } from 'react-native-vision-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { white, black } from '@/constants/Colors';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { cropImage, processImageHelper, saveImageToGallery } from '@/utils/cameraHelper';
+import { cropImage, handLandmarks, handLandmarksEmitter, processImageHelper, saveImageToGallery } from '@/utils/cameraHelper';
 import { router } from 'expo-router';
 import ConfirmCoinAlertDialog from '@/components/CameraHelpers/ConfirmCoinAlertDialog';
 import ConfirmBodyPartAlertDialog from '@/components/CameraHelpers/ConfirmBodyPartAlertDialog';
@@ -25,6 +28,7 @@ import { useIsFocused } from '@react-navigation/native';
 import {useAppState} from '@react-native-community/hooks'
 import { Accelerometer, Gyroscope, Magnetometer } from 'expo-sensors';
 import AntDesign from '@expo/vector-icons/AntDesign';
+import { useSharedValue } from 'react-native-worklets-core';
 
 const { width, height } = Dimensions.get('screen');
 
@@ -74,6 +78,35 @@ export default function CameraApp() {
     z: number;
   };
 
+  const landmarks = useSharedValue({});
+  const frameProcessor = useFrameProcessor(frame => {
+    'worklet';
+    const data = handLandmarks(frame);
+    console.log(data);
+  }, []);
+
+  useEffect(() => {
+    // Set up the event listener to listen for the hand landmark result processor.
+    const subscription = handLandmarksEmitter.addListener(
+      'onHandLandmarksDetected',
+      event => {
+        /*
+          vent should have values of landmark and hand. 
+           These values are determind in our HandLandmarkerResultProcessor 
+           class that you can find in our HandLandmarks.swift file.
+        */
+        console.log("onHandLandmarksDetected: ", event)
+        /*
+          This is where we handle converting the data into a command.
+        */
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+     
   useEffect(() => {
     if (device) {
       const minZoom = device.minZoom;
@@ -94,24 +127,13 @@ export default function CameraApp() {
     const roll = Math.atan2(gyroData.y, gyroData.z) * (180 / Math.PI); // Convert to degrees
     // Calculate the pitch angle (rotation around the y-axis)
     const pitch = Math.atan2(-gyroData.x, Math.sqrt(gyroData.y * gyroData.y + gyroData.z * gyroData.z)) * (180 / Math.PI); // Convert to degrees
-
+  
     // Check if the phone is leveled (roll and pitch near 0 degrees)
     if (Math.abs(roll) < 3 && Math.abs(pitch) < 3) {
       return true;
     } else {
       return false;
     }
-  }
-
-  function updatePosition(updatedGyroData: GyroData) {
-    const roll = Math.atan2(updatedGyroData.y, updatedGyroData.z) * (180 / Math.PI);
-    const pitch = Math.atan2(-updatedGyroData.x, Math.sqrt(updatedGyroData.y * updatedGyroData.y + updatedGyroData.z * updatedGyroData.z)) * (180 / Math.PI);
-
-    // Map roll and pitch to x and y positions (clamped between -50 and 50)
-    const mappedX = Math.max(-50, Math.min(50, roll));
-    const mappedY = Math.max(-50, Math.min(50, pitch));
-
-    setupdatedGyroData({x: mappedX, y: mappedY} );
   }
 
   useEffect(() => {
@@ -544,6 +566,7 @@ export default function CameraApp() {
                  focusable
                  photoQualityBalance='quality'
                  zoom={zoom} 
+                 frameProcessor={frameProcessor}
                 />
                 <View style={{opacity:0.7, backgroundColor:'#000', height: width * (4/3)/4, zIndex: 1, bottom: 0,position:'absolute', width:'100%'}}/>
               </View>
