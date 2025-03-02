@@ -279,6 +279,12 @@ export const appData = {
             img: require('@/assets/images/demo/wristMeasurementDemo.jpeg'),
             title: 'Wrist Measurement Demo',
             description: 'Place the coin above your hand and close your fist just like the image from above',
-        }
+        },
+        {
+            id: 4,
+            img: require('@/assets/images/demo/crosshair.png'),
+           title: 'Camera Demo',
+           description: 'In order for you to take a photo, the crosshair must be centered, Once its yellow that means it is centered and ready to take a pic.'  
+        },
     ],
 };
