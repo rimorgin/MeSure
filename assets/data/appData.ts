@@ -36,25 +36,25 @@ export const appData = {
             id: 0,
             img: require('@/assets/images/bangles/bangle1.png'),
             title: 'Calvin Bangles',
-            price:'15000 PHP'
+            price:'15,000.00 PHP'
         },
         {
             id: 1,
             img: require('@/assets/images/rings/TiffanyKhalafRing.png'),
             title: 'Tiffany Ring',
-            price:'15000 PHP'
+            price:'15,000.00 PHP'
         },
         {
             id: 2,
             img: require('@/assets/images/rings/WinstonKhalafRing.png'),
             title: 'Winston Khalaf Ring',
-            price:'13000 PHP'
+            price:'13,000.00 PHP'
         },
         {
             id: 3,
             img: require('@/assets/images/bangles/arBangle.png'),
             title: 'Bangle',
-            price:'5000 PHP'
+            price:'5,000.00 PHP'
         },
     ],
     profile: {
@@ -85,7 +85,7 @@ export const appData = {
                     description: 'Oval diamond centre and floral diamond halo engagement ring set in 18ct yellow gold. Oval diamond centre and floral diamond halo engagement ring set in 18ct yellow gold. Oval diamond centre and floral diamond halo engagement ring set in 18ct yellow gold.',
                     rating: 5,
                     sold: 44,
-                    price: '15000',
+                    price: '15,000.00',
                     stock:100,
                     AR: false,
                 },
@@ -99,7 +99,7 @@ export const appData = {
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 3.3,
                     sold: 20,
-                    price: '13000',
+                    price: '13,000.00',
                     stock:120,
                     AR: false,
                 },
@@ -113,7 +113,7 @@ export const appData = {
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 5,
                     sold: 14,
-                    price: '20000',
+                    price: '20,000.00',
                     stock:30,
                     AR: false,
                 },
@@ -127,7 +127,7 @@ export const appData = {
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 4,
                     sold: 24,
-                    price: '20000',
+                    price: '20,000.00',
                     stock:90,
                     AR: false,
                 },
@@ -141,7 +141,7 @@ export const appData = {
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 4.1,
                     sold: 24,
-                    price: '20000',
+                    price: '20,000.00',
                     stock:90,
                     AR: false,
                 },
@@ -156,7 +156,7 @@ export const appData = {
                     description: '123asfaesgaiorpzshgoiserignes',
                     rating: 3.7,
                     sold: 24,
-                    price: '20000',
+                    price: '20,000.00',
                     stock:90,
                     AR: false,
                 },
@@ -171,7 +171,7 @@ export const appData = {
                     description: 'Oval diamond centre and floral diamond halo engagement ring set in 18ct yellow gold.',
                     rating: 3.7,
                     sold: 24,
-                    price: '20000',
+                    price: '20,000.00',
                     stock:90,
                     AR: true,
                     arlink: 'https://a1khalafgoldandjewelrytryon.web.app/ring1'
@@ -196,7 +196,7 @@ export const appData = {
                     description: 'Elegant gold bangle with intricate design.',
                     rating: 4.2,
                     sold: 10,
-                    price: '5000',
+                    price: '5,000.00',
                     stock: 50,
                     AR: false,
                 },
@@ -210,7 +210,7 @@ export const appData = {
                     description: 'Stylish silver bangle with modern design.',
                     rating: 4.5,
                     sold: 30,
-                    price: '3000',
+                    price: '3,000.00',
                     stock: 70,
                     AR: false,
                 },
@@ -224,7 +224,7 @@ export const appData = {
                     description: 'Elegant gold bangle with intricate design.',
                     rating: 3.9,
                     sold: 10,
-                    price: '5000',
+                    price: '5,000.00',
                     stock: 50,
                     AR: false,
                 },
@@ -239,7 +239,7 @@ export const appData = {
                     description: 'Elegant gold bangle with intricate design.',
                     rating: 4.5,
                     sold: 10,
-                    price: '5000',
+                    price: '5,000.00',
                     stock: 50,
                     AR: false,
                 },
@@ -253,7 +253,7 @@ export const appData = {
                     description: 'Elegant gold bangle with intricate design.',
                     rating: 4.5,
                     sold: 10,
-                    price: '5000',
+                    price: '5,000.00',
                     stock: 50,
                     AR: true,
                     arlink:'https://a1khalafgoldandjewelrytryon.web.app/bracelet1'
