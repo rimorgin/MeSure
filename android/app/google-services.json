@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "953506609763",
+    "project_id": "cgt-mesure",
+    "storage_bucket": "cgt-mesure.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:953506609763:android:b1f951f5085f87afb81656",
+        "android_client_info": {
+          "package_name": "com.MeSure"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeJ7HOfxcJUWt9rs6WXunmUTCFiLVMToo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
